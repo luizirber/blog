@@ -53,7 +53,7 @@ THEME = '/home/luizirber/prj/pelican-octopress-theme/'
 PLUGIN_PATH = '/home/luizirber/prj/pelican-plugins'
 PLUGINS = ['summary', 'liquid_tags.img', 'liquid_tags.video',
            'liquid_tags.include_code', 'liquid_tags.notebook',
-           'liquid_tags.literal']
+           'liquid_tags.literal', 'sitemap']
 
 
 # The theme file should be updated so that the base header contains the line:
@@ -86,3 +86,19 @@ FEED_ATOM = 'atom.xml'
 
 # Search
 SEARCH_BOX = True
+
+
+# Sitemap
+SITEMAP = {
+    'format': 'xml',
+    'priorities': {
+        'articles': 0.5,
+        'indexes': 0.5,
+        'pages': 0.5
+    },
+    'changefreqs': {
+        'articles': 'monthly',
+        'indexes': 'daily',
+        'pages': 'monthly'
+    }
+}
