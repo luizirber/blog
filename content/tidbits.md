@@ -1,0 +1,62 @@
+Title: Tidbits
+Date: 2008-12-29 06:54
+Author: luizirber
+Category: A day in the life
+Slug: tidbits
+
+Um monte de coisas que merecem ser ditas, mas pequenas demais para posts
+separados. Vamos lá:
+
+- A minha palestra na PyConBrasil desse ano está no [Google Video][].
+Desde metade de novembro, mas só descobri agora =D
+
+- Aliás, eu dei uma palestra em um evento chamado [Mobile Expert][],
+promovido pela Editora Europa, na Livraria Cultura. Os slides estão
+[aqui][]. O detalhe é que eles erraram meu nome (que é com Z), o nome da
+linguagem (é PYTHON) e o nome da empresa (Pinuts StudioS, com S no
+final). Mas foi bem massa mesmo assim.
+
+- Liniers lançou o Macanudo \#6 por conta própria, e a primeira edição,
+de 5000 exemplares, saiu com a capa em branco. E ele DESENHOU TODAS A
+MÃO. Quando fiquei sabendo disso logo dei um jeito de comprar dois, por
+uma loja argentina que vende na internet. Eles chegaram no começo de
+dezembro, e são umas belezinhas. Um ficou comigo, o outro dei de
+presente de natal para a Na.
+
+- Que, fodasticamente, fez três miniaturas em biscuit de alguns
+personagens da tirinha e me deu de Natal. Olhaê:
+
+[![Duende, Fellini y El Misterioso Hombre de Negro][]][]
+
+- Finalizando com Liniers: [ontem][] ele deu um susto naquelas pessoas
+que acompanham a tirinha e não entendem espanhol muito bem. Só que ontem
+era Dia dos Inocentes em países hispânicos, o equivalente ao nosso
+Primeiro de Abril. Tsc.
+
+- Agora MTV pega na parabólica. Yay! Não que seja grande coisa, mas pelo
+menos passa alguns clipes legais de madrugada, e por pior que esteja a
+programação ainda é uma opção interessante quando comparada aos outros
+canais disponíveis na TV aberta...
+
+- Fallout 2 é FOODA. Tudo bem que tá todo mundo falando do 3, mas esse
+não roda no meu PC. Então aproveitei para jogar o [Restoration
+Project][], mod que adiciona alguns detalhes que tinham sido planejados,
+mas não foram implementados. Sweet!
+
+- Alguém aí sabe jogar Magic? Ganhei um deck de natal, mas preciso de
+oponentes (de preferência compreensivos, e dispostos a explicar tudo).
+
+- [Ela][] [prova][] que [GG][] é [lindo][].
+
+  [Google Video]: http://video.google.com/videoplay?docid=-2177235750911656588
+  [Mobile Expert]: http://arcodigital.com.br/mobile/prog_1712.php
+  [aqui]: http://www.luizirber.org/talks/python_games
+  [Duende, Fellini y El Misterioso Hombre de Negro]: http://farm4.static.flickr.com/3224/3143780731_746a8da28d.jpg
+  [![Duende, Fellini y El Misterioso Hombre de Negro][]]: http://www.flickr.com/photos/luizirber/3143780731/
+    "Duende, Fellini y El Misterioso Hombre de Negro by Luiz Irber, on Flickr"
+  [ontem]: http://autoliniers.blogspot.com/2008/12/liniers-macanudo_28.html
+  [Restoration Project]: http://www.nma-fallout.com/forum/viewtopic.php?t=40443
+  [Ela]: http://www.imdb.com/name/nm0594898/
+  [prova]: http://www.imdb.com/title/tt0490196/
+  [GG]: http://vainalousachefe.wordpress.com/
+  [lindo]: http://www.flickr.com/photos/luizirber/3145992838/

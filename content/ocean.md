@@ -1,0 +1,96 @@
+Title: Ocean
+Date: 2011-04-19 19:01
+Author: luizirber
+Category: Projetos, universidade
+Slug: ocean
+
+Tudo começou com [uma pergunta no Reddit][]. Compartilhei ela no [Google
+Reader][], comentando que era bem parecido com o que eu faço no INPE. O
+[Thiago][] ficou interessado e perguntou se eu não podia contar um pouco
+mais.
+
+Fazem cinco meses que comecei a trabalhar no grupo de modelagem oceânica
+acoplada do INPE. O nosso grupo é responsável pelo [MBSCG][], além da
+produção científica. Eu estou desenvolvendo ferramentas para auxiliar os
+pesquisadores na análise das saídas do modelo e como relacionar elas com
+as observações dos instrumentos espalhados pelo mundo.
+
+Mas isso é uma descrição muito genérica. O primeiro aplicativo que fiz
+(ainda não tem release público, shame on me, mas não falta muito) é um
+editor de grades oceânicas. O modelo oceânico necessita de um arquivo
+descrevendo a grade que ele vai usar para saber como é o mundo (onde é
+terra, onde é água, qual a profundidade da água em cada local). Em
+resoluções baixas, costuma subdividir o mundo em incrementos de 1 grau
+(cerca de 100km no Equador). Em qualquer resolução escolhida ocorrem
+vários problemas diferentes:
+
+-   Em resoluções baixas o estreito de Gibraltar pode ficar fechado, e o
+    Mediterrâneo vira um lago gigante sem trocas com o oceano.
+    Obviamente o resultado fica bem longe da realidade.
+-   Em resoluções altas o canal do Panamá pode abrir, o que causa um
+    fluxo inexistente entre o Pacífico e o Atlântico.
+
+Entre muitos outros. O modelo tem ferramentas para gerar uma grade a
+partir de uma batimetria fornecida, mas ele não corrige todos os
+problemas que surgem. Até hoje era muito trabalhoso arrumar essa grade,
+pois era difícil visualizar e selecionar cada ponto da grade e conferir
+se ele é consistente com as necessidades do experimento.
+
+Então o que eu fiz foi fazer um aplicativo que pega a grade, plota na
+projeção desejada (ortográfica, por padrão), e permite a seleção de
+células e edição de profundidade delas em diferentes níveis de zoom.
+Relativamente simples, mas de uma utilidade muito grande para os
+pesquisadores prepararem seus experimentos.
+
+Hoje estou trabalhando num módulo para extrair dados do modelo e
+compará-los com observações disponíveis. Um exemplo são os dados do
+projeto [PIRATA][], que inclui [CTD][]s e [radiossondas][] (quer quiser
+brincar um pouco para ver o que é disponibilizado pode ver [esse site][]
+que o [Beto][] fez). O PIRATA tem cruzeiros de manutenção das boias em
+alguns períodos do ano, e é interessante comparar os dados coletados
+nesses cruzeiros com um cruzeiro virtual que passe na mesma localização
+no modelo. Inicialmente fiz algo bem simples, que só pega a latitude e
+longitude da medição e interpola os arredores dessa localização no
+modelo (a resolução pode não ser tão alta a ponto de incluir o ponto
+exato, por isso a interpolação). Mesmo com uma técnica tão simples já é
+possível perceber como o modelo se aproxima bastante da realidade em
+muitos lugares. Na semana passada o [Guilherme][] chegou para trabalhar
+no nosso grupo e fez algumas sugestões para fazer uma análise mais
+avançada, e na verdade esse email todo é para comentar sobre isso.
+
+Assim como o pessoal da computação é muito procurado já a algum tempo,
+devido à ascensão do computador a ferramenta essencial da maioria das
+atividades da humanidade, os próximos serão os estatísticos (e
+cientistas da informação, onde cursos de biblioteconomia se
+atualizaram). Cada vez mais geramos montanhas de dados, mas não sabemos
+muito bem como lidar com toda essa complexidade. E existem técnicas que
+são comuns a muitas áreas de conhecimento, e portanto genéricas: você
+pode aplicá-las para analisar uma gama gigantesca de dados. Por exemplo,
+eu tive análise de sinais na universidade, e apesar de orientada à
+circuitos quase tudo se aplica no estudo de medidas realizadas pelos
+instrumentos. Foi até curioso, porque eu associava tanto a circuitos que
+ficava com a impressão de que nunca usaria na vida, porque eu não ia
+trabalhar com hardware (sim, eu era um bixo burro).
+
+Relacionado a isso surgiu pela tarde outro assunto, conversando com o
+[GG][]. Falei que, durante a graduação, tinha matérias da engenharia que
+ficávamos nos perguntando pra que serviriam. Fenômenos dos transportes?
+Estatística? A já citada análise de sinais? Só pra morder a língua, são
+as três coisas que mais uso aqui: a primeira é essencial para a
+modelagem de processos físicos (oceanografia geofísica) que governam o
+modelo, a segunda e a terceira para análise das saídas. E também
+percebemos que não apenas a computação é uma área-meio (que pode ser
+aplicada a várias áreas-fim), como também a engenharia o é. Fico feliz
+te ter achado um meio que permita usar as minhas profissões genéricas.
+
+  [uma pergunta no Reddit]: http://www.reddit.com/r/compsci/comments/gp0wr/bored_with_webdevelopment_want_to_change_careers/c1p731j
+  [Google Reader]: https://profiles.google.com/u/0/107474098146584337559/posts/Ln5D9CFTMjS
+  [Thiago]: https://profiles.google.com/u/0/thiago.camposmoraes/about
+  [MBSCG]: http://www.ccst.inpe.br/modelo-brasileiro.php
+  [PIRATA]: http://www.pmel.noaa.gov/pirata/
+  [CTD]: http://www.whoi.edu/instruments/viewInstrument.do?id=1003
+  [radiossondas]: http://en.wikipedia.org/wiki/Radiosonde
+  [esse site]: http://opendap.ccst.inpe.br/pirata/
+  [Beto]: http://roberto.dealmeida.net
+  [Guilherme]: http://blog.castelao.net/
+  [GG]: http://vainalousachefe.wordpress.com

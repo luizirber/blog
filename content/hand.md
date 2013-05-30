@@ -1,0 +1,71 @@
+Title: Hand
+Date: 2009-02-12 07:13
+Author: luizirber
+Category: Hacking, Projetos
+Tags: feed, mechanize, python
+Slug: hand
+
+Ontem, enquanto gravava um DVD, comecei a generalizar os scripts que
+geram os feeds do post anterior. E disso surgiu o Hand, um gerador de
+feeds RSS.
+
+**Como funciona?**
+
+O meu objetivo inicial era gerar feeds para sites que não os
+disponibilizavam, recorrendo ao bom e velho [screen scraping][]. Comecei
+fazendo o feed dos quadrinhos da Folha, o mais complicado, pois era
+necessário fazer autenticação de usuário e percorrer várias páginas para
+extrair links. Ao fazer o dos Malvados, segui a mesma estrutura de
+funções, e comecei a perceber que dava para generalizar bastante o
+processo.
+
+Eis que surge Hand. No fundo é uma classe que implementa alguns métodos
+(build\_date, generate\_description, build\_feed, process), e exige que
+você derive a classe e implemente o método generate\_data.
+generate\_data é um método que retorna uma lista de dicionários, com
+cada dicionário contendo os campos title, page\_link, description,
+pubDate e guid correspondentes a um item do feed. Simples assim.
+
+**E funciona?**
+
+Yep. Mantenho quatro feeds no momento:
+
+-   [Quadrinhos da Folha de São Paulo][]
+-   ~~[Malvados][]~~ **Update:** [Feed alternativo, sem o CATA CORNO
+    GOOGLE][]
+-   ~~Magias e Barbaridades~~ **Update:** [Feed oficial][]
+-   ~~Rehabilitating Mr. Wiggles~~ **Update:** [Feed oficial][1]
+
+**Onde posso ver esta maravilha?**
+
+O código está disponível no [Github][], mas ainda está bem cru, preciso
+empacotá-lo direito.
+
+**Quais os próximos passos?**
+
+O feed da Folha demora para ser gerado, porque toda vez que o script é
+rodado ele precisa consultar todas as páginas. Portanto penso em
+adicionar persistência, mas bem simples, um sqlite é mais que
+suficiente.
+
+Além disso, quero descrever a configuração do feed (onde gerá-lo, qual
+template usar) num arquivo, e fazer a classe base ler essas opções.
+Assim fica ainda mais fácil fazer um novo feed.
+
+**Que nominho, hein?**
+
+Para quem não entendeu o nome: qual um bom para um gerador de feeds?
+Enquanto pensava, lembrei de uma música do [NIN][] chamada ['The Hand
+That Feeds'][]. E, além disso, ele também te dá uma mão para gerar
+feeds, certo? [\*TU-DUM-TISH\*][]!
+
+  [screen scraping]: http://en.wikipedia.org/wiki/Screen_scraping
+  [Quadrinhos da Folha de São Paulo]: http://luizirber.org/rss/fsp.xml
+  [Malvados]: http://luizirber.org/rss/malvados.xml
+  [Feed alternativo, sem o CATA CORNO GOOGLE]: http://feed43.com/malvados.xml
+  [Feed oficial]: http://magiasebarbaridades.blogspot.com/feeds/posts/default
+  [1]: http://www.mrwiggleslovesyou.com/mrwigglesfeed.rss
+  [Github]: http://github.com/luizirber/Hand
+  [NIN]: http://www.nin.com/
+  ['The Hand That Feeds']: http://en.wikipedia.org/wiki/The_Hand_That_Feeds
+  [\*TU-DUM-TISH\*]: http://www.instantrimshot.com
