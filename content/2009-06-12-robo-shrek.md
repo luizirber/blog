@@ -1,8 +1,8 @@
 Title: Robô Shrek
 Date: 2009-06-12 11:29
 Author: luizirber
-Category: Hacking, Projetos, universidade
-Tags: arduino, FIA, gstreamer, N800, python, ufscar
+Category: Hacking
+Tags: arduino, FIA, gstreamer, N800, python, ufscar, Projetos, universidade
 Slug: robo-shrek
 
 Na última quarta-feira aconteceu a Feira de Informática Aplicada, ligada
@@ -28,9 +28,9 @@ Devido ao pouco tempo, apenas 3 comandos simples foram implementados
 cumprido: a comunicação entre as partes estava funcionando direitinho, e
 agora podemos partir para incrementá-lo.
 
-Todo o código está disponível no [Google Code][], e queremos levá-lo
+Todo o código está disponível no [GitHub][], e queremos levá-lo
 para o FISL (depois de arranjarmos motores melhores).
 
   [robô]: http://www.youtube.com/watch?v=4PPXEsENpCY
   [GEDAI]: http://www2.dc.ufscar.br/~gedai/
-  [Google Code]: http://code.google.com/p/shrekenc
+  [GitHub]: http://github.com/luizirber/shrekenc

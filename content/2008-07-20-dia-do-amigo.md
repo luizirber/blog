@@ -4,13 +4,10 @@ Author: luizirber
 Category: A day in the life
 Slug: dia-do-amigo
 
-[![][]][]
+{% img center /images/20072008278-001.jpg %}
 
 Às vezes dá vontade de fazer um blog só com tirinhas do Liniers, mas daí
 eu lembro que você sempre pode ir no site da [Cultura][] e comprar as
 coletâneas. Tá esperando o quê?
 
-  []: http://luizirber.files.wordpress.com/2008/07/20072008278-001.jpg
-    "dia do amigo"
-  [![][]]: http://luizirber.files.wordpress.com/2008/07/20072008278-001.jpg
   [Cultura]: http://www.livrariacultura.com.br/scripts/cultura/catalogo/busca.asp?tipo_pesq=titulo&palavra=macanudo&topo=livro&sid=01351501910720655571867732&k5=259E5B04&uid=&lastreg=&parceiro=121233

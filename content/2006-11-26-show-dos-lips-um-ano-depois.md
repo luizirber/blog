@@ -237,8 +237,10 @@ viva o rock!
 E chega. Cansei de escrever. Se quiserem saber mais, o andré publicou
 suas memórias nesses links:  
 
-[http://palacehotel.blogspot.com/2005/11/oh-my-gawd-its-flaming-lips-claro-que.html  
-][]<http://palacehotel.blogspot.com/2005/11/this-here-giraffe-laughed-claro-que_29.html>,
+<http://palacehotel.blogspot.com/2005/11/oh-my-gawd-its-flaming-lips-claro-que.html> 
+
+<http://palacehotel.blogspot.com/2005/11/this-here-giraffe-laughed-claro-que_29.html>
+
 inclusive tem fotos. Eu acabei tendo sorte, apareci numa lado do
 baixista, bem quando tinha baixado John Travolta fase Embalos de Sábado
 à Noite.
@@ -247,5 +249,3 @@ x-x-x-x-x-x-x-x-x-x-x-x-x-x-x
 
   [André]: http://palacehotel.blogspot.com
   [www.roqueealfredo.com.br]: http://www.roqueealfredo.com.br/
-  [http://palacehotel.blogspot.com/2005/11/oh-my-gawd-its-flaming-lips-claro-que.html  
- ]: http://palacehotel.blogspot.com/2005/11/oh-my-gawd-its-flaming-lips-claro-que.html

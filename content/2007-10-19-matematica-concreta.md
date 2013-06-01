@@ -13,21 +13,21 @@ onde ele ficava antigamente corria risco de desabamento, e fazia uma
 semana que ele tinha reaberto. Depois de circular um pouco lá por
 dentro, deu pra notar que ainda estava um tanto quanto desorganizado
 (apesar de sebo desorganizado ser pleonasmo =D), mas ainda assim
-consegui achar um Terry Pratchett novinho por R\$ 10. Quando estávamos
+consegui achar um Terry Pratchett novinho por R$ 10. Quando estávamos
 quase indo embora, o Frank me aparece com um livro na mão. "Olha, é do
 Knuth". Meu queixo quase caiu no chão.
 
 Não era nenhum volume do The Art of Programming, pois já seria pedir
 demais. Era uma edição em português do Concrete Mathematics, um livro
 que eu já tinha achado na biblioteca da USP e estava querendo comprar a
-tempos. O problema é que o [original americano][] custa US\$ 55.29 na
+tempos. O problema é que o [original americano][] custa US$ 55.29 na
 Amazon, e meu bolso não aguenta uma compra dessas. Eu dei uma olhada e
 devolvi pro Frank, pensando que ele fosse levar, mas ele virou-se e foi
 recolocar ele no lugar.
 
-- Peraí, tu não vai levar? - Disse eu.  
-- Não.  
-- ENTÃO DÁ AQUI QUE EU LEVO!
+ - Peraí, tu não vai levar? - Disse eu.  
+ - Não.  
+ - ENTÃO DÁ AQUI QUE EU LEVO!
 
 (Não foi tão gritado assim, mas quase =D). Fazia quase dois anos que ele
 estava lá, mas eu nunca tinha visto. Lição: Não pulem a seção de

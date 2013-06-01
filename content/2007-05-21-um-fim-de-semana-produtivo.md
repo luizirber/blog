@@ -6,7 +6,7 @@ Slug: um-fim-de-semana-produtivo
 
 Um screenshot vale mais que mil palavras:
 
-[![Ignorem os vales, valorizem os picos!][]][]
+{% img center /images/bugbrother-stats.jpg "Ignorem os vales, valorizem os picos!" %}
 
 Brinde: com preguiça de escrever aquele monte de macros e boilerplate
 pra declarar um GObject? Use o [gob][]! Aparentemente ele tá sem
@@ -23,8 +23,5 @@ Happy Hacking!
 
 P.S: Esperem sentados pela segunda parte do relato do FISL.
 
-  [Ignorem os vales, valorizem os picos!]: http://luizirber.files.wordpress.com/2007/05/bugbrother-stats.jpg
-  [![Ignorem os vales, valorizem os picos!][]]: http://luizirber.files.wordpress.com/2007/05/bugbrother-stats.jpg
-    "bugbrother-stats.jpg"
   [gob]: http://www.5z.com/jirka/gob.html
   [G-Inspector]: http://sourceforge.net/projects/g-inspector

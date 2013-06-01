@@ -26,10 +26,7 @@ hora, aguarde para votar novamente". Hmm. Como será que o controle disso
 Abri o código. Hmm, essa função em javascript aqui que processa o evento
 do botão, ela chama uma URL...
 
-      function votoAprovar(cadastroId){
-        captcha = document.getElementById('cadastroCaptcha').value;
-        window.location = 'voto_v.php?votoStatus=1&cadastroId='+cadastroId+"&captcha="+captcha;
-      }
+{% include_code votoAprovar.js lang:js %}
 
 Opa. E se eu tentar acessar essa URL direto?
 
@@ -38,8 +35,7 @@ Opa. E se eu tentar acessar essa URL direto?
 Tenho que acertar o captcha. Onde está o captcha? Ah, olha só, o link da
 imagem é um arquivo captcha.php, será que dá para acessar direto? Deu.
 
-[caption id="attachment\_99" align="aligncenter" width="173"
-caption="Essa é a imagem original."][![][]][][/caption]
+{% img center /images/original1.png 173 A imagem original. %}
 
 Resumindo, eu tinha a URL para votar, e atualizando o captcha eu
 conseguia votar quantas vezes quisesse. Mas ficar fazendo isso na mão é
@@ -51,29 +47,9 @@ Brinquei um pouco com o PIL, e consegui deixar a imagem com caracteres
 bem definidos. Incrivelmente, só precisei converter para escala de
 cinza, e aplicar um limiar.
 
-    def captcha_to_greyscale(captcha):
-        if captcha.mode == 'L':
-            return captcha
-        captcha = captcha.convert('L', (.4, .4, .4, 0))
-        return captcha
+{% include_code clean_captcha.py lang:python %}
 
-    def light_pixels_to_white_pixels(pixels, w, h):
-        for x in xrange(w):
-            for y in xrange(h):
-                if pixels[x, y] > 50:
-                    pixels[x, y] = 255
-        return pixels
-
-    def clean_captcha(img):
-        img2 = captcha_to_greyscale(img)
-
-        w, h = img2.size
-        light_pixels_to_white_pixels(img2.load(), w, h)
-
-        return img2
-
-[caption id="attachment\_100" align="aligncenter" width="173"
-caption="Imagem, depois de processada pelo PIL."][![][1]][][/caption]
+{% img center /images/limpa1.png 173 Imagem, depois de processada pelo PIL. %}
 
 E, conforme ia acumulando mais imagens, vi que a minha vida seria mais
 fácil ainda: o captcha só tinha caracteres hexadecimais, então nem
@@ -89,27 +65,7 @@ Aparentemente, as mães fazem um "vote-no-meu-filho-que-eu-voto-no-seu",
 e como os perfis mais novos aparecem na página principal, me acharam
 rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.
 
-        br = mechanize.Browser()
-
-        page = br.open('******/captcha/captcha.php')
-        img_str = StringIO(page.read())
-
-        img = Image.open(img_str)
-        output = clean_captcha(img)
-
-        fp = open('tmp.tif', 'wb')
-        output.save(fp, format='tiff')
-        fp.close()
-
-        getoutput('tesseract tmp.tif output -l captcha')
-        fp = open('output.txt')
-        captcha = fp.read()[:6]
-        fp.close()
-
-        cadId = 28477
-
-        vote_page = '******/voto_v.php?votoStatus=1&cadastroId=%d&captcha=%s' % (cadId, captcha)
-        br.open(vote_page)
+{% include_code break_captcha.py lang:python %}
 
 Omiti o endereço do site, mas basicamente o script é esse.
 
@@ -128,8 +84,9 @@ do concurso, e miseravelmente o sistema é exatamente o mesmo. Vou mandar
 esse post para a empresa, quem sabe para o próximo corrijam.
 
 UPDATE: O [Lameiro][] deu a dica nos comentários: buscando no
-google.com.br por "captcha PHP" temos, como primeiro hit, [um tutorial
-ensinando a gerar o captcha][] que esse site usa. E, como ele bem notou,
+google.com.br por "captcha PHP" temos, como primeiro hit,
+[um tutorial ensinando a gerar o captcha][]
+que esse site usa. E, como ele bem notou,
 deve ter muitos sites no Brasil com esse mesmo problema.
 
 Fica a dica: nunca confie no primeiro hit do google para implementar a
@@ -137,12 +94,7 @@ sua solução de segurança. Aliás, não confie em nenhuma, até saber como
 ela funciona.
 
   [PythonBrasil]: http://www.pythonbrasil.org.br/
-  []: http://luizirber.files.wordpress.com/2010/08/original1.png
-    "Original"
-  [![][]]: http://luizirber.files.wordpress.com/2010/08/original1.png
   [nesse site]: http://alwaysmovefast.com/2007/11/21/cracking-captchas-for-fun-and-profit/
-  [1]: http://luizirber.files.wordpress.com/2010/08/limpa1.png "Limpa"
-  [![][1]]: http://luizirber.files.wordpress.com/2010/08/limpa1.png
   [tesseract-ocr]: http://code.google.com/p/tesseract-ocr/
   [Lameiro]: http://lameiro.wordpress.com
   [um tutorial ensinando a gerar o captcha]: http://www.numaboa.com/informatica/tutos/php/949-captcha

@@ -12,10 +12,8 @@ Aí fui dar uma olhada no código da página, e achei isso:
 
 Pra quem não quiser acessar, taí o screenshot:
 
-[![Orkut + GTalk][]][]
+{% img center /images/screenshot-orkut-google-talk-firefox.png %}
 
 Agora sim as coisas começam a ficar interessantes...
 
-  [Orkut + GTalk]: http://luizirber.files.wordpress.com/2006/11/screenshot-orkut-google-talk-firefox.png
-  [![Orkut + GTalk][]]: http://luizirber.files.wordpress.com/2006/11/screenshot-orkut-google-talk-firefox.png
-    "Orkut + GTalk"
+

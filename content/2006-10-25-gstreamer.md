@@ -15,11 +15,13 @@ livro Dirk Gently's Holistic Detective Agency, de mapear processos
 naturais em música. Eu comecei a procurar por MAX e acabei achando que
 seu criador, [Miller Puckette][], criou também o PureData, que faz o
 mesmo e é open source.  
+
 Depois de algum tempo eu entendi como ele funcionava, e eu fiz algumas
 coisinhas simples, mas eu não usei ele por muito tempo. E então eu
 fiquei sabendo da existência do GStreamer. Apesar de algumas diferenças,
 eu fiquei maravilhado com quão simples era fazer algumas coisas que eram
 bem difíceis no PureData.  
+
 De fato, eu não sei como as coisas funcionam dentro do PureData, mas eu
 realmente gostei de como o GStreamer foi feito: existem Elements, que
 tem uma função específica, como ler dados de um arquivo, decodificar

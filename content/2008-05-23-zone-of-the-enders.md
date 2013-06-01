@@ -4,7 +4,9 @@ Author: luizirber
 Category: Games
 Slug: zone-of-the-enders
 
-[![][]][]Como comentado a alguns posts atrás, comprei um PS2. E, assim,
+{% img left /images/jehuty1.jpg 195 %}
+
+Como comentado a alguns posts atrás, comprei um PS2. E, assim,
 começou a busca por bons jogos.
 
 Eu sempre li vários blogs de jogos, mas mais por curiosidade sobre do
@@ -57,16 +59,10 @@ providenciando o segundo, e este parece ser um pouco mais longo.
 Felizmente, pelos [vídeos no YouTube][], a jogabilidade ainda é a mesma,
 e os gráficos estão ainda melhores.
 
-[![][1]][]
+{% img center /images/zoe1.jpg 300 %}
 
-  []: http://luizirber.files.wordpress.com/2008/05/jehuty1.jpg?w=195
-    "jehuty"
-  [![][]]: http://luizirber.files.wordpress.com/2008/05/jehuty1.jpg
   [deles]: http://continue.com.br/29/04/2008/kojima-abre-o-bico-enders-saindo-da-zona-do-esquecimento
-    "Continue.com.br"
   [Zone of the Enders]: http://en.wikipedia.org/wiki/Zone_of_the_Enders
   [Flashman]: http://en.wikipedia.org/wiki/Choushinsei_Flashman
   [EVA]: http://en.wikipedia.org/wiki/Neon_Genesis_Evangelion_(TV_series)
   [vídeos no YouTube]: http://www.youtube.com/watch?v=K_B1x8E_mJc
-  [1]: http://luizirber.files.wordpress.com/2008/05/zoe1.jpg?w=300 "zoe"
-  [![][1]]: http://luizirber.files.wordpress.com/2008/05/zoe1.jpg

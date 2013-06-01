@@ -1,7 +1,7 @@
 Title: BugBrother
 Date: 2006-10-31 22:44
 Author: luizirber
-Category: FLOSS, Projetos
+Category: Projetos
 Slug: bugbrother
 
 [BugBrother][] é o protótipo (ou melhor, versão de desenvolvimento) do
@@ -19,13 +19,15 @@ são liberados feromônios ou outras substâncias. As estatísticas geradas
 são úteis no estudo de novas armadilhas químicas para insetos, muito
 menos danosas do que agrotóxicos.O funcionamento básico do programa
 passa por essas etapas:  
-- Capturar a imagem de uma entrada de vídeo (atualmente qualquer
+
+  - Capturar a imagem de uma entrada de vídeo (atualmente qualquer
 dispositivo compatível com Video4Linux)  
-- Aplicar um algoritmo de detecção de movimento e guardar as
+  - Aplicar um algoritmo de detecção de movimento e guardar as
 coordenadas (X,Y) geradas pelo movimento detectado.  
-- A partir dessas coordenadas calcular parâmetros como tortuosidade,
+  - A partir dessas coordenadas calcular parâmetros como tortuosidade,
 desvio angular e velocidade do inseto analisado.  
-- Gerar relatórios.  
+  - Gerar relatórios.  
+
 Atualmente os dois primeiros itens estão funcionais, o terceiro está
 próximo de ser terminado e o último começará a ser desenvolvido na
 próxima semana.

@@ -9,11 +9,11 @@ dia 05 de novembro já tinha recebido um presente =]
 
 Teaser:
 
-[![][]][]
+{% img center /images/asuka-hd1.jpg %}
 
 O presente:
 
-[![][1]][]
+{% img center /images/asuka-gk1.jpg %}
 
 Tão legal quanto o presente é a reação das pessoas. Os que nunca ouviram
 falar de [Garage Kit][] e [Evangelion][] dizem 'Mas isso não é coisa de
@@ -23,11 +23,5 @@ Eu? Eu adorei, qualquer que seja a opinião dos outros =D
 
 Obrigado, Na!
 
-  []: http://luizirber.files.wordpress.com/2008/11/asuka-hd1.jpg
-    "asuka-hd"
-  [![][]]: http://luizirber.files.wordpress.com/2008/11/asuka-hd1.jpg
-  [1]: http://luizirber.files.wordpress.com/2008/11/asuka-gk1.jpg
-    "asuka-gk"
-  [![][1]]: http://luizirber.files.wordpress.com/2008/11/asuka-gk1.jpg
   [Garage Kit]: http://en.wikipedia.org/wiki/Garage_kit
   [Evangelion]: http://en.wikipedia.org/wiki/Asuka_Langley_Soryu
