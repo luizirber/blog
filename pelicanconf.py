@@ -19,6 +19,7 @@ ARTICLE_SAVE_AS = '{date:%Y}/{date:%m}/{date:%d}/{slug}/index.html'
 # Title menu options
 MENUITEMS = [('Archives', '/archives.html'),
              ('About', 'http://luizirber.org/resume'),
+             ('BlurBlog', 'http://luizirber.newsblur.com'),
              ('Home Page', 'http://luizirber.org')]
 NEWEST_FIRST_ARCHIVES = True
 
