@@ -12,7 +12,7 @@ at least double). And it was so good to go again to a stadium, it's a very
 different experience from watching a game on TV, where the camera give you
 a limited perspective. Our seats were behind one of the goals, and we were
 lucky: we saw two goals on our side, one from Mexico (a penalty kick) and
-one from Italy, a beautiful goal by Ballotelli, who was a bit of a diva, by
+one from Italy, a beautiful goal by Balotelli, who was a bit of a diva, by
 the way, always complaining and making drama.
 
 It was the third time I went to a stadium. Previous ones were Grêmio matches,
