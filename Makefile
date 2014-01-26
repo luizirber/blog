@@ -81,6 +81,6 @@ s3_upload: publish
 
 github: publish
 	ghp-import $(OUTPUTDIR)
-	git push -f git@github.com:luizirber/luizirber.github.io.git gh-pages:master
+	git push -f github:luizirber/blog gh-pages
 
 .PHONY: html help clean regenerate serve devserver publish ssh_upload rsync_upload dropbox_upload ftp_upload github

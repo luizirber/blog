@@ -39,7 +39,8 @@ GITHUB_SHOW_USER_LINK = True
 #SOCIAL = (('You can add links in your config file', '#'),
 #          ('Another social link', '#'),)
 
-DEFAULT_PAGINATION = 10
+DEFAULT_PAGINATION = 5
+SUMMARY_MAX_LENGTH = None
 
 # STATIC_OUT_DIR requires pelican 3.3
 STATIC_OUT_DIR = ''
