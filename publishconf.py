@@ -18,7 +18,7 @@ DELETE_OUTPUT_DIRECTORY = True
 GOOGLE_ANALYTICS = 'UA-41354041-1'
 DISQUS_SITENAME = 'gabbleblotchits'
 
-STATIC_PATHS += ['content/CNAME']
+STATIC_PATHS += ['CNAME']
 EXTRA_PATH_METADATA.update(
-    {'content/CNAME': {'path': 'CNAME'}},
+    {'CNAME': {'path': 'CNAME'}},
 )
