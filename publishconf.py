@@ -18,4 +18,7 @@ DELETE_OUTPUT_DIRECTORY = True
 GOOGLE_ANALYTICS = 'UA-41354041-1'
 DISQUS_SITENAME = 'gabbleblotchits'
 
-FILES_TO_COPY += [('CNAME', 'CNAME')]
+STATIC_PATHS += ['content/CNAME']
+EXTRA_PATH_METADATA.update(
+    {'content/CNAME': {'path': 'CNAME'}},
+)
