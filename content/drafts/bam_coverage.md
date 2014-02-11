@@ -5,4 +5,4 @@ Category:
 Slug: moleculo
 Status: draft
 
-{% notebook bwa_coverage.ipynb cells[1:] %}
+{% notebook bam_coverage.ipynb cells[1:] %}
