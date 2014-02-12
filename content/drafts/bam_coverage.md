@@ -1,8 +1,7 @@
-Title: Moleculo raw reads coverage in reference genome, a HOWTO
-Date: 2014-02-07 12:00
+Title: HOWTO: Moleculo raw reads coverage in reference genome
+Date: 2014-02-12 12:00
 Author: luizirber
-Category:
+Category: phd
 Slug: moleculo
-Status: draft
 
 {% notebook bam_coverage.ipynb cells[1:] %}
