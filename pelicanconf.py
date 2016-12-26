@@ -62,7 +62,7 @@ EXTRA_PATH_METADATA = {
 # Theme and plugins
 #  Theme requires http://github.com/duilio/pelican-octopress-theme/
 #  Plugins require http://github.com/getpelican/pelican-plugins/
-THEME = expanduser('~/prj/pelican-octopress-theme/')
+THEME = "./theme"
 PLUGIN_PATHS = ['./plugins']
 PLUGINS = ['summary', 'sitemap',
            'liquid_tags.img', 'liquid_tags.include_code',
