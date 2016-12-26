@@ -65,7 +65,9 @@ EXTRA_PATH_METADATA = {
 THEME = expanduser('~/prj/pelican-octopress-theme/')
 PLUGIN_PATHS = ['./plugins']
 PLUGINS = ['summary', 'sitemap',
-           'liquid_tags.img', 'liquid_tags.include_code', 'ipynb.liquid']
+           'liquid_tags.img', 'liquid_tags.include_code',
+           'ipynb.liquid',
+           'simple_footnotes']
 
 # The theme file should be updated so that the base header contains the line:
 #
