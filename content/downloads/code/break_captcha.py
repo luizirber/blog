@@ -35,7 +35,7 @@ if __name__ == '__main__':
     for i in xrange(100):
         print 'voto', i
 
-        page = br.open('http://brandili.com.br/faclube/captcha/captcha.php')
+        page = br.open('*****/captcha/captcha.php')
         img_str = StringIO(page.read())
 
         fp = open('original.tif', 'wb')

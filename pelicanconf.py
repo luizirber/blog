@@ -6,7 +6,7 @@ from os.path import expanduser
 AUTHOR = u'Luiz Irber'
 
 SITENAME = u'Gabbleblotchits'
-SITESUBTITLE = u"Vogon Poetry, Computers and Rock n' Roll."
+SITESUBTITLE = u"Vogon Poetry, Computers and (some) biology"
 SITEURL = ''  # change in publishconf.py
 
 # Times and dates
