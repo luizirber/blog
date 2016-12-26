@@ -80,7 +80,7 @@ s3_upload: publish
 	s3cmd sync $(OUTPUTDIR)/ s3://$(S3_BUCKET) --acl-public --delete-removed
 
 github: publish
-	ghp-import $(OUTPUTDIR)
-	git push -f github:luizirber/blog gh-pages
+	ghp-import -b gh-pages -n $(OUTPUTDIR)
+	@git push -fq git@github.com:luizirber/blog gh-pages > /dev/null
 
 .PHONY: html help clean regenerate serve devserver publish ssh_upload rsync_upload dropbox_upload ftp_upload github
