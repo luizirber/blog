@@ -25,6 +25,8 @@ MENUITEMS = [('Archives', '/archives.html'),
              ('Home Page', 'http://luizirber.org')]
 NEWEST_FIRST_ARCHIVES = True
 
+MARKUP = ('md', )
+
 DISPLAY_PAGES_ON_MENU = True
 DISPLAY_CATEGORIES_ON_MENU = False
 
@@ -61,11 +63,9 @@ EXTRA_PATH_METADATA = {
 #  Theme requires http://github.com/duilio/pelican-octopress-theme/
 #  Plugins require http://github.com/getpelican/pelican-plugins/
 THEME = expanduser('~/prj/pelican-octopress-theme/')
-PLUGIN_PATH = expanduser('~/prj/pelican-plugins')
-PLUGINS = ['summary', 'liquid_tags.img', 'liquid_tags.video',
-           'liquid_tags.include_code', 'liquid_tags.notebook',
-           'liquid_tags.literal', 'sitemap']
-
+PLUGIN_PATHS = ['./plugins']
+PLUGINS = ['summary', 'sitemap',
+           'liquid_tags.img', 'liquid_tags.include_code', 'ipynb.liquid']
 
 # The theme file should be updated so that the base header contains the line:
 #
