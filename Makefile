@@ -36,7 +36,7 @@ regenerate: clean
 serve:
 	cd $(OUTPUTDIR) && python -m pelican.server 5500
 
-devserver:
+devserver: clean html
 	$(BASEDIR)/devserver.py
 
 publish:
