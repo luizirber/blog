@@ -15,8 +15,6 @@ DELETE_OUTPUT_DIRECTORY = True
 # Uncomment following line for absolute URLs in production:
 #RELATIVE_URLS = False
 
-DISQUS_SITENAME = 'gabbleblotchits'
-
 STATIC_PATHS += ['CNAME']
 EXTRA_PATH_METADATA.update(
     {'CNAME': {'path': 'CNAME'}},

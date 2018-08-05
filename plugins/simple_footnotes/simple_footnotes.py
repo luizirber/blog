@@ -69,13 +69,14 @@ def parse_for_footnotes(article_or_page_generator):
                 section = dom.createElement("section")
                 section.setAttribute("class", "footnotes")
                 hr = dom.createElement("hr")
+                h2 = dom.createElement("h2")
+                h2.appendChild(dom.createTextNode(u"Footnotes"))
                 ol = dom.createElement(u"ol")
                 for e, fnid, fnbackid in endnotes:
                     li = dom.createElement(u"li")
                     li.setAttribute(u"id", fnid)
                     p = dom.createElement("p")
                     while e.firstChild:
-                        li.appendChild(e.firstChild)
                         p.appendChild(e.firstChild)
                     backlink = dom.createElement(u"a")
                     backlink.setAttribute(u"href", u"#%s" % fnbackid)
@@ -87,6 +88,7 @@ def parse_for_footnotes(article_or_page_generator):
                     ol.appendChild(li)
                     e.parentNode.removeChild(e)
                 section.appendChild(hr)
+                section.appendChild(h2)
                 section.appendChild(ol)
                 dom.getElementsByTagName(u"body")[0].appendChild(section)
                 s = html5lib.serializer.HTMLSerializer(omit_optional_tags=False, quote_attr_values='legacy')
