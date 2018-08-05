@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<section id="content" class="body">
+
+<header>
+    <h1>Articles tagged with {{ tag }}</h1>
+</header>
+
+<ul class="posts-list" class="hfeed">
+{% for article in articles %}
+<li>
+    <article class="hentry">
+        <header>
+            <h2>
+                <a href="{{ SITEURL }}/{{ article.url }}" rel="bookmark" title="Permalink to {{ article.title|striptags }}">
+                    {{ article.title }}
+                </a>
+            </h2>
+            <small>
+                <abbr class="published" title="{{ article.date.isoformat() }}">{{ article.date.strftime("%Y, %B %d") }}</abbr>
+            </small>
+        </header>
+    </article>
+</li>
+{% endfor %}
+</ul>
+
+</section>
+{% endblock %}
