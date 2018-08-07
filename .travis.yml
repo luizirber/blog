@@ -1,5 +1,6 @@
 language: python
-python: '3.5'
+dist: xenial
+python: '3.7'
 branches:
   only:
   - content
@@ -7,10 +8,10 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_7ec5ed03f863_key -iv $encrypted_7ec5ed03f863_iv
   -in deploy_key.enc -out deploy_key -d
 install:
-- pip install -r requirements.txt
+- pipenv install
 script:
-- make publish
+- pipenv run make publish
 after_success:
 - chmod 600 deploy_key
 - mv deploy_key ~/.ssh/id_rsa
-- make github
+#- pipenv run make github
