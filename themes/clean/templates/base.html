@@ -12,7 +12,6 @@
         <link href="{{ SITEURL }}/{{ FEED_RSS }}" type="application/rss+xml" rel="alternate" title="{{ SITENAME }} RSS Feed" />
         {% endif %}
 
-
         <!--[if IE]>
                 <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
@@ -26,70 +25,52 @@
 </head>
 
 <body>
-    <a name="top"></a>
 
-<div class="site-container">
-        <header id="banner" class="body">
-                <h1><a href="{{ SITEURL }}/index.html">{{ SITENAME }} {% if SITESUBTITLE %} <strong>{{ SITESUBTITLE }}</strong>{% endif %}</a></h1>
-                <nav><ul>
-                {% for title, url in MENUITEMS %}
-                    <li {% if page is defined and url == page.url %} class="active" {% endif %}>
-                        <a href="{{ SITEURL }}/{{ url }}">{{ title }}</a>
-                    </li>
-                {% endfor %}
-                {% if DISPLAY_PAGES_ON_MENU != False %}
-                {% for p in pages %}
-                    <li {% if p == page %}class="active"{% endif %}><a href="{{ SITEURL }}/{{ p.url }}">{{ p.title }}</a></li>
-                {% endfor %}
-                {% endif %}
-                </ul></nav>
-        </header><!-- /#banner -->
+        <header>
+          <h1>{{ SITENAME }}</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='{{ SITEURL }}/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='{{ SITEURL }}/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='{{ SITEURL }}/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='{{ SITEURL }}/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="{{ SITEURL }}/{{ FEED_RSS }}" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='{{ SITEURL }}/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+          {% if SITESUBTITLE %}<strong>{{ SITESUBTITLE }}</strong>{% endif %}
+        </header>
 
         {% block content %}
         {% endblock %}
-
-        <aside id="sidebar">
-                <div class="widget">
-                        <h2>Categories</h2>
-                        <ul>
-                        {% for cat, null in categories %}
-                           <li {% if cat == category %}class="active"{% endif %}><a href="{{ SITEURL }}/{{ cat.url }}">{{ cat }}</a></li>
-                        {% endfor %}
-                        </ul>
-                </div>
-        {% if LINKS %}
-                <div class="widget blogroll">
-                        <h2>Blogroll</h2>
-                        <ul>
-                        {% for name, link in LINKS %}
-                            <li><a href="{{ link }}">{{ name }}</a></li>
-                        {% endfor %}
-                        </ul>
-                </div><!-- /.blogroll -->
-        {% endif %}
-        {% if SOCIAL %}
-                <div class="widget social">
-                        <h2>Social</h2>
-                        <ul>
-                            <li><a href="{{ SITEURL }}/{{ FEED_ALL_ATOM }}" rel="alternate">atom feed</a></li>
-                            {% if FEED_RSS %}
-                            <li><a href="{{ SITEURL }}/{{ FEED_RSS }}" rel="alternate">rss feed</a></li>
-                            {% endif %}
-
-                        {% for name, link in SOCIAL %}
-                            <li><a href="{{ link }}">{{ name }}</a></li>
-                        {% endfor %}
-                        </ul>
-                </div><!-- /.social -->
-        {% endif %}
-        </aside><!-- /#sidebar -->
 
         <hr />
         <footer class="footer-menu">
             <a href="#top">Back to the top</a>
             <hr />
         </footer>
-</div>
 
 </body>
 </html>

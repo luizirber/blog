@@ -1,35 +1,12 @@
 /* General style sheet */
 
-/* Fonts */
-@font-face {
-  font-family: 'Lato';
-  src: url('fonts/Lato-Bold.eot'); /* IE9 Compat Modes */
-  src: url('fonts/Lato-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('fonts/Lato-Bold.woff2') format('woff2'), /* Modern Browsers */
-       url('fonts/Lato-Bold.woff') format('woff'), /* Modern Browsers */
-       url('fonts/Lato-Bold.ttf') format('truetype');
-  font-style: normal;
-  font-weight: bold;
-  text-rendering: optimizeLegibility;
-}
-
-@font-face {
-  font-family: 'Lato';
-  src: url('fonts/Lato-Regular.eot'); /* IE9 Compat Modes */
-  src: url('fonts/Lato-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('fonts/Lato-Regular.woff2') format('woff2'), /* Modern Browsers */
-       url('fonts/Lato-Regular.woff') format('woff'), /* Modern Browsers */
-       url('fonts/Lato-Regular.ttf') format('truetype');
-  font-style: normal;
-  font-weight: normal;
-  text-rendering: optimizeLegibility;
-}
-
 /* General */
 
 html {
-  font-family: 'Lato', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   background-color: white;
+  text-align: justify;
+  text-indent: 2em;
 }
 
 html, body {
@@ -48,8 +25,14 @@ body {
 
 /* Headings */
 
-h1, h2, h3 { line-height: 1 }
-header > h1 { font-size: 4rem; margin-top: 0; margin-bottom: 0; }
+h1, h2, h3, nav {
+  line-height: 1;
+  text-align: left;
+  text-indent: 0;
+}
+
+header > h1 { font-size: 3.5rem; margin-top: 0; margin-bottom: 0; }
+header > a { text-indent: 0; }
 h1, h2 { font-size: 2rem; }
 :not(header) > h1 { line-height:1.25; }
 h3 { font-size: 1.5rem; line-height: 1.25 }
@@ -61,7 +44,7 @@ time.single {
   font-weight: normal;
   color: gray;
   text-align: left;
-  margin-top: -0.3rem;
+  text-indent: 0;
 }
 
 /* Stop subscripts and superscripts from changing the line height.
@@ -296,13 +279,21 @@ tr:nth-child(2n) {
 
 header {
   display: grid;
-  grid-template-columns: 1fr 2.25rem 2.4rem 2.25rem 2.25rem;
+  grid-template-columns: 1fr 2.25rem 2.4rem 2.25rem 2.25rem 2.25rem;
+  grid-template-rows: 1fr 1fr;
   grid-gap: 0.25rem;
-  margin-bottom: 2.7rem;
+  margin-bottom: 1.5rem;
   align-items: end;
 }
 
-.email, .mastodon, .rss, .p2p {
+header > strong {
+  grid-column-start: 1;
+  grid-column-end: 6;
+  text-indent: 0;
+  align-self: start;
+}
+
+.email, .mastodon, .rss, .github, .newsblur {
   height: 26px;
 }
 
