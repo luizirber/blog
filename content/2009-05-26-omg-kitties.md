@@ -29,7 +29,7 @@ curtindo por enquanto =]
 
 E acabei descobrindo que essa tirinha do XKCD realmente é verdade:
 
-[{% img center http://imgs.xkcd.com/comics/cat_proximity.png 300 "Yes you are!  And youre sitting there!  Hi, kitty!" %}][1]
+[{% img center https://imgs.xkcd.com/comics/cat_proximity.png 300 "Yes you are!  And youre sitting there!  Hi, kitty!" %}][1]
 
 *Randall Munroe, mestre.*
 

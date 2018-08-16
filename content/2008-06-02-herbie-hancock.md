@@ -4,7 +4,7 @@ Author: luizirber
 Category: Games, roque enrow
 Slug: herbie-hancock
 
-{% img center http://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Herbie_hancock.jpg/600px-Herbie_hancock.jpg %}
+{% img center https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Herbie_hancock.jpg/600px-Herbie_hancock.jpg %}
 
 Fui no show dele ontem, no Parque Villa-Lobos. Muito bom, apesar de eu
 conhecer muito pouco de sua carreira.

@@ -5,7 +5,7 @@ Category: A day in the life
 Tags: Dia da toalha, towel day
 Slug: dia-da-toalha
 
-[{% img center http://farm1.static.flickr.com/198/513954323_d0936294fd.jpg %}][1]
+[{% img center https://farm1.static.flickr.com/198/513954323_d0936294fd.jpg %}][1]
 
 Hoje comemorou-se mais um dia da toalha, homenagem dos fãs de Douglas
 Adams à sua obra. Para mais algumas fotos tiradas durante o dia (ééé,
