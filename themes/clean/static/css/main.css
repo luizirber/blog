@@ -31,7 +31,7 @@ h1, h2, h3, nav {
   text-indent: 0;
 }
 
-header > h1 { font-size: 3.5rem; margin-top: 0; margin-bottom: 0; }
+header > h1 { font-size: 2.75rem; margin-top: 0; margin-bottom: 0; }
 header > a { text-indent: 0; }
 h1, h2 { font-size: 2rem; }
 :not(header) > h1 { line-height:1.25; }
@@ -316,8 +316,6 @@ kbd {
 .footnotes { font-size: 1rem; margin-top: 2rem; }
 .footnotes > hr { border: 0.5px solid; color: darkcyan; }
 .footnotes li::marker { font-size: 1rem; color: #333; }
-
-.footnotes::before { content: "Footnotes"; font-size: 1.5rem; }
 
 /* Footer */
 
