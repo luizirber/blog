@@ -282,6 +282,16 @@ so... what if we run sourmash in the browser?
 That's what I'm covering in the next blog post,
 so stay tuned =]
 
+## Comments?
+
+- [Thread on Mastodon][112]
+- [Thread on reddit][110]
+- [Thread on Twitter][111]
+
+[110]: https://www.reddit.com/r/rust/comments/99vakd/blog_post_converting_c_to_rust_and_interoperate/
+[111]: https://twitter.com/luizirber/status/1032779995129597952
+[112]: https://social.lasanha.org/@luizirber/100602525575698239
+
 [55]: https://github.com/frankmcsherry/timely-dataflow
 [52]: https://github.com/dib-lab/sourmash
 [56]: https://www.reddit.com/r/rust/comments/27jvdt/internet_archaeology_the_definitive_endall_source/
