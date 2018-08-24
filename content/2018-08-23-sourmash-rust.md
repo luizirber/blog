@@ -20,7 +20,7 @@ syntax and the mental model for the language.
 I started digging into the `symbolic` codebase and understanding what they did,
 and tried to mirror or improve it for my use cases.
 
-(About this post title: The process of converting a codebase to Rust is referred as ["Oxidation"][0] in
+(About the post title: The process of converting a codebase to Rust is referred as ["Oxidation"][0] in
 the Rust community, following the codename Mozilla chose for the process of
 integrating Rust components into the Firefox codebase.
 [ref]The creator of the language is known to keep making up different
@@ -188,7 +188,7 @@ It also led to finding some quirks in the implementation,
 and even improvements in the current C++ code (because we were moving a lot of
 data from C++ to Python).
 
-## Where do I see this going
+## Where I see this going
 
 It seems it worked as an experiment,
 and I presented a [poster][90] at [GCCBOSC 2018][91] and [SciPy 2018][92] that
