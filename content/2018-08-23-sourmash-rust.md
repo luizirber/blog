@@ -277,10 +277,12 @@ each other advances in a way that is supported by the language.
 
 ## Next time!
 
-Turns out Rust supports webassembly as a target,
+Turns out Rust supports WebAssembly as a target,
 so... what if we run sourmash in the browser?
-That's what I'm covering in the next blog post,
+That's what I'm covering in the [next blog post][104],
 so stay tuned =]
+
+[104]: {filename}/2018-08-27-sourmash-wasm.md
 
 ## Comments?
 

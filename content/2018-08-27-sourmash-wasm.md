@@ -1,4 +1,4 @@
-Title: Oxidizing sourmash - WebAssembly
+Title: Oxidizing sourmash: WebAssembly
 Date: 2018-08-27 15:30
 Author: luizirber
 Category: science
@@ -119,6 +119,16 @@ after something simple but functional is released =P
 Where we will go next? Maybe explore some decentralized web technologies like
 IPFS and dat, hmm? =]
 
+## Comments?
+
+- [Thread on Mastodon][112]
+- [Thread on reddit][110]
+- [Thread on Twitter][111]
+
+[110]: https://www.reddit.com/r/rust/comments/9atie8/blog_post_clientside_bioinformatics_in_the/
+[111]: https://twitter.com/luizirber/status/1034206952773935104
+[112]: https://social.lasanha.org/@luizirber/100624574917435477
+
 [0]: https://github.com/luizirber/sourmash-node
 [1]: https://drive.google.com/open?id=1JvXiDaEA4J3hmEKw6sV-VHMpuHG_sxls3fLxJOht28E
 [2]: https://blog.sentry.io/2017/11/14/evolving-our-rust-with-milksnake
@@ -136,7 +146,7 @@ IPFS and dat, hmm? =]
 [14]: https://developers.google.com/web/updates/2018/05/bigint
 [15]: https://github.com/luizirber/sourmash-rust
 [16]: https://github.com/tc39/proposal-bigint
-[19]: {filename}2018-08-23-sourmash-rust.md
+[19]: {filename}/2018-08-23-sourmash-rust.md
 
 [20]: https://github.com/devosoft/Empirical/
 [21]: https://github.com/iodide-project/pyodide
