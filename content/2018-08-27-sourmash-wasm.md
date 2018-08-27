@@ -41,7 +41,7 @@ was finicky (dealing with the 64-bit integer hashes is not fun). The good thing
 is that at least I had a working UI for further testing[ref]even if horrible, I
 need to get some design classes =P[/ref]
 
-In "[Oxidizing sourmash - Python and FFI][19] I described my road to learn Rust,
+In "[Oxidizing sourmash: Python and FFI][19]" I described my road to learn Rust,
 but something that I omitted was that around the same time the `WebAssembly`
 support in Rust started to look better and better and was a huge influence in 
 my decision to learn Rust. Reimplementing the sourmash C++ extension in Rust and
