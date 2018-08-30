@@ -101,7 +101,7 @@ better with frontend development since then, so here is the new demo:
 <div id="files" class="box" ondragover="event.preventDefault()">
   <h2>sourmash + Wasm</h2>
   <div id="drag-container">
-    <p><b>Drag &amp; drop</b> a FASTA or FASTQ file here to calculate the sourmash signature.</p>
+    <p><b>Drag &amp; drop</b> a FASTQ file here to calculate the sourmash signature.</p>
   </div>
 
   <div id="progress-container">
