@@ -95,8 +95,47 @@ Turns out that I didn't need the BigInt support if I didn't expose any 64-bit
 integers to JS, and that is what I'm doing now.[/ref].
 [ref]Along the way I ended up writing a new FASTQ parser... because it wouldn't
 be bioinformatics if it didn't otherwise, right? =P[/ref]
-It is still pretty basic (it doesn't even have a proper button to download the
-generated signature, FFS), but it is a starting point.
+But that was the demo from a year ago with updated code and I got a bit
+better with frontend development since then, so here is the new demo:
+
+<div id="files" class="box" ondragover="event.preventDefault()">
+  <h2>sourmash + Wasm</h2>
+  <div id="drag-container">
+    <p><b>Drag &amp; drop</b> a FASTA or FASTQ file here to calculate the sourmash signature.</p>
+  </div>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+  <div class="columns">
+    <fieldset class="box input-button" id="params">
+      <label for="ksize-input">k-mer size:</label>
+      <input id="ksize-input" type="number" value=21 />
+      <label for="scaled-input">scaled:</label>
+      <input id="scaled-input" type="number" value=0 />
+      <label for="num-input">number of hashes:</label>
+      <input id="num-input" type="number" value=500 />
+      <label for="dna-protein-group">Input type:</label>
+      <div id="dna-protein-group">
+        <input id="dna-input" name="dna-protein-input" type="radio" value="DNA/RNA" checked />
+        <label for="dna-input">DNA/RNA</label>
+        <input id="protein-input" name="dna-protein-input" type="radio" value="Protein" />
+        <label for="protein-input">Protein</label>
+      </div>
+      <label for="track-abundance-input">Track abundance?</label>
+      <input id="track-abundance-input" type="checkbox" checked />
+    </fieldset>
+    <div class="box" id="download">
+      <button id='download_btn' type="button" disabled>Download</button>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="{filename}/static/sourmash-wasm/app.css">
+<script src="{filename}/static/sourmash-wasm/dist/bundle.js"></script>
+
+For the source code for this demo, check the [sourmash-wasm][42] directory.
+
+[42]: {filename}/static/sourmash-wasm/index.html
 
 ## Next steps
 
@@ -124,6 +163,10 @@ IPFS and dat, hmm? =]
 - [Thread on Mastodon][112]
 - [Thread on reddit][110]
 - [Thread on Twitter][111]
+
+## Updates
+
+- 2018-08-30: Added a demo in the blog post.
 
 [110]: https://www.reddit.com/r/rust/comments/9atie8/blog_post_clientside_bioinformatics_in_the/
 [111]: https://twitter.com/luizirber/status/1034206952773935104

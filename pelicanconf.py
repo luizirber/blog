@@ -31,12 +31,14 @@ SUMMARY_MAX_LENGTH = None
 
 # STATIC_OUT_DIR requires pelican 3.3
 STATIC_OUT_DIR = ''
-STATIC_PATHS = ['images', 'figures', 'downloads', 'content/favicon.png']
+STATIC_PATHS = ['images', 'figures', 'downloads', 'content/favicon.png', 'static']
 CODE_DIR = 'downloads/code'
 NOTEBOOK_DIR = 'downloads/notebooks'
 
+ARTICLE_EXCLUDES = ['static']
 EXTRA_PATH_METADATA = {
     'content/favicon.png': {'path': 'favicon.png'},
+    'content/static/sourmash-wasm/index.html': {'path': 'static/sourmash-wasm/index.html'},
 }
 
 # Theme and plugins
