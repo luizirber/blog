@@ -1,4 +1,6 @@
 const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   entry: './bootstrap.js',
@@ -15,6 +17,15 @@ module.exports = {
   node: {
     zlib: true
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'index.template.ejs',
+      inject: 'body'
+    }),
+    new CopyWebpackPlugin([
+      { from: 'app.css' }
+    ])
+  ],
   mode: 'development',
   target: 'web'
 }

@@ -8,7 +8,8 @@ var Fasta = require('fasta-parser')
 
 var zlib = require('zlib')
 var peek = require('peek-stream')
-const PassThrough = require('stream').PassThrough
+const through = require('through2')
+const pumpify = require('pumpify')
 
 const $dragContainer = document.querySelector('#drag-container')
 const $progressBar = document.querySelector('#progress-bar')
@@ -55,13 +56,13 @@ function isGzip (data) {
 function GzipParser () {
   return peek(function (data, swap) {
     if (isGzip(data)) return swap(null, new zlib.Unzip())
-    else return swap(null, new PassThrough())
+    else return swap(null, through())
   })
 }
 
 function FASTParser () {
   return peek(function (data, swap) {
-    if (isFASTA(data)) return swap(null, new Fasta())
+    if (isFASTA(data)) return swap(null, pumpify.obj(Fasta(), jsParse()))
     if (isFASTQ(data)) return swap(null, new FASTQStream())
 
     // we do not know - bail
@@ -132,6 +133,18 @@ function onDrop (event) {
       reader.pipe(compressedparser).pipe(seqparser)
       break
   }
+}
+
+function jsParse () {
+  var stream = through.obj(transform, flush)
+  return stream
+  function transform (obj, enc, next) {
+    if (Buffer.isBuffer(obj)) { obj = obj.toString() }
+    JSON.parse(obj)
+    this.push(JSON.parse(obj))
+    next()
+  }
+  function flush () { this.push(null) }
 }
 
 /* ===========================================================================

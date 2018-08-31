@@ -1,0 +1,43 @@
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+  <title>Sample App</title>
+<link rel="stylesheet" href="/static/sourmash-wasm/dist/app.css">
+</head>
+
+<body>
+  <div id="files" class="box" ondragover="event.preventDefault()">
+    <h2>sourmash + Wasm</h2>
+    <div id="drag-container">
+      <p><b>Drag &amp; drop</b> a FASTQ file here to calculate the sourmash signature.</p>
+    </div>
+
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div class="columns">
+      <fieldset class="box input-button" id="params">
+        <label for="ksize-input">k-mer size:</label>
+        <input id="ksize-input" type="number" value=21 />
+        <label for="scaled-input">scaled:</label>
+        <input id="scaled-input" type="number" value=0 />
+        <label for="num-input">number of hashes:</label>
+        <input id="num-input" type="number" value=500 />
+        <label for="dna-protein-group">Input type:</label>
+        <div id="dna-protein-group">
+          <input id="dna-input" name="dna-protein-input" type="radio" value="DNA/RNA" checked />
+          <label for="dna-input">DNA/RNA</label>
+          <input id="protein-input" name="dna-protein-input" type="radio" value="Protein" />
+          <label for="protein-input">Protein</label>
+        </div>
+        <label for="track-abundance-input">Track abundance?</label>
+        <input id="track-abundance-input" type="checkbox" checked />
+      </fieldset>
+      <div class="box" id="download">
+        <button id='download_btn' type="button" disabled>Download</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
