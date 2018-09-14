@@ -63,6 +63,7 @@ EXTRA_HEADER = open('_nb_header.html').read()
 # RSS/Atom feeds
 FEED_DOMAIN = SITEURL
 FEED_ATOM = 'atom.xml'
+FEED_RSS = 'feed.xml'
 
 # Sitemap
 SITEMAP = {
