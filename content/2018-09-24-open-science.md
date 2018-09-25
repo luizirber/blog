@@ -13,7 +13,7 @@ are all open source developers, and Olga interacted thru GitHub to [ask][3] [for
 
 That's what open science is about: collaboration, good practices, and in the end coming up
 with something that is larger than each individual piece. Now sourmash is better,
-bamnostic is better, grail is better. I would like to see this becoming more and
+bamnostic is better, reflow is better. I would like to see this becoming more and
 more common =]
 
 [0]: http://www.olgabotvinnik.com/
