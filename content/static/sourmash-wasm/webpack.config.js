@@ -1,6 +1,7 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const webpack = require('webpack');
 
 module.exports = {
   entry: './bootstrap.js',
@@ -24,7 +25,11 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       { from: 'app.css' }
-    ])
+    ]),
+    new webpack.ProvidePlugin({
+      TextDecoder: ['text-encoding', 'TextDecoder'],
+      TextEncoder: ['text-encoding', 'TextEncoder']
+    })
   ],
   mode: 'development',
   target: 'web'
