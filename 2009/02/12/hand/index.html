@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Hand</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Hand</h1>
+
+    <time class="single" datetime="2009-02-12T07:13:00-02:00">12 Feb 2009</time>
+
+    <p>Ontem, enquanto gravava um DVD, comecei a generalizar os scripts que
+geram os feeds do post anterior. E disso surgiu o Hand, um gerador de
+feeds RSS.</p>
+<p><strong>Como funciona?</strong></p>
+<p>O meu objetivo inicial era gerar feeds para sites que não os
+disponibilizavam, recorrendo ao bom e velho <a href="http://en.wikipedia.org/wiki/Screen_scraping">screen scraping</a>. Comecei
+fazendo o feed dos quadrinhos da Folha, o mais complicado, pois era
+necessário fazer autenticação de usuário e percorrer várias páginas para
+extrair links. Ao fazer o dos Malvados, segui a mesma estrutura de
+funções, e comecei a perceber que dava para generalizar bastante o
+processo.</p>
+<p>Eis que surge Hand. No fundo é uma classe que implementa alguns métodos
+(build_date, generate_description, build_feed, process), e exige que
+você derive a classe e implemente o método generate_data.
+generate_data é um método que retorna uma lista de dicionários, com
+cada dicionário contendo os campos title, page_link, description,
+pubDate e guid correspondentes a um item do feed. Simples assim.</p>
+<p><strong>E funciona?</strong></p>
+<p>Yep. Mantenho quatro feeds no momento:</p>
+<ul>
+<li><a href="http://luizirber.org/rss/fsp.xml">Quadrinhos da Folha de São Paulo</a></li>
+<li><a href="http://luizirber.org/rss/malvados.xml">Malvados</a> <strong>Update:</strong> <a href="http://feed43.com/malvados.xml">Feed alternativo, sem o CATA CORNO GOOGLE</a></li>
+<li>Magias e Barbaridades <strong>Update:</strong> <a href="http://magiasebarbaridades.blogspot.com/feeds/posts/default">Feed oficial</a></li>
+<li>Rehabilitating Mr. Wiggles <strong>Update:</strong> <a href="http://www.instantrimshot.com">Feed oficial</a></li>
+</ul>
+<p><strong>Onde posso ver esta maravilha?</strong></p>
+<p>O código está disponível no <a href="http://github.com/luizirber/Hand">GitHub</a>, mas ainda está bem cru, preciso
+empacotá-lo direito.</p>
+<p><strong>Quais os próximos passos?</strong></p>
+<p>O feed da Folha demora para ser gerado, porque toda vez que o script é
+rodado ele precisa consultar todas as páginas. Portanto penso em
+adicionar persistência, mas bem simples, um sqlite é mais que
+suficiente.</p>
+<p>Além disso, quero descrever a configuração do feed (onde gerá-lo, qual
+template usar) num arquivo, e fazer a classe base ler essas opções.
+Assim fica ainda mais fácil fazer um novo feed.</p>
+<p><strong>Que nominho, hein?</strong></p>
+<p>Para quem não entendeu o nome: qual um bom para um gerador de feeds?
+Enquanto pensava, lembrei de uma música do <a href="http://www.nin.com/">NIN</a> chamada
+<a href="http://en.wikipedia.org/wiki/The_Hand_That_Feeds">'The Hand That Feeds'</a>. E, além disso, ele também te dá uma mão
+para gerar feeds, certo? <a href="http://www.instantrimshot.com">*TU-DUM-TISH*</a>!</p>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/feed.html">feed</a>
+    <a href="https://blog.luizirber.org/tag/mechanize.html">mechanize</a>
+    <a href="https://blog.luizirber.org/tag/python.html">python</a>
+    <a href="https://blog.luizirber.org/tag/projetos.html">Projetos</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

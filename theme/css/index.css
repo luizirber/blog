@@ -1,0 +1,36 @@
+/* Offset subsequent years with a larger top margin */
+h2:not(:first-of-type) { margin-top: 3rem; }
+
+/* Style the blog post entries */
+li {
+  list-style-type: none;
+  margin-bottom: 1rem;
+  margin-left: 2.75rem;
+  text-indent: 0;
+}
+
+time { 
+  justify-self: center;
+}
+
+/* Display time and date in a monospace script so that post titles line up */
+.postdate {
+  color: gray;
+  font-size: 1rem;
+  vertical-align: bottom;
+}
+
+/* Don’t display the day name multiple times for days that have multiple entries */
+.day:not(.item-0) { color: white; }
+
+.date { 
+  font-weight: normal;
+  line-height: 2rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  color: white;
+  background-color:crimson;
+  border-radius: 2rem;
+  margin: 0;
+  float: left;
+}

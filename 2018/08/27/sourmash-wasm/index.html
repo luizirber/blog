@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Oxidizing sourmash: WebAssembly</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Oxidizing sourmash: WebAssembly</h1>
+
+    <time class="single" datetime="2018-08-27T15:30:00-03:00">27 Aug 2018</time>
+
+    <p>sourmash calculates MinHash signatures for genomic datasets,
+meaning we are reducing the data (via subsampling) to a small
+representative subset (a signature) capable of answering one question:
+how similar is this dataset to another one? The key here is that a dataset with
+10-100 GB will be reduced to something in the megabytes range, and two approaches
+for doing that are:</p>
+<ul>
+<li>The user install our software in their computer.
+  This is not so bad anymore (yay bioconda!), but still requires knowledge
+  about command line interfaces and how to install all this stuff. The user
+  data never leaves their computer, and they can share the signatures later
+  if they want to.</li>
+<li>Provide a web service to calculate signatures. In this case no software
+  need to be installed, but it's up to someone (me?) to maintain a server running with
+  an API and frontend to interact with the users. On top of requiring more
+  maintenance, another drawback is that
+  the user need to send me the data, which is very inefficient network-wise
+  and lead to questions about what I can do with their raw data (and I'm not
+  into surveillance capitalism, TYVM).</li>
+</ul>
+<h2>But... what if there is a third way?</h2>
+<p>What if we could keep the frontend code from the web service (very
+user-friendly) but do all the calculations client-side (and avoid the network
+bottleneck)? The main hurdle
+here is that our software is implemented in Python (and C++), which are not
+supported in browsers. My first solution was to write the core features of
+<a href="https://github.com/luizirber/sourmash-node">sourmash in JavaScript</a>, but that quickly started hitting annoying things
+like JavaScript not supporting 64-bit integers. There is also the issue of
+having another codebase to maintain and keep in sync with the original sourmash,
+which would be a relevant burden for us. I gave a <a href="https://drive.google.com/open?id=1JvXiDaEA4J3hmEKw6sV-VHMpuHG_sxls3fLxJOht28E">lab meeting</a> about this
+approach, using a <a href="https://soursigs-dnd-luizirber.hashbase.io/">drag-and-drop UI as proof of concept</a>. It did work but it
+was finicky (dealing with the 64-bit integer hashes is not fun). The good thing
+is that at least I had a working UI for further testing<sup id=sf-sourmash-wasm-1-back><a href=#sf-sourmash-wasm-1 class=simple-footnote title="even if horrible, I need to get some design classes =P">1</a></sup></p>
+<p>In "<a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/">Oxidizing sourmash: Python and FFI</a>" I described my road to learn Rust,
+but something that I omitted was that around the same time the <code>WebAssembly</code>
+support in Rust started to look better and better and was a huge influence in 
+my decision to learn Rust. Reimplementing the sourmash C++ extension in Rust and
+use the same codebase in the browser sounded very attractive,
+and now that it was working I started looking into how to use the WebAssembly
+target in Rust.</p>
+<h2>WebAssembly?</h2>
+<p>From the <a href="https://webassembly.org/">official site</a>,</p>
+<div class=highlight><pre><span></span>WebAssembly (abbreviated Wasm) is a binary
+instruction format for a stack-based
+virtual machine. Wasm is designed as a
+portable target for compilation of high-level
+languages like C/C++/Rust, enabling deployment
+on the web for client and server applications.
+</pre></div>
+
+
+<p>You can write WebAssembly by hand, but the goal is to have it as lower level
+target for other languages. For me the obvious benefit is being able to use
+something that is not JavaScript in the browser, even though the goal is not to replace
+JS completely but complement it in a big pain point: performance. This also
+frees JavaScript from being the target language for other toolchains,
+allowing it to grow into other important areas (like language ergonomics).</p>
+<p>Rust is not the only language targeting WebAssembly: Go 1.11 includes
+<a href="https://golang.org/doc/go1.11#wasm">experimental support for WebAssembly</a>, and there are even projects bringing
+the <a href="https://github.com/iodide-project/pyodide">scientific Python to the web</a> using WebAssembly. </p>
+<h2>But does it work?</h2>
+<p>With the <a href="https://github.com/luizirber/sourmash-rust">Rust implementation in place</a> and with all tests working on sourmash, I 
+added the finishing touches using <a href="https://github.com/rustwasm/wasm-bindgen"><code>wasm-bindgen</code></a> and built an NPM package using
+<a href="https://github.com/rustwasm/wasm-pack"><code>wasm-pack</code></a>: <a href="https://www.npmjs.com/package/sourmash">sourmash</a> is a Rust codebase compiled to WebAssembly and ready
+to use in JavaScript projects.</p>
+<p>(Many thanks to Madicken Munk, who also presented during SciPy about how they used
+<a href="https://munkm.github.io/2018-07-13-scipy/">Rust and WebAssembly to do interactive visualization in Jupyter</a>
+and helped with a good example on how to do this properly =] )</p>
+<p>Since I already had the working UI from the previous PoC, I <a href="https://github.com/luizirber/wort-dnd">refactored the code</a>
+to use the new WebAssembly module and voilà! <a href="https://wort-dnd.hashbase.io/">It works!</a><sup id=sf-sourmash-wasm-2-back><a href=#sf-sourmash-wasm-2 class=simple-footnote title="the first version of this demo only worked in Chrome because they implemented the BigInt proposal, which is not in the official language yet. The funny thing is that BigInt would have made the JS implementation of sourmash viable, and I probably wouldn't have written the Rust implementation =P. Turns out that I didn't need the BigInt support if I didn't expose any 64-bit integers to JS, and that is what I'm doing now.">2</a></sup>.
+<sup id=sf-sourmash-wasm-3-back><a href=#sf-sourmash-wasm-3 class=simple-footnote title="Along the way I ended up writing a new FASTQ parser... because it wouldn't be bioinformatics if it didn't otherwise, right? =P">3</a></sup>
+But that was the demo from a year ago with updated code and I got a bit
+better with frontend development since then, so here is the new demo:</p>
+<div id=files class=box ondragover=event.preventDefault()>
+  <h2>sourmash + Wasm</h2>
+  <div id=drag-container>
+    <p><b>Drag &amp; drop</b> a FASTA or FASTQ file here to calculate the sourmash signature.</p>
+  </div>
+
+  <div id=progress-container>
+    <div id=progress-bar></div>
+  </div>
+  <div class=columns>
+    <fieldset class="box input-button" id=params>
+      <label for=ksize-input>k-mer size:</label>
+      <input id=ksize-input type=number value=21>
+      <label for=scaled-input>scaled:</label>
+      <input id=scaled-input type=number value=0>
+      <label for=num-input>number of hashes:</label>
+      <input id=num-input type=number value=500>
+      <label for=dna-protein-group>Input type:</label>
+      <div id=dna-protein-group>
+        <input id=dna-input name=dna-protein-input type=radio value="DNA/RNA" checked>
+        <label for=dna-input>DNA/RNA</label>
+        <input id=protein-input name=dna-protein-input type=radio value=Protein>
+        <label for=protein-input>Protein</label>
+      </div>
+      <label for=track-abundance-input>Track abundance?</label>
+      <input id=track-abundance-input type=checkbox checked>
+    </fieldset>
+    <div class=box id=download>
+      <button id=download_btn type=button disabled>Download</button>
+    </div>
+  </div>
+</div>
+
+<p><link rel=stylesheet href="https://blog.luizirber.org/static/sourmash-wasm/app.css">
+<script src="https://blog.luizirber.org/static/sourmash-wasm/dist/bundle.js"></script></p>
+<p>For the source code for this demo, check the <a href="https://blog.luizirber.org/static/sourmash-wasm/index.html">sourmash-wasm</a> directory.</p>
+<h2>Next steps</h2>
+<p>The proof of concept works, but it is pretty useless right now.
+I'm thinking about building it as a <a href="https://www.webcomponents.org/">Web Component</a> and making it really easy
+to add to any webpage<sup id=sf-sourmash-wasm-4-back><a href=#sf-sourmash-wasm-4 class=simple-footnote title="or maybe a React component? I really would like to have something that works independent of framework, but not sure what is the best option in this case...">4</a></sup>.</p>
+<p>Another interesting feature would be supporting more input formats (the GMOD
+project implemented a lot of those!), but more features are probably better
+after something simple but functional is released =P</p>
+<h2>Next time!</h2>
+<p>Where we will go next? Maybe explore some decentralized web technologies like
+IPFS and dat, hmm? =]</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="https://social.lasanha.org/@luizirber/100624574917435477">Thread on Mastodon</a></li>
+<li><a href="https://www.reddit.com/r/rust/comments/9atie8/blog_post_clientside_bioinformatics_in_the/">Thread on reddit</a></li>
+<li><a href="https://twitter.com/luizirber/status/1034206952773935104">Thread on Twitter</a></li>
+</ul>
+<h2>Updates</h2>
+<ul>
+<li>2018-08-30: Added a demo in the blog post.</li>
+</ul><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-sourmash-wasm-1><p>even if horrible, I
+need to get some design classes =P <a href=#sf-sourmash-wasm-1-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-wasm-2><p>the first version
+of this demo only worked in Chrome because they implemented the <a href="https://github.com/tc39/proposal-bigint">BigInt proposal</a>,
+which is not in the official language yet. The funny thing is that BigInt would
+have made the JS implementation of sourmash viable, and I probably wouldn't have
+written the Rust implementation =P.
+Turns out that I didn't need the BigInt support if I didn't expose any 64-bit
+integers to JS, and that is what I'm doing now. <a href=#sf-sourmash-wasm-2-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-wasm-3><p>Along the way I ended up writing a new FASTQ parser... because it wouldn't
+be bioinformatics if it didn't otherwise, right? =P <a href=#sf-sourmash-wasm-3-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-wasm-4><p>or maybe a React component? I really would like to
+have something that works independent of framework, but not sure what is the
+best option in this case... <a href=#sf-sourmash-wasm-4-back class=simple-footnote-back>↩</a></p></li></ol></section>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+    <a href="https://blog.luizirber.org/tag/webassembly.html">webassembly</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

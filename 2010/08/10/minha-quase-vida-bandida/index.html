@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Minha (quase) vida bandida</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Minha (quase) vida bandida</h1>
+
+    <time class="single" datetime="2010-08-10T14:08:00-03:00">10 Aug 2010</time>
+
+    <p>Blog juntando moscas, deixa eu ressucitar um projetinho de fim de semana
+para ver se anima um pouco.</p>
+<p>A ideia inicial desse post surgiu na <a href="http://www.pythonbrasil.org.br/">PythonBrasil</a> do ano passado.
+Pensei em fazer uma lightning talk, mas não ficou pronta a tempo (Nota:
+sempre bom deixar alguma lightning talk preparada).</p>
+<p>Como começou a história: recebi email de uma prima, pedindo para que os
+amigos e parentes ajudassem a votar na filha dela em um site de roupas
+infantis. A criança mais votada participaria de um comercial e ia
+embolsar um monte de roupas.</p>
+<p>Ok, ok. Odeio esse tipo de spam, mas também não custa ajudar, né? Fui na
+página de votação. Votei uma vez, depois de preencher um captcha, e
+tentei votar de novo para ver o que acontecia. "Você votou na última
+hora, aguarde para votar novamente". Hmm. Como será que o controle disso
+é feito?</p>
+<p>Abri o código. Hmm, essa função em javascript aqui que processa o evento
+do botão, ela chama uma URL...</p>
+<figure class='code'>
+<figcaption><span>votoAprovar.js</span> <a href='/downloads/code/votoAprovar.js'>download</a></figcaption>
+
+<div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">votoAprovar</span><span class="p">(</span><span class="nx">cadastroId</span><span class="p">){</span>
+  <span class="nx">captcha</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;cadastroCaptcha&#39;</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
+  <span class="nb">window</span><span class="p">.</span><span class="nx">location</span> <span class="o">=</span> <span class="s1">&#39;voto_v.php?votoStatus=1&amp;cadastroId=&#39;</span><span class="o">+</span><span class="nx">cadastroId</span><span class="o">+</span><span class="s2">&quot;&amp;captcha=&quot;</span><span class="o">+</span><span class="nx">captcha</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+</figure>
+
+<p>Opa. E se eu tentar acessar essa URL direto?</p>
+<div class="highlight"><pre><span></span>voto_v.php?votoStatus=1&amp;cadastroId=98374&amp;captcha=adb356
+</pre></div>
+
+
+<p>Tenho que acertar o captcha. Onde está o captcha? Ah, olha só, o link da
+imagem é um arquivo captcha.php, será que dá para acessar direto? Deu.</p>
+<p><img class="center" src="/images/original1.png" width="173" title="A imagem original." alt="A imagem original."></p>
+<p>Resumindo, eu tinha a URL para votar, e atualizando o captcha eu
+conseguia votar quantas vezes quisesse. Mas ficar fazendo isso na mão é
+chato. Como será que funciona identificação de captcha? Uma pesquisa
+rapidinha e caí <a href="http://alwaysmovefast.com/2007/11/21/cracking-captchas-for-fun-and-profit/">nesse site</a>. E em Python, para facilitar ainda mais
+minha vida.</p>
+<p>Brinquei um pouco com o PIL, e consegui deixar a imagem com caracteres
+bem definidos. Incrivelmente, só precisei converter para escala de
+cinza, e aplicar um limiar.</p>
+<figure class='code'>
+<figcaption><span>clean_captcha.py</span> <a href='/downloads/code/clean_captcha.py'>download</a></figcaption>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">captcha_to_greyscale</span><span class="p">(</span><span class="n">captcha</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">captcha</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">captcha</span>
+    <span class="n">captcha</span> <span class="o">=</span> <span class="n">captcha</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">captcha</span>
+
+<span class="k">def</span> <span class="nf">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="k">return</span> <span class="n">pixels</span>
+
+<span class="k">def</span> <span class="nf">clean_captcha</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="n">img2</span> <span class="o">=</span> <span class="n">captcha_to_greyscale</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img2</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">img2</span><span class="o">.</span><span class="n">load</span><span class="p">(),</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">img2</span>
+</pre></div>
+
+
+</figure>
+
+<p><img class="center" src="/images/limpa1.png" width="173" title="Imagem, depois de processada pelo PIL." alt="Imagem, depois de processada pelo PIL."></p>
+<p>E, conforme ia acumulando mais imagens, vi que a minha vida seria mais
+fácil ainda: o captcha só tinha caracteres hexadecimais, então nem
+precisaria mapear o alfabeto inteiro, só de zero a nove e de 'a' até
+'f'. Depois de limpar algumas imagens e juntá-las numa pasta, rodei o
+treinador do <a href="http://code.google.com/p/tesseract-ocr/">tesseract-ocr</a>, e depois dos arquivos de treinos
+prontos, tinha 100% de acerto nas imagens. Sigh, que maravilha de
+captcha...</p>
+<p>Agora, testar. Criei um perfil falso, e me assustei. Tentei rodar o
+script para ver se contava um voto, e quando abri o perfil já tinha 5!
+Aparentemente, as mães fazem um "vote-no-meu-filho-que-eu-voto-no-seu",
+e como os perfis mais novos aparecem na página principal, me acharam
+rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.</p>
+<figure class='code'>
+<figcaption><span>break_captcha.py</span> <a href='/downloads/code/break_captcha.py'>download</a></figcaption>
+
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">commands</span> <span class="kn">import</span> <span class="n">getoutput</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">mechanize</span>
+
+
+<span class="k">def</span> <span class="nf">captcha_to_greyscale</span><span class="p">(</span><span class="n">captcha</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">captcha</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">captcha</span>
+    <span class="n">captcha</span> <span class="o">=</span> <span class="n">captcha</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">captcha</span>
+
+
+<span class="k">def</span> <span class="nf">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">pixels</span><span class="p">):</span>
+    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">pixels</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="k">return</span> <span class="n">pixels</span>
+
+
+<span class="k">def</span> <span class="nf">clean_captcha</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="n">img2</span> <span class="o">=</span> <span class="n">captcha_to_greyscale</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+    <span class="n">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">img2</span><span class="o">.</span><span class="n">load</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">img2</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">br</span> <span class="o">=</span> <span class="n">mechanize</span><span class="o">.</span><span class="n">Browser</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s1">&#39;voto&#39;</span><span class="p">,</span> <span class="n">i</span>
+
+        <span class="n">page</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;*****/captcha/captcha.php&#39;</span><span class="p">)</span>
+        <span class="n">img_str</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;original.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_str</span><span class="p">)</span>
+        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;tiff&#39;</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">clean_captcha</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;tmp.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;tiff&#39;</span><span class="p">)</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">getoutput</span><span class="p">(</span><span class="s1">&#39;tesseract tmp.tif output -l brand&#39;</span><span class="p">)</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;output.txt&#39;</span><span class="p">)</span>
+        <span class="n">captcha</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()[:</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">cadId</span> <span class="o">=</span> <span class="mi">28477</span>
+
+        <span class="n">vote_page</span> <span class="o">=</span> <span class="s1">&#39;*****/voto_v.php?votoStatus=1&amp;cadastroId=</span><span class="si">%d</span><span class="s1">&amp;captcha=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">cadId</span><span class="p">,</span> <span class="n">captcha</span><span class="p">)</span>
+
+        <span class="n">br</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">vote_page</span><span class="p">)</span>
+</pre></div>
+
+
+</figure>
+
+<p>Omiti o endereço do site, mas basicamente o script é esse.</p>
+<p>Agora chega o grande momento, o clímax da história, onde o herói escolhe
+entre a fama e fortuna ou o que parece moralmente certo. (Que
+grandioso!). "Com grandes poderes vêm grandes responsabilidades!". E
+todo esse lero-lero.</p>
+<p>Apesar de o propósito inicial ter sido ajudar a minha prima, rodar o
+script me pareceu uma ajuda grande demais. E meu objetivo era testar o
+buraco no sistema de votação, não me aproveitar dele. Acabei deixando
+pra lá, e o código ficou mofando no meu computador.</p>
+<p>Hoje, quando fui escrever o post, vi que já aconteceu a segunda edição
+do concurso, e miseravelmente o sistema é exatamente o mesmo. Vou mandar
+esse post para a empresa, quem sabe para o próximo corrijam.</p>
+<p>UPDATE: O <a href="http://lameiro.wordpress.com">Lameiro</a> deu a dica nos comentários: buscando no
+google.com.br por "captcha PHP" temos, como primeiro hit,
+<a href="http://www.numaboa.com/informatica/tutos/php/949-captcha">um tutorial ensinando a gerar o captcha</a>
+que esse site usa. E, como ele bem notou,
+deve ter muitos sites no Brasil com esse mesmo problema.</p>
+<p>Fica a dica: nunca confie no primeiro hit do google para implementar a
+sua solução de segurança. Aliás, não confie em nenhuma, até saber como
+ela funciona.</p>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/captcha.html">captcha</a>
+    <a href="https://blog.luizirber.org/tag/pil.html">PIL</a>
+    <a href="https://blog.luizirber.org/tag/python.html">python</a>
+    <a href="https://blog.luizirber.org/tag/tesseract.html">tesseract</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

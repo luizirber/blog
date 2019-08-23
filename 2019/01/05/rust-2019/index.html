@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Scientific Rust #rust2019</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Scientific Rust #rust2019</h1>
+
+    <time class="single" datetime="2019-01-05T17:00:00-02:00">05 Jan 2019</time>
+
+    <p>The Rust community requested feedback last year for where the language should go
+in 2018, and now they are running it again for 2019.
+Last year I was too new in Rust to organize a blog post,
+but after an year using it I feel more comfortable writing this!</p>
+<p>(Check my previous post about <a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/">replacing the C++ core in sourmash with Rust</a> for more details on how I spend my year in Rust).</p>
+<h2>What counts as "scientific Rust"?</h2>
+<p>Anything that involves doing science using computers counts as
+scientific programming. It includes from embedded software
+<a href="https://www.youtube.com/watch?v=y5Yd3FC-kh8">running on satellites</a> to climate models
+running in supercomputers, from shell scripts running tools in a pipeline to
+data analysis using notebooks.</p>
+<p>It also makes the discussion harder, because it's too general! But it is very
+important to keep in mind, because scientists are not your regular user: they
+are highly qualified in their field of expertise, and they are also pushing the
+boundaries of what we know (and this might need flexibility in their tools).</p>
+<p>In this post I will be focusing more in two areas: array computing (what most
+people consider 'scientific programming' to be) and "data structures".</p>
+<h3>Array computing</h3>
+<p>This one is booming in the last couple of years due to industry interest in data
+sciences and deep learning (where they will talk about tensors instead of arrays),
+and has its roots in models running in supercomputers (a field where Fortran is
+still king!). Data tends to be quite regular (representable with matrices) and 
+amenable to parallel processing.</p>
+<p>A good example is the SciPy stack in Python, built on top of NumPy and SciPy.
+The adoption of the SciPy stack (both in academia and industry) is staggering,
+and many <a href="https://github.com/cupy/cupy">alternative implementations</a> try to provide a NumPy-like API to try to
+capture its mindshare.</p>
+<p>This is the compute-intensive side science (be it CPU or GPU/TPU), and also the kind
+of data that pushed CPU evolution and is still very important in defining policy
+in scientific computing funding (see countries competing for the largest
+supercomputers and measuring performance in floating point operations per second).</p>
+<h3>Data structures for efficient data representation</h3>
+<p>For data that is not so regular the situation is a bit different. I'll use
+bioinformatics as an example: the data we get out of nucleotide sequencers is usually
+represented by long strings (of ACGT), and algorithms will do a lot of string processing
+(be it building string-overlap graphs for assembly, or searching for substrings
+in large collections). This is only one example: there are many analyses that
+will work with other types of data, and most of them don't have a
+universal data representation as in the array computing case.</p>
+<p>This is the memory-intensive science, and it's hard to measure performance in
+floating point operations because... most of the time you're not even using
+floating point numbers. It also suffers from limited data locality (which is
+almost a prerequisite for compute-intensive performance).</p>
+<h2>High performance core, interactive API</h2>
+<p>There is something common in both cases: while performance-intensive
+code is implemented in C/C++/Fortran, users usually interact with the API from
+other languages (especially Python or R) because it's faster to iterate and
+explore the data, and many of the tools already available in these languages are
+very helpful for these tasks (think Jupyter/pandas or RStudio/tidyverse).
+These languages are used to define the computation, but it is a lower-level core
+library that drives it (NumPy or Tensorflow follow this idea, for example).</p>
+<h2>How to make Rust better for science?</h2>
+<p>The biggest barrier to learning Rust is the ownership model, and while we can
+agree it is an important feature it is also quite daunting for newcomers,
+especially if they don't have previous programming experience and exposure to
+what bugs are being prevented. I don't see it being the first language we teach
+to scientists any time soon, because the majority of scientists are not system
+programmers, and have very different expectations for a programming language.
+That doesn't mean that they can't benefit from Rust!</p>
+<p>Rust is already great for building the performance-intensive parts,
+and thanks to Cargo it is also a better alternative for sharing this code around,
+since they tend to get 'stuck' inside Python or R packages.
+And the 'easy' approach of vendoring C/C++ instead of having packages make it
+hard to keep track of changes and doesn't encourage reusable code.</p>
+<p>And, of course, if this code is Rust instead of C/C++ it also means that Rust
+users can use them directly, without depending on the other languages. Seems
+like a good way to bootstrap a scientific community in Rust =]</p>
+<h2>What I would like to see in 2019?</h2>
+<h3>An attribute proc-macro like <code>#[wasm_bindgen]</code> but for FFI</h3>
+<p>While FFI is an integral part of Rust goals (interoperability with C/C++), I
+have serious envy of the structure and tooling developed for WebAssembly! (Even
+more now that it works in stable too)</p>
+<p>We already have <code>#[no_mangle]</code> and <code>pub extern "C"</code>, but they are quite
+low-level. I would love to see something closer to what wasm-bindgen does,
+and define some traits (like <a href="https://rustwasm.github.io/wasm-bindgen/api/wasm_bindgen/convert/trait.IntoWasmAbi.html"><code>IntoWasmAbi</code></a>) to make it easier to
+pass more complex data types through the FFI.</p>
+<p>I know it's not that simple, and there are different design restrictions than
+WebAssembly to take into account... The point here is not having the perfect
+solution for all use cases, but something that serves as an entry point and helps
+to deal with the complexity while you're still figuring out all the quirks and
+traps of FFI. You can still fallback and have more control using the lower-level
+options when the need rises.</p>
+<h3>More -sys and Rust-like crates for interoperability with the larger ecosystems</h3>
+<p>There are new projects bringing more interoperability to <a href="https://arrow.apache.org/">dataframes</a> and <a href="https://xnd.io/">tensors</a>.
+While this ship has already sailed and they are implemented in C/C++,
+it would be great to be a first-class citizen,
+and not reinvent the wheel.
+(Note: the arrow project already have pretty good Rust support!)</p>
+<p>In my own corner (bioinformatics), the <a href="https://github.com/rust-bio">Rust-bio community</a> is doing a
+great job of wrapping <a href="https://github.com/rust-bio/rust-htslib">useful libraries in C/C++</a> and exposing them to
+Rust (and also a shout-out to 10X Genomics for doing this work for
+<a href="https://github.com/10XGenomics/rust-bwa">other tools</a> while also contributing to Rust-bio!).</p>
+<h3>More (bioinformatics) tools using Rust!</h3>
+<p>We already have great examples like <a href="https://github.com/onecodex/finch-rs">finch</a> and <a href="https://github.com/natir/yacrd">yacrd</a>,
+since Rust is great for single binary distribution of programs.
+And with bioinformatics focusing so much in independent tools chained together in workflows,
+I think we can start convincing people to try it out =]</p>
+<h3>A place to find other scientists?</h3>
+<p>Another idea is to draw inspiration from <a href="https://ropensci.org/about/">rOpenSci</a> and have a Rust equivalent,
+where people can get feedback about their projects and how to better integrate it with other crates.
+This is quite close to the working group idea,
+but I think it would serve more as a gateway to other groups,
+more focused on developing entry-level docs and bringing more scientists to the
+community.</p>
+<h2>Final words</h2>
+<p>In the end, I feel like this post ended up turning into my 'wishful TODO list'
+for 2019, but I would love to find more people sharing these goals (or willing
+to take any of this and just run with it, I do have a PhD to finish! =P)</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="https://social.lasanha.org/@luizirber/101367104235280253">Thread on Mastodon</a></li>
+<li><a href="https://twitter.com/luizirber/status/1081729107170193408">Thread on Twitter</a></li>
+</ul>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/bioinformatics.html">bioinformatics</a>
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

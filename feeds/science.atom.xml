@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - science</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="/feeds/science.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2019-01-05T17:00:00-02:00</updated><entry><title>Scientific Rust #rust2019</title><link href="https://blog.luizirber.org/2019/01/05/rust-2019/" rel="alternate"></link><published>2019-01-05T17:00:00-02:00</published><updated>2019-01-05T17:00:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-01-05:/2019/01/05/rust-2019/</id><summary type="html">&lt;p&gt;The Rust community requested feedback last year for where the language should go
+in 2018, and now they are running it again for 2019.
+Last year I was too new in Rust to organize a blog post,
+but after an year using it I feel more comfortable writing this!&lt;/p&gt;
+&lt;p&gt;(Check my previous post about &lt;a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/"&gt;replacing the C++ core in sourmash with Rust&lt;/a&gt; for more details on how I spend my year in Rust).&lt;/p&gt;
+&lt;h2&gt;What counts as "scientific Rust"?&lt;/h2&gt;
+&lt;p&gt;Anything that involves doing science using computers counts as
+scientific programming. It includes from embedded software
+&lt;a href="https://www.youtube.com/watch?v=y5Yd3FC-kh8"&gt;running on satellites&lt;/a&gt; to climate models
+running in supercomputers, from shell scripts running tools in a pipeline to
+data analysis using notebooks.&lt;/p&gt;
+&lt;p&gt;It also makes the discussion harder, because it's too general! But it is very
+important to keep in mind, because scientists are not your regular user: they
+are highly qualified in their field of expertise, and they are also pushing the
+boundaries of what we know (and this might need flexibility in their tools).&lt;/p&gt;
+&lt;p&gt;In this post I will be focusing more in two areas: array computing (what most
+people consider 'scientific programming' to be) and "data structures".&lt;/p&gt;
+&lt;h3&gt;Array computing&lt;/h3&gt;
+&lt;p&gt;This one is booming in the last couple of years due to industry interest in data
+sciences and deep learning (where they will talk about tensors instead of arrays),
+and has its roots in models running in supercomputers (a field where Fortran is
+still king!). Data tends to be quite regular (representable with matrices) and 
+amenable to parallel processing.&lt;/p&gt;
+&lt;p&gt;A good example is the SciPy stack in Python, built on top of NumPy and SciPy.
+The adoption of the SciPy stack (both in academia and industry) is staggering,
+and many &lt;a href="https://github.com/cupy/cupy"&gt;alternative implementations&lt;/a&gt; try to provide a NumPy-like API to try to
+capture its mindshare.&lt;/p&gt;
+&lt;p&gt;This is the compute-intensive side science (be it CPU or GPU/TPU), and also the kind
+of data that pushed CPU evolution and is still very important in defining policy
+in scientific computing funding (see countries competing for the largest
+supercomputers and measuring performance in floating point operations per second).&lt;/p&gt;
+&lt;h3&gt;Data structures for efficient data representation&lt;/h3&gt;
+&lt;p&gt;For data that is not so regular the situation is a bit different. I'll use
+bioinformatics as an example: the data we get out of nucleotide sequencers is usually
+represented by long strings (of ACGT), and algorithms will do a lot of string processing
+(be it building string-overlap graphs for assembly, or searching for substrings
+in large collections). This is only one example: there are many analyses that
+will work with other types of data, and most of them don't have a
+universal data representation as in the array computing case.&lt;/p&gt;
+&lt;p&gt;This is the memory-intensive science, and it's hard to measure performance in
+floating point operations because... most of the time you're not even using
+floating point numbers. It also suffers from limited data locality (which is
+almost a prerequisite for compute-intensive performance).&lt;/p&gt;
+&lt;h2&gt;High performance core, interactive API&lt;/h2&gt;
+&lt;p&gt;There is something common in both cases: while performance-intensive
+code is implemented in C/C++/Fortran, users usually interact with the API from
+other languages (especially Python or R) because it's faster to iterate and
+explore the data, and many of the tools already available in these languages are
+very helpful for these tasks (think Jupyter/pandas or RStudio/tidyverse).
+These languages are used to define the computation, but it is a lower-level core
+library that drives it (NumPy or Tensorflow follow this idea, for example).&lt;/p&gt;
+&lt;h2&gt;How to make Rust better for science?&lt;/h2&gt;
+&lt;p&gt;The biggest barrier to learning Rust is the ownership model, and while we can
+agree it is an important feature it is also quite daunting for newcomers,
+especially if they don't have previous programming experience and exposure to
+what bugs are being prevented. I don't see it being the first language we teach
+to scientists any time soon, because the majority of scientists are not system
+programmers, and have very different expectations for a programming language.
+That doesn't mean that they can't benefit from Rust!&lt;/p&gt;
+&lt;p&gt;Rust is already great for building the performance-intensive parts,
+and thanks to Cargo it is also a better alternative for sharing this code around,
+since they tend to get 'stuck' inside Python or R packages.
+And the 'easy' approach of vendoring C/C++ instead of having packages make it
+hard to keep track of changes and doesn't encourage reusable code.&lt;/p&gt;
+&lt;p&gt;And, of course, if this code is Rust instead of C/C++ it also means that Rust
+users can use them directly, without depending on the other languages. Seems
+like a good way to bootstrap a scientific community in Rust =]&lt;/p&gt;
+&lt;h2&gt;What I would like to see in 2019?&lt;/h2&gt;
+&lt;h3&gt;An attribute proc-macro like &lt;code&gt;#[wasm_bindgen]&lt;/code&gt; but for FFI&lt;/h3&gt;
+&lt;p&gt;While FFI is an integral part of Rust goals (interoperability with C/C++), I
+have serious envy of the structure and tooling developed for WebAssembly! (Even
+more now that it works in stable too)&lt;/p&gt;
+&lt;p&gt;We already have &lt;code&gt;#[no_mangle]&lt;/code&gt; and &lt;code&gt;pub extern "C"&lt;/code&gt;, but they are quite
+low-level. I would love to see something closer to what wasm-bindgen does,
+and define some traits (like &lt;a href="https://rustwasm.github.io/wasm-bindgen/api/wasm_bindgen/convert/trait.IntoWasmAbi.html"&gt;&lt;code&gt;IntoWasmAbi&lt;/code&gt;&lt;/a&gt;) to make it easier to
+pass more complex data types through the FFI.&lt;/p&gt;
+&lt;p&gt;I know it's not that simple, and there are different design restrictions than
+WebAssembly to take into account... The point here is not having the perfect
+solution for all use cases, but something that serves as an entry point and helps
+to deal with the complexity while you're still figuring out all the quirks and
+traps of FFI. You can still fallback and have more control using the lower-level
+options when the need rises.&lt;/p&gt;
+&lt;h3&gt;More -sys and Rust-like crates for interoperability with the larger ecosystems&lt;/h3&gt;
+&lt;p&gt;There are new projects bringing more interoperability to &lt;a href="https://arrow.apache.org/"&gt;dataframes&lt;/a&gt; and &lt;a href="https://xnd.io/"&gt;tensors&lt;/a&gt;.
+While this ship has already sailed and they are implemented in C/C++,
+it would be great to be a first-class citizen,
+and not reinvent the wheel.
+(Note: the arrow project already have pretty good Rust support!)&lt;/p&gt;
+&lt;p&gt;In my own corner (bioinformatics), the &lt;a href="https://github.com/rust-bio"&gt;Rust-bio community&lt;/a&gt; is doing a
+great job of wrapping &lt;a href="https://github.com/rust-bio/rust-htslib"&gt;useful libraries in C/C++&lt;/a&gt; and exposing them to
+Rust (and also a shout-out to 10X Genomics for doing this work for
+&lt;a href="https://github.com/10XGenomics/rust-bwa"&gt;other tools&lt;/a&gt; while also contributing to Rust-bio!).&lt;/p&gt;
+&lt;h3&gt;More (bioinformatics) tools using Rust!&lt;/h3&gt;
+&lt;p&gt;We already have great examples like &lt;a href="https://github.com/onecodex/finch-rs"&gt;finch&lt;/a&gt; and &lt;a href="https://github.com/natir/yacrd"&gt;yacrd&lt;/a&gt;,
+since Rust is great for single binary distribution of programs.
+And with bioinformatics focusing so much in independent tools chained together in workflows,
+I think we can start convincing people to try it out =]&lt;/p&gt;
+&lt;h3&gt;A place to find other scientists?&lt;/h3&gt;
+&lt;p&gt;Another idea is to draw inspiration from &lt;a href="https://ropensci.org/about/"&gt;rOpenSci&lt;/a&gt; and have a Rust equivalent,
+where people can get feedback about their projects and how to better integrate it with other crates.
+This is quite close to the working group idea,
+but I think it would serve more as a gateway to other groups,
+more focused on developing entry-level docs and bringing more scientists to the
+community.&lt;/p&gt;
+&lt;h2&gt;Final words&lt;/h2&gt;
+&lt;p&gt;In the end, I feel like this post ended up turning into my 'wishful TODO list'
+for 2019, but I would love to find more people sharing these goals (or willing
+to take any of this and just run with it, I do have a PhD to finish! =P)&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/101367104235280253"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1081729107170193408"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><content type="html">&lt;p&gt;The Rust community requested feedback last year for where the language should go
+in 2018, and now they are running it again for 2019.
+Last year I was too new in Rust to organize a blog post,
+but after an year using it I feel more comfortable writing this!&lt;/p&gt;
+&lt;p&gt;(Check my previous post about &lt;a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/"&gt;replacing the C++ core in sourmash with Rust&lt;/a&gt; for more details on how I spend my year in Rust).&lt;/p&gt;
+&lt;h2&gt;What counts as "scientific Rust"?&lt;/h2&gt;
+&lt;p&gt;Anything that involves doing science using computers counts as
+scientific programming. It includes from embedded software
+&lt;a href="https://www.youtube.com/watch?v=y5Yd3FC-kh8"&gt;running on satellites&lt;/a&gt; to climate models
+running in supercomputers, from shell scripts running tools in a pipeline to
+data analysis using notebooks.&lt;/p&gt;
+&lt;p&gt;It also makes the discussion harder, because it's too general! But it is very
+important to keep in mind, because scientists are not your regular user: they
+are highly qualified in their field of expertise, and they are also pushing the
+boundaries of what we know (and this might need flexibility in their tools).&lt;/p&gt;
+&lt;p&gt;In this post I will be focusing more in two areas: array computing (what most
+people consider 'scientific programming' to be) and "data structures".&lt;/p&gt;
+&lt;h3&gt;Array computing&lt;/h3&gt;
+&lt;p&gt;This one is booming in the last couple of years due to industry interest in data
+sciences and deep learning (where they will talk about tensors instead of arrays),
+and has its roots in models running in supercomputers (a field where Fortran is
+still king!). Data tends to be quite regular (representable with matrices) and 
+amenable to parallel processing.&lt;/p&gt;
+&lt;p&gt;A good example is the SciPy stack in Python, built on top of NumPy and SciPy.
+The adoption of the SciPy stack (both in academia and industry) is staggering,
+and many &lt;a href="https://github.com/cupy/cupy"&gt;alternative implementations&lt;/a&gt; try to provide a NumPy-like API to try to
+capture its mindshare.&lt;/p&gt;
+&lt;p&gt;This is the compute-intensive side science (be it CPU or GPU/TPU), and also the kind
+of data that pushed CPU evolution and is still very important in defining policy
+in scientific computing funding (see countries competing for the largest
+supercomputers and measuring performance in floating point operations per second).&lt;/p&gt;
+&lt;h3&gt;Data structures for efficient data representation&lt;/h3&gt;
+&lt;p&gt;For data that is not so regular the situation is a bit different. I'll use
+bioinformatics as an example: the data we get out of nucleotide sequencers is usually
+represented by long strings (of ACGT), and algorithms will do a lot of string processing
+(be it building string-overlap graphs for assembly, or searching for substrings
+in large collections). This is only one example: there are many analyses that
+will work with other types of data, and most of them don't have a
+universal data representation as in the array computing case.&lt;/p&gt;
+&lt;p&gt;This is the memory-intensive science, and it's hard to measure performance in
+floating point operations because... most of the time you're not even using
+floating point numbers. It also suffers from limited data locality (which is
+almost a prerequisite for compute-intensive performance).&lt;/p&gt;
+&lt;h2&gt;High performance core, interactive API&lt;/h2&gt;
+&lt;p&gt;There is something common in both cases: while performance-intensive
+code is implemented in C/C++/Fortran, users usually interact with the API from
+other languages (especially Python or R) because it's faster to iterate and
+explore the data, and many of the tools already available in these languages are
+very helpful for these tasks (think Jupyter/pandas or RStudio/tidyverse).
+These languages are used to define the computation, but it is a lower-level core
+library that drives it (NumPy or Tensorflow follow this idea, for example).&lt;/p&gt;
+&lt;h2&gt;How to make Rust better for science?&lt;/h2&gt;
+&lt;p&gt;The biggest barrier to learning Rust is the ownership model, and while we can
+agree it is an important feature it is also quite daunting for newcomers,
+especially if they don't have previous programming experience and exposure to
+what bugs are being prevented. I don't see it being the first language we teach
+to scientists any time soon, because the majority of scientists are not system
+programmers, and have very different expectations for a programming language.
+That doesn't mean that they can't benefit from Rust!&lt;/p&gt;
+&lt;p&gt;Rust is already great for building the performance-intensive parts,
+and thanks to Cargo it is also a better alternative for sharing this code around,
+since they tend to get 'stuck' inside Python or R packages.
+And the 'easy' approach of vendoring C/C++ instead of having packages make it
+hard to keep track of changes and doesn't encourage reusable code.&lt;/p&gt;
+&lt;p&gt;And, of course, if this code is Rust instead of C/C++ it also means that Rust
+users can use them directly, without depending on the other languages. Seems
+like a good way to bootstrap a scientific community in Rust =]&lt;/p&gt;
+&lt;h2&gt;What I would like to see in 2019?&lt;/h2&gt;
+&lt;h3&gt;An attribute proc-macro like &lt;code&gt;#[wasm_bindgen]&lt;/code&gt; but for FFI&lt;/h3&gt;
+&lt;p&gt;While FFI is an integral part of Rust goals (interoperability with C/C++), I
+have serious envy of the structure and tooling developed for WebAssembly! (Even
+more now that it works in stable too)&lt;/p&gt;
+&lt;p&gt;We already have &lt;code&gt;#[no_mangle]&lt;/code&gt; and &lt;code&gt;pub extern "C"&lt;/code&gt;, but they are quite
+low-level. I would love to see something closer to what wasm-bindgen does,
+and define some traits (like &lt;a href="https://rustwasm.github.io/wasm-bindgen/api/wasm_bindgen/convert/trait.IntoWasmAbi.html"&gt;&lt;code&gt;IntoWasmAbi&lt;/code&gt;&lt;/a&gt;) to make it easier to
+pass more complex data types through the FFI.&lt;/p&gt;
+&lt;p&gt;I know it's not that simple, and there are different design restrictions than
+WebAssembly to take into account... The point here is not having the perfect
+solution for all use cases, but something that serves as an entry point and helps
+to deal with the complexity while you're still figuring out all the quirks and
+traps of FFI. You can still fallback and have more control using the lower-level
+options when the need rises.&lt;/p&gt;
+&lt;h3&gt;More -sys and Rust-like crates for interoperability with the larger ecosystems&lt;/h3&gt;
+&lt;p&gt;There are new projects bringing more interoperability to &lt;a href="https://arrow.apache.org/"&gt;dataframes&lt;/a&gt; and &lt;a href="https://xnd.io/"&gt;tensors&lt;/a&gt;.
+While this ship has already sailed and they are implemented in C/C++,
+it would be great to be a first-class citizen,
+and not reinvent the wheel.
+(Note: the arrow project already have pretty good Rust support!)&lt;/p&gt;
+&lt;p&gt;In my own corner (bioinformatics), the &lt;a href="https://github.com/rust-bio"&gt;Rust-bio community&lt;/a&gt; is doing a
+great job of wrapping &lt;a href="https://github.com/rust-bio/rust-htslib"&gt;useful libraries in C/C++&lt;/a&gt; and exposing them to
+Rust (and also a shout-out to 10X Genomics for doing this work for
+&lt;a href="https://github.com/10XGenomics/rust-bwa"&gt;other tools&lt;/a&gt; while also contributing to Rust-bio!).&lt;/p&gt;
+&lt;h3&gt;More (bioinformatics) tools using Rust!&lt;/h3&gt;
+&lt;p&gt;We already have great examples like &lt;a href="https://github.com/onecodex/finch-rs"&gt;finch&lt;/a&gt; and &lt;a href="https://github.com/natir/yacrd"&gt;yacrd&lt;/a&gt;,
+since Rust is great for single binary distribution of programs.
+And with bioinformatics focusing so much in independent tools chained together in workflows,
+I think we can start convincing people to try it out =]&lt;/p&gt;
+&lt;h3&gt;A place to find other scientists?&lt;/h3&gt;
+&lt;p&gt;Another idea is to draw inspiration from &lt;a href="https://ropensci.org/about/"&gt;rOpenSci&lt;/a&gt; and have a Rust equivalent,
+where people can get feedback about their projects and how to better integrate it with other crates.
+This is quite close to the working group idea,
+but I think it would serve more as a gateway to other groups,
+more focused on developing entry-level docs and bringing more scientists to the
+community.&lt;/p&gt;
+&lt;h2&gt;Final words&lt;/h2&gt;
+&lt;p&gt;In the end, I feel like this post ended up turning into my 'wishful TODO list'
+for 2019, but I would love to find more people sharing these goals (or willing
+to take any of this and just run with it, I do have a PhD to finish! =P)&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/101367104235280253"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1081729107170193408"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>What open science is about</title><link href="https://blog.luizirber.org/2018/09/24/open-science/" rel="alternate"></link><published>2018-09-24T17:00:00-03:00</published><updated>2018-09-24T17:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2018-09-24:/2018/09/24/open-science/</id><summary type="html">&lt;p&gt;Today I got a pleasant surprise: &lt;a href="http://www.olgabotvinnik.com/"&gt;Olga Botvinnik&lt;/a&gt; posted on &lt;a href="https://twitter.com/olgabot/status/1044292704513839104"&gt;Twitter&lt;/a&gt;
+about a &lt;a href="https://github.com/czbiohub/kmer-hashing/blob/olgabot/search-compare-ignore-abundance/figures/presentations/2018-09-24_beyond_the_cell_atlas_poster/2018-09-24_Beyond_the_Cell_Atlas.pdf"&gt;poster&lt;/a&gt; she is presenting at the Beyond the Cell Atlas conference
+and she name-dropped a bunch of people that helped her. The cool thing? They
+are all open source developers, and Olga interacted thru GitHub to &lt;a href="https://github.com/dib-lab/sourmash/pull/543"&gt;ask&lt;/a&gt; &lt;a href="https://github.com/dib-lab/sourmash/issues/545"&gt;for&lt;/a&gt; &lt;a href="https://github.com/betteridiot/bamnostic/issues/15"&gt;features&lt;/a&gt;,
+&lt;a href="https://github.com/betteridiot/bamnostic/issues/20"&gt;report bugs&lt;/a&gt; and even &lt;a href="https://github.com/dib-lab/sourmash/pull/543"&gt;submit&lt;/a&gt; &lt;a href="https://github.com/dib-lab/sourmash/pull/539"&gt;pull&lt;/a&gt; &lt;a href="https://github.com/dib-lab/sourmash/pull/529"&gt;requests&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;That's what open science is about: collaboration, good practices, and in the end coming up
+with something that is larger than each individual piece. Now sourmash is better,
+bamnostic is better, reflow is better. I would like to see this becoming more and
+more common =]&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100783375923088450"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1044369382233665536"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><content type="html">&lt;p&gt;Today I got a pleasant surprise: &lt;a href="http://www.olgabotvinnik.com/"&gt;Olga Botvinnik&lt;/a&gt; posted on &lt;a href="https://twitter.com/olgabot/status/1044292704513839104"&gt;Twitter&lt;/a&gt;
+about a &lt;a href="https://github.com/czbiohub/kmer-hashing/blob/olgabot/search-compare-ignore-abundance/figures/presentations/2018-09-24_beyond_the_cell_atlas_poster/2018-09-24_Beyond_the_Cell_Atlas.pdf"&gt;poster&lt;/a&gt; she is presenting at the Beyond the Cell Atlas conference
+and she name-dropped a bunch of people that helped her. The cool thing? They
+are all open source developers, and Olga interacted thru GitHub to &lt;a href="https://github.com/dib-lab/sourmash/pull/543"&gt;ask&lt;/a&gt; &lt;a href="https://github.com/dib-lab/sourmash/issues/545"&gt;for&lt;/a&gt; &lt;a href="https://github.com/betteridiot/bamnostic/issues/15"&gt;features&lt;/a&gt;,
+&lt;a href="https://github.com/betteridiot/bamnostic/issues/20"&gt;report bugs&lt;/a&gt; and even &lt;a href="https://github.com/dib-lab/sourmash/pull/543"&gt;submit&lt;/a&gt; &lt;a href="https://github.com/dib-lab/sourmash/pull/539"&gt;pull&lt;/a&gt; &lt;a href="https://github.com/dib-lab/sourmash/pull/529"&gt;requests&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;That's what open science is about: collaboration, good practices, and in the end coming up
+with something that is larger than each individual piece. Now sourmash is better,
+bamnostic is better, reflow is better. I would like to see this becoming more and
+more common =]&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100783375923088450"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1044369382233665536"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="bioinformatics"></category><category term="sourmash"></category><category term="open"></category></entry><entry><title>New crate: nthash</title><link href="https://blog.luizirber.org/2018/09/13/nthash/" rel="alternate"></link><published>2018-09-13T17:00:00-03:00</published><updated>2018-09-13T17:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2018-09-13:/2018/09/13/nthash/</id><summary type="html">&lt;p&gt;A quick announcement: I wrote a &lt;a href="https://github.com/luizirber/nthash"&gt;Rust implementation&lt;/a&gt; of &lt;a href="https://github.com/bcgsc/ntHash"&gt;ntHash&lt;/a&gt; and published
+it in &lt;a href="https://crates.io/crates/nthash"&gt;crates.io&lt;/a&gt;. It implements an &lt;code&gt;Iterator&lt;/code&gt; to take advantage of the
+rolling properties of &lt;code&gt;ntHash&lt;/code&gt; which make it so useful in bioinformatics (where
+we work a lot with sliding windows over sequences).&lt;/p&gt;
+&lt;p&gt;It's a pretty small crate, and probably was a better project to learn Rust than
+doing a &lt;a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/"&gt;sourmash implementation&lt;/a&gt; because it doesn't involve gnarly FFI
+issues. I also put &lt;a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/src/lib.rs#L91"&gt;some docs&lt;/a&gt;, &lt;a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/benches/nthash.rs#L11"&gt;benchmarks&lt;/a&gt; using &lt;a href="https://japaric.github.io/criterion.rs/"&gt;criterion&lt;/a&gt;,
+and even an &lt;a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/tests/nthash.rs#L80"&gt;oracle property-based test&lt;/a&gt; with &lt;a href="https://github.com/BurntSushi/quickcheck"&gt;quickcheck&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;More info &lt;a href="https://docs.rs/nthash/"&gt;in the docs&lt;/a&gt;, and if you want an &lt;s&gt;optimization&lt;/s&gt; versioning bug
+discussion be sure to check the &lt;a href="https://github.com/luizirber/nthash_bug"&gt;&lt;code&gt;ntHash bug?&lt;/code&gt;&lt;/a&gt; repo,
+which has a (slow) Python implementation and a pretty nice &lt;a href="https://nbviewer.jupyter.org/github/luizirber/nthash_bug/blob/master/analysis.ipynb"&gt;analysis&lt;/a&gt; notebook.&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100721133117928424"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1040386666089705472"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><content type="html">&lt;p&gt;A quick announcement: I wrote a &lt;a href="https://github.com/luizirber/nthash"&gt;Rust implementation&lt;/a&gt; of &lt;a href="https://github.com/bcgsc/ntHash"&gt;ntHash&lt;/a&gt; and published
+it in &lt;a href="https://crates.io/crates/nthash"&gt;crates.io&lt;/a&gt;. It implements an &lt;code&gt;Iterator&lt;/code&gt; to take advantage of the
+rolling properties of &lt;code&gt;ntHash&lt;/code&gt; which make it so useful in bioinformatics (where
+we work a lot with sliding windows over sequences).&lt;/p&gt;
+&lt;p&gt;It's a pretty small crate, and probably was a better project to learn Rust than
+doing a &lt;a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/"&gt;sourmash implementation&lt;/a&gt; because it doesn't involve gnarly FFI
+issues. I also put &lt;a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/src/lib.rs#L91"&gt;some docs&lt;/a&gt;, &lt;a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/benches/nthash.rs#L11"&gt;benchmarks&lt;/a&gt; using &lt;a href="https://japaric.github.io/criterion.rs/"&gt;criterion&lt;/a&gt;,
+and even an &lt;a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/tests/nthash.rs#L80"&gt;oracle property-based test&lt;/a&gt; with &lt;a href="https://github.com/BurntSushi/quickcheck"&gt;quickcheck&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;More info &lt;a href="https://docs.rs/nthash/"&gt;in the docs&lt;/a&gt;, and if you want an &lt;s&gt;optimization&lt;/s&gt; versioning bug
+discussion be sure to check the &lt;a href="https://github.com/luizirber/nthash_bug"&gt;&lt;code&gt;ntHash bug?&lt;/code&gt;&lt;/a&gt; repo,
+which has a (slow) Python implementation and a pretty nice &lt;a href="https://nbviewer.jupyter.org/github/luizirber/nthash_bug/blob/master/analysis.ipynb"&gt;analysis&lt;/a&gt; notebook.&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100721133117928424"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1040386666089705472"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="rust"></category><category term="hashing"></category><category term="bioinformatics"></category></entry><entry><title>Oxidizing sourmash: WebAssembly</title><link href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/" rel="alternate"></link><published>2018-08-27T15:30:00-03:00</published><updated>2018-08-27T15:30:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2018-08-27:/2018/08/27/sourmash-wasm/</id><summary type="html">&lt;p&gt;sourmash calculates MinHash signatures for genomic datasets,
+meaning we are reducing the data (via subsampling) to a small
+representative subset (a signature) capable of answering one question:
+how similar is this dataset to another one? The key here is that a dataset with
+10-100 GB will be reduced to something in the megabytes range, and two approaches
+for doing that are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The user install our software in their computer.
+  This is not so bad anymore (yay bioconda!), but still requires knowledge
+  about command line interfaces and how to install all this stuff. The user
+  data never leaves their computer, and they can share the signatures later
+  if they want to.&lt;/li&gt;
+&lt;li&gt;Provide a web service to calculate signatures. In this case no software
+  need to be installed, but it's up to someone (me?) to maintain a server running with
+  an API and frontend to interact with the users. On top of requiring more
+  maintenance, another drawback is that
+  the user need to send me the data, which is very inefficient network-wise
+  and lead to questions about what I can do with their raw data (and I'm not
+  into surveillance capitalism, TYVM).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;But... what if there is a third way?&lt;/h2&gt;
+&lt;p&gt;What if we could keep the frontend code from the web service (very
+user-friendly) but do all the calculations client-side (and avoid the network
+bottleneck)? The main hurdle
+here is that our software is implemented in Python (and C++), which are not
+supported in browsers. My first solution was to write the core features of
+&lt;a href="https://github.com/luizirber/sourmash-node"&gt;sourmash in JavaScript&lt;/a&gt;, but that quickly started hitting annoying things
+like JavaScript not supporting 64-bit integers. There is also the issue of
+having another codebase to maintain and keep in sync with the original sourmash,
+which would be a relevant burden for us. I gave a &lt;a href="https://drive.google.com/open?id=1JvXiDaEA4J3hmEKw6sV-VHMpuHG_sxls3fLxJOht28E"&gt;lab meeting&lt;/a&gt; about this
+approach, using a &lt;a href="https://soursigs-dnd-luizirber.hashbase.io/"&gt;drag-and-drop UI as proof of concept&lt;/a&gt;. It did work but it
+was finicky (dealing with the 64-bit integer hashes is not fun). The good thing
+is that at least I had a working UI for further testing&lt;sup id=sf-sourmash-wasm-1-back&gt;&lt;a href=#sf-sourmash-wasm-1 class=simple-footnote title="even if horrible, I need to get some design classes =P"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;In "&lt;a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/"&gt;Oxidizing sourmash: Python and FFI&lt;/a&gt;" I described my road to learn Rust,
+but something that I omitted was that around the same time the &lt;code&gt;WebAssembly&lt;/code&gt;
+support in Rust started to look better and better and was a huge influence in 
+my decision to learn Rust. Reimplementing the sourmash C++ extension in Rust and
+use the same codebase in the browser sounded very attractive,
+and now that it was working I started looking into how to use the WebAssembly
+target in Rust.&lt;/p&gt;
+&lt;h2&gt;WebAssembly?&lt;/h2&gt;
+&lt;p&gt;From the &lt;a href="https://webassembly.org/"&gt;official site&lt;/a&gt;,&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;WebAssembly (abbreviated Wasm) is a binary
+instruction format for a stack-based
+virtual machine. Wasm is designed as a
+portable target for compilation of high-level
+languages like C/C++/Rust, enabling deployment
+on the web for client and server applications.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can write WebAssembly by hand, but the goal is to have it as lower level
+target for other languages. For me the obvious benefit is being able to use
+something that is not JavaScript in the browser, even though the goal is not to replace
+JS completely but complement it in a big pain point: performance. This also
+frees JavaScript from being the target language for other toolchains,
+allowing it to grow into other important areas (like language ergonomics).&lt;/p&gt;
+&lt;p&gt;Rust is not the only language targeting WebAssembly: Go 1.11 includes
+&lt;a href="https://golang.org/doc/go1.11#wasm"&gt;experimental support for WebAssembly&lt;/a&gt;, and there are even projects bringing
+the &lt;a href="https://github.com/iodide-project/pyodide"&gt;scientific Python to the web&lt;/a&gt; using WebAssembly. &lt;/p&gt;
+&lt;h2&gt;But does it work?&lt;/h2&gt;
+&lt;p&gt;With the &lt;a href="https://github.com/luizirber/sourmash-rust"&gt;Rust implementation in place&lt;/a&gt; and with all tests working on sourmash, I 
+added the finishing touches using &lt;a href="https://github.com/rustwasm/wasm-bindgen"&gt;&lt;code&gt;wasm-bindgen&lt;/code&gt;&lt;/a&gt; and built an NPM package using
+&lt;a href="https://github.com/rustwasm/wasm-pack"&gt;&lt;code&gt;wasm-pack&lt;/code&gt;&lt;/a&gt;: &lt;a href="https://www.npmjs.com/package/sourmash"&gt;sourmash&lt;/a&gt; is a Rust codebase compiled to WebAssembly and ready
+to use in JavaScript projects.&lt;/p&gt;
+&lt;p&gt;(Many thanks to Madicken Munk, who also presented during SciPy about how they used
+&lt;a href="https://munkm.github.io/2018-07-13-scipy/"&gt;Rust and WebAssembly to do interactive visualization in Jupyter&lt;/a&gt;
+and helped with a good example on how to do this properly =] )&lt;/p&gt;
+&lt;p&gt;Since I already had the working UI from the previous PoC, I &lt;a href="https://github.com/luizirber/wort-dnd"&gt;refactored the code&lt;/a&gt;
+to use the new WebAssembly module and voilà! &lt;a href="https://wort-dnd.hashbase.io/"&gt;It works!&lt;/a&gt;&lt;sup id=sf-sourmash-wasm-2-back&gt;&lt;a href=#sf-sourmash-wasm-2 class=simple-footnote title="the first version of this demo only worked in Chrome because they implemented the BigInt proposal, which is not in the official language yet. The funny thing is that BigInt would have made the JS implementation of sourmash viable, and I probably wouldn't have written the Rust implementation =P. Turns out that I didn't need the BigInt support if I didn't expose any 64-bit integers to JS, and that is what I'm doing now."&gt;2&lt;/a&gt;&lt;/sup&gt;.
+&lt;sup id=sf-sourmash-wasm-3-back&gt;&lt;a href=#sf-sourmash-wasm-3 class=simple-footnote title="Along the way I ended up writing a new FASTQ parser... because it wouldn't be bioinformatics if it didn't otherwise, right? =P"&gt;3&lt;/a&gt;&lt;/sup&gt;
+But that was the demo from a year ago with updated code and I got a bit
+better with frontend development since then, so here is the new demo:&lt;/p&gt;
+&lt;div id=files class=box ondragover=event.preventDefault()&gt;
+  &lt;h2&gt;sourmash + Wasm&lt;/h2&gt;
+  &lt;div id=drag-container&gt;
+    &lt;p&gt;&lt;b&gt;Drag &amp;amp; drop&lt;/b&gt; a FASTA or FASTQ file here to calculate the sourmash signature.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div id=progress-container&gt;
+    &lt;div id=progress-bar&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=columns&gt;
+    &lt;fieldset class="box input-button" id=params&gt;
+      &lt;label for=ksize-input&gt;k-mer size:&lt;/label&gt;
+      &lt;input id=ksize-input type=number value=21&gt;
+      &lt;label for=scaled-input&gt;scaled:&lt;/label&gt;
+      &lt;input id=scaled-input type=number value=0&gt;
+      &lt;label for=num-input&gt;number of hashes:&lt;/label&gt;
+      &lt;input id=num-input type=number value=500&gt;
+      &lt;label for=dna-protein-group&gt;Input type:&lt;/label&gt;
+      &lt;div id=dna-protein-group&gt;
+        &lt;input id=dna-input name=dna-protein-input type=radio value="DNA/RNA" checked&gt;
+        &lt;label for=dna-input&gt;DNA/RNA&lt;/label&gt;
+        &lt;input id=protein-input name=dna-protein-input type=radio value=Protein&gt;
+        &lt;label for=protein-input&gt;Protein&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;label for=track-abundance-input&gt;Track abundance?&lt;/label&gt;
+      &lt;input id=track-abundance-input type=checkbox checked&gt;
+    &lt;/fieldset&gt;
+    &lt;div class=box id=download&gt;
+      &lt;button id=download_btn type=button disabled&gt;Download&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;link rel=stylesheet href="https://blog.luizirber.org/static/sourmash-wasm/app.css"&gt;
+&lt;script src="https://blog.luizirber.org/static/sourmash-wasm/dist/bundle.js"&gt;&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;For the source code for this demo, check the &lt;a href="https://blog.luizirber.org/static/sourmash-wasm/index.html"&gt;sourmash-wasm&lt;/a&gt; directory.&lt;/p&gt;
+&lt;h2&gt;Next steps&lt;/h2&gt;
+&lt;p&gt;The proof of concept works, but it is pretty useless right now.
+I'm thinking about building it as a &lt;a href="https://www.webcomponents.org/"&gt;Web Component&lt;/a&gt; and making it really easy
+to add to any webpage&lt;sup id=sf-sourmash-wasm-4-back&gt;&lt;a href=#sf-sourmash-wasm-4 class=simple-footnote title="or maybe a React component? I really would like to have something that works independent of framework, but not sure what is the best option in this case..."&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Another interesting feature would be supporting more input formats (the GMOD
+project implemented a lot of those!), but more features are probably better
+after something simple but functional is released =P&lt;/p&gt;
+&lt;h2&gt;Next time!&lt;/h2&gt;
+&lt;p&gt;Where we will go next? Maybe explore some decentralized web technologies like
+IPFS and dat, hmm? =]&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100624574917435477"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/rust/comments/9atie8/blog_post_clientside_bioinformatics_in_the/"&gt;Thread on reddit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1034206952773935104"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Updates&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;2018-08-30: Added a demo in the blog post.&lt;/li&gt;
+&lt;/ul&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sourmash-wasm-1&gt;&lt;p&gt;even if horrible, I
+need to get some design classes =P &lt;a href=#sf-sourmash-wasm-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-wasm-2&gt;&lt;p&gt;the first version
+of this demo only worked in Chrome because they implemented the &lt;a href="https://github.com/tc39/proposal-bigint"&gt;BigInt proposal&lt;/a&gt;,
+which is not in the official language yet. The funny thing is that BigInt would
+have made the JS implementation of sourmash viable, and I probably wouldn't have
+written the Rust implementation =P.
+Turns out that I didn't need the BigInt support if I didn't expose any 64-bit
+integers to JS, and that is what I'm doing now. &lt;a href=#sf-sourmash-wasm-2-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-wasm-3&gt;&lt;p&gt;Along the way I ended up writing a new FASTQ parser... because it wouldn't
+be bioinformatics if it didn't otherwise, right? =P &lt;a href=#sf-sourmash-wasm-3-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-wasm-4&gt;&lt;p&gt;or maybe a React component? I really would like to
+have something that works independent of framework, but not sure what is the
+best option in this case... &lt;a href=#sf-sourmash-wasm-4-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</summary><content type="html">&lt;p&gt;sourmash calculates MinHash signatures for genomic datasets,
+meaning we are reducing the data (via subsampling) to a small
+representative subset (a signature) capable of answering one question:
+how similar is this dataset to another one? The key here is that a dataset with
+10-100 GB will be reduced to something in the megabytes range, and two approaches
+for doing that are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The user install our software in their computer.
+  This is not so bad anymore (yay bioconda!), but still requires knowledge
+  about command line interfaces and how to install all this stuff. The user
+  data never leaves their computer, and they can share the signatures later
+  if they want to.&lt;/li&gt;
+&lt;li&gt;Provide a web service to calculate signatures. In this case no software
+  need to be installed, but it's up to someone (me?) to maintain a server running with
+  an API and frontend to interact with the users. On top of requiring more
+  maintenance, another drawback is that
+  the user need to send me the data, which is very inefficient network-wise
+  and lead to questions about what I can do with their raw data (and I'm not
+  into surveillance capitalism, TYVM).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;But... what if there is a third way?&lt;/h2&gt;
+&lt;p&gt;What if we could keep the frontend code from the web service (very
+user-friendly) but do all the calculations client-side (and avoid the network
+bottleneck)? The main hurdle
+here is that our software is implemented in Python (and C++), which are not
+supported in browsers. My first solution was to write the core features of
+&lt;a href="https://github.com/luizirber/sourmash-node"&gt;sourmash in JavaScript&lt;/a&gt;, but that quickly started hitting annoying things
+like JavaScript not supporting 64-bit integers. There is also the issue of
+having another codebase to maintain and keep in sync with the original sourmash,
+which would be a relevant burden for us. I gave a &lt;a href="https://drive.google.com/open?id=1JvXiDaEA4J3hmEKw6sV-VHMpuHG_sxls3fLxJOht28E"&gt;lab meeting&lt;/a&gt; about this
+approach, using a &lt;a href="https://soursigs-dnd-luizirber.hashbase.io/"&gt;drag-and-drop UI as proof of concept&lt;/a&gt;. It did work but it
+was finicky (dealing with the 64-bit integer hashes is not fun). The good thing
+is that at least I had a working UI for further testing&lt;sup id=sf-sourmash-wasm-1-back&gt;&lt;a href=#sf-sourmash-wasm-1 class=simple-footnote title="even if horrible, I need to get some design classes =P"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;In "&lt;a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/"&gt;Oxidizing sourmash: Python and FFI&lt;/a&gt;" I described my road to learn Rust,
+but something that I omitted was that around the same time the &lt;code&gt;WebAssembly&lt;/code&gt;
+support in Rust started to look better and better and was a huge influence in 
+my decision to learn Rust. Reimplementing the sourmash C++ extension in Rust and
+use the same codebase in the browser sounded very attractive,
+and now that it was working I started looking into how to use the WebAssembly
+target in Rust.&lt;/p&gt;
+&lt;h2&gt;WebAssembly?&lt;/h2&gt;
+&lt;p&gt;From the &lt;a href="https://webassembly.org/"&gt;official site&lt;/a&gt;,&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;WebAssembly (abbreviated Wasm) is a binary
+instruction format for a stack-based
+virtual machine. Wasm is designed as a
+portable target for compilation of high-level
+languages like C/C++/Rust, enabling deployment
+on the web for client and server applications.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can write WebAssembly by hand, but the goal is to have it as lower level
+target for other languages. For me the obvious benefit is being able to use
+something that is not JavaScript in the browser, even though the goal is not to replace
+JS completely but complement it in a big pain point: performance. This also
+frees JavaScript from being the target language for other toolchains,
+allowing it to grow into other important areas (like language ergonomics).&lt;/p&gt;
+&lt;p&gt;Rust is not the only language targeting WebAssembly: Go 1.11 includes
+&lt;a href="https://golang.org/doc/go1.11#wasm"&gt;experimental support for WebAssembly&lt;/a&gt;, and there are even projects bringing
+the &lt;a href="https://github.com/iodide-project/pyodide"&gt;scientific Python to the web&lt;/a&gt; using WebAssembly. &lt;/p&gt;
+&lt;h2&gt;But does it work?&lt;/h2&gt;
+&lt;p&gt;With the &lt;a href="https://github.com/luizirber/sourmash-rust"&gt;Rust implementation in place&lt;/a&gt; and with all tests working on sourmash, I 
+added the finishing touches using &lt;a href="https://github.com/rustwasm/wasm-bindgen"&gt;&lt;code&gt;wasm-bindgen&lt;/code&gt;&lt;/a&gt; and built an NPM package using
+&lt;a href="https://github.com/rustwasm/wasm-pack"&gt;&lt;code&gt;wasm-pack&lt;/code&gt;&lt;/a&gt;: &lt;a href="https://www.npmjs.com/package/sourmash"&gt;sourmash&lt;/a&gt; is a Rust codebase compiled to WebAssembly and ready
+to use in JavaScript projects.&lt;/p&gt;
+&lt;p&gt;(Many thanks to Madicken Munk, who also presented during SciPy about how they used
+&lt;a href="https://munkm.github.io/2018-07-13-scipy/"&gt;Rust and WebAssembly to do interactive visualization in Jupyter&lt;/a&gt;
+and helped with a good example on how to do this properly =] )&lt;/p&gt;
+&lt;p&gt;Since I already had the working UI from the previous PoC, I &lt;a href="https://github.com/luizirber/wort-dnd"&gt;refactored the code&lt;/a&gt;
+to use the new WebAssembly module and voilà! &lt;a href="https://wort-dnd.hashbase.io/"&gt;It works!&lt;/a&gt;&lt;sup id=sf-sourmash-wasm-2-back&gt;&lt;a href=#sf-sourmash-wasm-2 class=simple-footnote title="the first version of this demo only worked in Chrome because they implemented the BigInt proposal, which is not in the official language yet. The funny thing is that BigInt would have made the JS implementation of sourmash viable, and I probably wouldn't have written the Rust implementation =P. Turns out that I didn't need the BigInt support if I didn't expose any 64-bit integers to JS, and that is what I'm doing now."&gt;2&lt;/a&gt;&lt;/sup&gt;.
+&lt;sup id=sf-sourmash-wasm-3-back&gt;&lt;a href=#sf-sourmash-wasm-3 class=simple-footnote title="Along the way I ended up writing a new FASTQ parser... because it wouldn't be bioinformatics if it didn't otherwise, right? =P"&gt;3&lt;/a&gt;&lt;/sup&gt;
+But that was the demo from a year ago with updated code and I got a bit
+better with frontend development since then, so here is the new demo:&lt;/p&gt;
+&lt;div id=files class=box ondragover=event.preventDefault()&gt;
+  &lt;h2&gt;sourmash + Wasm&lt;/h2&gt;
+  &lt;div id=drag-container&gt;
+    &lt;p&gt;&lt;b&gt;Drag &amp;amp; drop&lt;/b&gt; a FASTA or FASTQ file here to calculate the sourmash signature.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div id=progress-container&gt;
+    &lt;div id=progress-bar&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=columns&gt;
+    &lt;fieldset class="box input-button" id=params&gt;
+      &lt;label for=ksize-input&gt;k-mer size:&lt;/label&gt;
+      &lt;input id=ksize-input type=number value=21&gt;
+      &lt;label for=scaled-input&gt;scaled:&lt;/label&gt;
+      &lt;input id=scaled-input type=number value=0&gt;
+      &lt;label for=num-input&gt;number of hashes:&lt;/label&gt;
+      &lt;input id=num-input type=number value=500&gt;
+      &lt;label for=dna-protein-group&gt;Input type:&lt;/label&gt;
+      &lt;div id=dna-protein-group&gt;
+        &lt;input id=dna-input name=dna-protein-input type=radio value="DNA/RNA" checked&gt;
+        &lt;label for=dna-input&gt;DNA/RNA&lt;/label&gt;
+        &lt;input id=protein-input name=dna-protein-input type=radio value=Protein&gt;
+        &lt;label for=protein-input&gt;Protein&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;label for=track-abundance-input&gt;Track abundance?&lt;/label&gt;
+      &lt;input id=track-abundance-input type=checkbox checked&gt;
+    &lt;/fieldset&gt;
+    &lt;div class=box id=download&gt;
+      &lt;button id=download_btn type=button disabled&gt;Download&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;link rel=stylesheet href="https://blog.luizirber.org/static/sourmash-wasm/app.css"&gt;
+&lt;script src="https://blog.luizirber.org/static/sourmash-wasm/dist/bundle.js"&gt;&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;For the source code for this demo, check the &lt;a href="https://blog.luizirber.org/static/sourmash-wasm/index.html"&gt;sourmash-wasm&lt;/a&gt; directory.&lt;/p&gt;
+&lt;h2&gt;Next steps&lt;/h2&gt;
+&lt;p&gt;The proof of concept works, but it is pretty useless right now.
+I'm thinking about building it as a &lt;a href="https://www.webcomponents.org/"&gt;Web Component&lt;/a&gt; and making it really easy
+to add to any webpage&lt;sup id=sf-sourmash-wasm-4-back&gt;&lt;a href=#sf-sourmash-wasm-4 class=simple-footnote title="or maybe a React component? I really would like to have something that works independent of framework, but not sure what is the best option in this case..."&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Another interesting feature would be supporting more input formats (the GMOD
+project implemented a lot of those!), but more features are probably better
+after something simple but functional is released =P&lt;/p&gt;
+&lt;h2&gt;Next time!&lt;/h2&gt;
+&lt;p&gt;Where we will go next? Maybe explore some decentralized web technologies like
+IPFS and dat, hmm? =]&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100624574917435477"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/rust/comments/9atie8/blog_post_clientside_bioinformatics_in_the/"&gt;Thread on reddit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1034206952773935104"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Updates&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;2018-08-30: Added a demo in the blog post.&lt;/li&gt;
+&lt;/ul&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sourmash-wasm-1&gt;&lt;p&gt;even if horrible, I
+need to get some design classes =P &lt;a href=#sf-sourmash-wasm-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-wasm-2&gt;&lt;p&gt;the first version
+of this demo only worked in Chrome because they implemented the &lt;a href="https://github.com/tc39/proposal-bigint"&gt;BigInt proposal&lt;/a&gt;,
+which is not in the official language yet. The funny thing is that BigInt would
+have made the JS implementation of sourmash viable, and I probably wouldn't have
+written the Rust implementation =P.
+Turns out that I didn't need the BigInt support if I didn't expose any 64-bit
+integers to JS, and that is what I'm doing now. &lt;a href=#sf-sourmash-wasm-2-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-wasm-3&gt;&lt;p&gt;Along the way I ended up writing a new FASTQ parser... because it wouldn't
+be bioinformatics if it didn't otherwise, right? =P &lt;a href=#sf-sourmash-wasm-3-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-wasm-4&gt;&lt;p&gt;or maybe a React component? I really would like to
+have something that works independent of framework, but not sure what is the
+best option in this case... &lt;a href=#sf-sourmash-wasm-4-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</content><category term="rust"></category><category term="webassembly"></category></entry></feed>

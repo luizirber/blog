@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>New crate: nthash</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>New crate: nthash</h1>
+
+    <time class="single" datetime="2018-09-13T17:00:00-03:00">13 Sep 2018</time>
+
+    <p>A quick announcement: I wrote a <a href="https://github.com/luizirber/nthash">Rust implementation</a> of <a href="https://github.com/bcgsc/ntHash">ntHash</a> and published
+it in <a href="https://crates.io/crates/nthash">crates.io</a>. It implements an <code>Iterator</code> to take advantage of the
+rolling properties of <code>ntHash</code> which make it so useful in bioinformatics (where
+we work a lot with sliding windows over sequences).</p>
+<p>It's a pretty small crate, and probably was a better project to learn Rust than
+doing a <a href="https://blog.luizirber.org/2018/08/23/sourmash-rust/">sourmash implementation</a> because it doesn't involve gnarly FFI
+issues. I also put <a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/src/lib.rs#L91">some docs</a>, <a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/benches/nthash.rs#L11">benchmarks</a> using <a href="https://japaric.github.io/criterion.rs/">criterion</a>,
+and even an <a href="https://github.com/luizirber/nthash/blob/d0c16d7deb0a78b8aeb29090db91bba954c14fe8/tests/nthash.rs#L80">oracle property-based test</a> with <a href="https://github.com/BurntSushi/quickcheck">quickcheck</a>.</p>
+<p>More info <a href="https://docs.rs/nthash/">in the docs</a>, and if you want an <s>optimization</s> versioning bug
+discussion be sure to check the <a href="https://github.com/luizirber/nthash_bug"><code>ntHash bug?</code></a> repo,
+which has a (slow) Python implementation and a pretty nice <a href="https://nbviewer.jupyter.org/github/luizirber/nthash_bug/blob/master/analysis.ipynb">analysis</a> notebook.</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="https://social.lasanha.org/@luizirber/100721133117928424">Thread on Mastodon</a></li>
+<li><a href="https://twitter.com/luizirber/status/1040386666089705472">Thread on Twitter</a></li>
+</ul>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+    <a href="https://blog.luizirber.org/tag/hashing.html">hashing</a>
+    <a href="https://blog.luizirber.org/tag/bioinformatics.html">bioinformatics</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

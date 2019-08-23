@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Oxidizing sourmash: Python and FFI</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Oxidizing sourmash: Python and FFI</h1>
+
+    <time class="single" datetime="2018-08-23T17:00:00-03:00">23 Aug 2018</time>
+
+    <p>I think the first time I heard about Rust was because Frank Mcsherry chose it to
+write a <a href="https://github.com/frankmcsherry/timely-dataflow">timely dataflow</a> implementation.
+Since then it started showing more and more in my news sources,
+leading to Armin Ronacher publishing a post in the Sentry blog last November about
+writing <a href="https://blog.sentry.io/2017/11/14/evolving-our-rust-with-milksnake">Python extensions in Rust</a>.</p>
+<p>Last December I decided to give it a run:
+I spent some time porting the C++ bits of <a href="https://github.com/dib-lab/sourmash">sourmash</a>
+to Rust.
+The main advantage here is that it's a problem I know well,
+so I know what the code is supposed to do and can focus on figuring out
+syntax and the mental model for the language.
+I started digging into the <code>symbolic</code> codebase and understanding what they did,
+and tried to mirror or improve it for my use cases.</p>
+<p>(About the post title: The process of converting a codebase to Rust is referred as <a href="https://wiki.mozilla.org/Oxidation">"Oxidation"</a> in
+the Rust community, following the codename Mozilla chose for the process of
+integrating Rust components into the Firefox codebase.
+<sup id=sf-sourmash-rust-1-back><a href=#sf-sourmash-rust-1 class=simple-footnote title='The creator of the language is known to keep making up different explanations for the name of the language, but in this case "oxidation" refers to the chemical process that creates rust, and rust is the closest thing to metal (metal being the hardware). There are many terrible puns in the Rust community.'>1</a></sup>
+Many of these components were tested and derived in Servo, an experimental
+browser engine written in Rust, and are being integrated into Gecko,
+the current browser engine (mostly written in C++).)</p>
+<h2>Why Rust?</h2>
+<p>There are other programming languages more focused on scientific software
+that could be used instead, like Julia<sup id=sf-sourmash-rust-2-back><a href=#sf-sourmash-rust-2 class=simple-footnote title="Even more now that it hit 1.0, it is a really nice language">2</a></sup>. Many programming languages start from a
+specific niche (like R and statistics,
+or Maple and mathematics) and grow into larger languages over time.
+While Rust goal is not to be a scientific language,
+its focus on being a general purpose language allows a phenomenon similar
+to what happened with Python, where people from many areas pushed the
+language in different directions (system scripting, web development,
+numerical programming...) allowing developers to combine all these things
+in their systems.</p>
+<p>But by far my interest in Rust is for the many best practices it brings to the default experience:
+integrated package management (with Cargo),
+documentation (with rustdoc), testing and benchmarking.
+It's understandable that older languages like C/C++ need
+more effort to support some of these features (like modules and an unified
+build system), since they are designed by standard and need to keep backward
+compatibility with codebases that already exist.
+Nonetheless, the lack of features increase the effort needed to have good
+software engineering practices, since you need to choose a solution that might
+not be compatible with other similar but slightly different options,
+leading to fragmentation and increasing the impedance to use these features.</p>
+<p>Another big reason is that Rust doesn't aim to completely replace what already
+exists, but complement and extend it. Two very good talks about how to do this,
+one by <a href="https://ashleygwilliams.github.io/rustfest-2017/#1">Ashley Williams</a>, another by <a href="http://talks.edunham.net/lca2018/should-you-rewrite-in-rust/beamer.pdf">E. Dunham</a>.</p>
+<h2>Converting from a C++ extension to Rust</h2>
+<p>The current implementation of the core data structures in sourmash is in a
+C++ extension wrapped with Cython. My main goals for converting the code are:</p>
+<ul>
+<li>
+<p>support additional languages and platforms. sourmash is available as a Python
+  package and CLI, but we have R users in the lab that would benefit from having
+  an R package, and ideally we wouldn't need to rewrite the software every time
+  we want to support a new language.</p>
+</li>
+<li>
+<p>reducing the number of wheel packages necessary (one for each OS/platform).</p>
+</li>
+<li>
+<p>in the long run, use the Rust memory management concepts (lifetimes, borrowing)
+to increase parallelism in the code.</p>
+</li>
+</ul>
+<p>Many of these goals are attainable with our current C++ codebase, and
+"rewrite in a new language" is rarely the best way to solve a problem.
+But the reduced burden in maintenance due to better tooling,
+on top of features that would require careful planning to execute
+(increasing the parallelism without data races) while maintaining compatibility
+with the current codebase are promising enough to justify this experiment.
+<a href="https://github.com/luizirber/2018-python-rust/blob/master/03.current_impl.md"><img src="/images/arch_cpp.png" title="" current="" implementation""="" alt=""></a></p>
+<p>Cython provides a nice gradual path to migrate code from Python to C++,
+since it is a superset of the Python syntax. It also provides low overhead
+for many C++ features, especially the STL containers, with makes it easier
+to map C++ features to the Python equivalent.
+For research software this also lead to faster exploration of solutions before
+having to commit to lower level code, but without a good process it might also
+lead to code never crossing into the C++ layer and being stuck in the Cython
+layer. This doesn't make any difference for a Python user, but it becomes
+harder from users from other languages to benefit from this code (since your
+language would need some kind of support to calling Python code, which is not
+as readily available as calling C code).</p>
+<p>Depending on the requirements, a downside is that Cython is tied to the CPython API,
+so generating the extension requires a development environment set up with
+the appropriate headers and compiler. This also makes the extension specific
+to a Python version: while this is not a problem for source distributions,
+generating wheels lead to one wheel for each OS and Python version supported.</p>
+<h2>The new implementation</h2>
+<p>This is the overall architecture of the Rust implementation:
+<a href="https://github.com/luizirber/2018-python-rust/blob/master/04.rust_impl.md"><img src="/images/arch_rust.png" title="" the="" rust="" implementation""="" alt=""></a>
+It is pretty close to what <code>symbolic</code> does,
+so let's walk through it.</p>
+<h3>The Rust code</h3>
+<p>If you take a look at my Rust code, you will see it is very... C++. A lot of the
+code is very similar to the original implementation, which is both a curse and a
+blessing: I'm pretty sure that are more idiomatic and performant ways of doing
+things, but most of the time I could lean on my current mental model for C++ to
+translate code. The biggest exception was the <code>merge</code> function, were I was doing
+something on the C++ implementation that the borrow checker didn't like.
+Eventually I found it was because it couldn't keep track of the lifetime
+correctly and putting braces around it fixed the problem,
+which was both an epiphany and a WTF moment. <a href="https://play.rust-lang.org/?gist=eae9de12950d1b2a7699cd49a3571c37&amp;version=stable">Here</a> is an example that triggers
+the problem, and the <a href="https://play.rust-lang.org/?gist=c8733c5125766930a589c8d0412af99c&amp;version=stable">solution</a>.</p>
+<p>"Fighting the borrow checker" seems to be a common theme while learning Rust,
+but the compiler really tries to help you to understand what is happening and
+(most times) how to fix it. A lot of people grow to hate the borrow checker,
+but I see it more as a 'eat your vegetables' situation: you might not like it
+at first, but it's better in the long run. Even though I don't have a big
+codebase in Rust yet, it keeps you from doing things that will come back to bite
+you hard later.</p>
+<h3>Generating C headers for Rust code: cbindgen</h3>
+<p>With the Rust library working, the next step was taking the Rust code and generate C headers describing the
+functions and structs we expose with the <code>#[no_mangle]</code> attribute in Rust
+(these are defined in the <a href="https://github.com/luizirber/sourmash-rust/blob/ead9ae0ed3b2d16c9e3b8379919f3bfd2efd21ae/src/ffi.rs"><code>ffi.rs</code></a> module in <code>sourmash-rust</code>).
+This attribute tells the Rust compiler to generate names that are compatible
+with the C ABI, and so can be called from other languages that implement FFI
+mechanisms. FFI (the foreign function interface) is quite low-level,
+and pretty much defines things that C can represent: integers, floats, pointers
+and structs. It doesn't support higher level concepts like objects or generics,
+so in a sense it looks like a feature funnel.
+This might sound bad, but ends up being something that other languages can
+understand without needing too much extra functionality in their runtimes,
+which means that most languages have support to calling code through an FFI.</p>
+<p>Writing the C header by hand is possible, but is very error prone.
+A better solution is to use <a href="https://github.com/eqrion/cbindgen"><code>cbindgen</code></a>,
+a program that takes Rust code and generate a C header file automatically.
+<code>cbindgen</code> is developed primarily to generate the C headers for <a href="https://github.com/servo/webrender/">webrender</a>,
+the GPU-based renderer for servo,
+so it's pretty likely that if it can handle a complex codebase it will work
+just fine for the majority of projects.</p>
+<h3>Interfacing with Python: CFFI and Milksnake</h3>
+<p>Once we have the C headers, we can use the FFI to
+call Rust code in Python. Python has a FFI module in the standard library: <code>ctypes</code>,
+but the Pypy developers also created CFFI, which has more features.</p>
+<p>The C headers generated by cbindgen can be interpreted by CFFI to generate
+a low-level Python interface for the code. This is the equivalent of declaring
+the functions/methods and structs/classes in a <code>pxd</code> file (in the Cython
+world): while the code is now usable in Python, it is not well adapted to
+the features and idioms available in the language.</p>
+<p>Milksnake is the package developed by Sentry that takes care of running cargo
+for the Rust compilation and generating the CFFI boilerplate,
+making it easy to load the low-level CFFI bindings in Python.
+With this low-level binding available we can now write something more Pythonic
+(the <code>pyx</code> file in Cython), and I ended up just renaming the <code>_minhash.pyx</code> file
+back to <code>minhash.py</code> and doing one-line fixes to replace the Cython-style code
+with the equivalent CFFI calls.</p>
+<p>All of these changes should be transparent to the Python code, and to guarantee
+that I made sure that all the current tests that we have (both for the Python
+module and the command line interface) are still working after the changes.
+It also led to finding some quirks in the implementation,
+and even improvements in the current C++ code (because we were moving a lot of
+data from C++ to Python).</p>
+<h2>Where I see this going</h2>
+<p>It seems it worked as an experiment,
+and I presented a <a href="https://github.com/luizirber/2018-python-rust">poster</a> at <a href="https://gccbosc2018.sched.com/event/FEWp/b23-oxidizing-python-writing-extensions-in-rust">GCCBOSC 2018</a> and <a href="https://scipy2018.scipy.org/ehome/index.php?eventid=299527&amp;tabid=712461&amp;cid=2233543&amp;sessionid=21618890&amp;sessionchoice=1&amp;">SciPy 2018</a> that
+was met with excitement by many people.
+Knowing that it is possible,
+I want to reiterate some points why Rust is pretty exciting for bioinformatics
+and science in general.</p>
+<h3>Bioinformatics as libraries (and command line tools too!)</h3>
+<p>Bioinformatics is an umbrella term for many different methods, depending on
+what analysis you want to do with your data (or model).
+In this sense, it's distinct from other scientific areas where it is possible
+to rely on a common set of libraries (numpy in linear algebra, for example), since a
+library supporting many disjoint methods tend to grow too big and hard to
+maintain.</p>
+<p>The environment also tends to be very diverse, with different languages being
+used to implement the software. Because it is hard to interoperate,
+the methods tend to be implemented in command line programs that are stitched
+together in pipelines, a workflow describing how to connect the input and output of many different tools to
+generate results.
+Because the basic unit is a command-line tool,
+pipelines tend to rely on standard operating system abstractions like
+files and pipes to make the tools communicate with each other. But since tools
+might have input requirements distinct from what the previous tool provides,
+many times it is necessary to do format conversion or other adaptations to make the
+pipeline work.</p>
+<p>Using tools as blackboxes, controllable through specific parameters at the
+command-line level, make exploratory analysis and algorithm reuse harder:
+if something needs to be investigated the user needs to resort to perturbations
+of the parameters or the input data, without access to the more feature-rich and
+meaningful abstraction happening inside the tool.</p>
+<p>Even if many languages are used for writing the software, most of the time there
+is some part written in C or C++ for performance reasons, and these tend to be
+the core data structures of the computational method. Because it is not easy to
+package your C/C++ code in a way that other people can readily use it,
+most of this code is reinvented over and over again, or is copy and pasted into
+codebases and start diverging over time. Rust helps solve this problem with the
+integrated package management, and due to the FFI it can also be reused inside
+other programs written in other languages.</p>
+<p>sourmash is not going to be Rust-only and abandon Python,
+and it would be crazy to do so when it has so many great exploratory tools
+for scientific discovery. But now we can also use our method in other languages
+and environment, instead of having our code stuck in one language.</p>
+<h3>Don't rewrite it all!</h3>
+<p>I could have gone all the way and rewrite sourmash in Rust<sup id=sf-sourmash-rust-3-back><a href=#sf-sourmash-rust-3 class=simple-footnote title="and risk being kicked out of the lab =P">3</a></sup>, but it would be incredibly disruptive for
+the current sourmash users and it would take way longer to pull off. Because
+Rust is so focused in supporting existing code, you can do a slow transition and
+reuse what you already have while moving into more and more Rust code.
+A great example is this one-day effort by Rob Patro to bring <a href="https://github.com/COMBINE-lab/cqf-rust">CQF</a> (a C
+codebase) into Rust, using <code>bindgen</code> (a generator of C bindings for Rust).
+Check <a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/">the Twitter thread</a> for more =]</p>
+<h3>Good scientific citizens</h3>
+<p>There is another MinHash implementation already written in Rust, <a href="https://github.com/onecodex/finch-rs">finch</a>.
+Early in my experiment I got an email from them asking if I wanted to work
+together, but since I wanted to learn the language I kept doing my thing. (They
+were totally cool with this, by the way). But the fun thing is that Rust has a
+pair of traits called <a href="https://doc.rust-lang.org/rust-by-example/conversion/from_into.html"><code>From</code> and <code>Into</code></a> that you can implement for your
+type, and so I <a href="https://github.com/luizirber/sourmash-rust/pull/1">did that</a> and now we can have interoperable
+implementations. This synergy allows <code>finch</code> to use <code>sourmash</code> methods,
+and vice versa.</p>
+<p>Maybe this sounds like a small thing, but I think it is really exciting. We can
+stop having incompatible but very similar methods, and instead all benefit from
+each other advances in a way that is supported by the language.</p>
+<h2>Next time!</h2>
+<p>Turns out Rust supports WebAssembly as a target,
+so... what if we run sourmash in the browser?
+That's what I'm covering in the <a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/">next blog post</a>,
+so stay tuned =]</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="https://social.lasanha.org/@luizirber/100602525575698239">Thread on Mastodon</a></li>
+<li><a href="https://www.reddit.com/r/rust/comments/99vakd/blog_post_converting_c_to_rust_and_interoperate/">Thread on reddit</a></li>
+<li><a href="https://twitter.com/luizirber/status/1032779995129597952">Thread on Twitter</a></li>
+</ul>
+<!-- rust libs -->
+
+<!-- why rust -->
+
+<!-- WASM and demos -->
+
+<!-- python and FFI -->
+
+<!-- rust examples -->
+
+<!-- cbindgen -->
+
+<!-- rust for pythonistas -->
+
+<!-- understanding rust -->
+
+<!-- rust and bio -->
+
+<!-- rust error handling -->
+
+<!-- other notes
+
+- Implement Default trait for defaults (less verbose than ::new...)
+  https://doc.rust-lang.org/std/default/trait.Default.html
+
+--><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-sourmash-rust-1><p>The creator of the language is known to keep making up different
+explanations for the <a href="https://www.reddit.com/r/rust/comments/27jvdt/internet_archaeology_the_definitive_endall_source/">name of the language</a>,
+but in this case "oxidation" refers to the chemical process that creates
+rust, and rust is the closest thing to metal (metal being the hardware).
+There are many terrible puns in the Rust community. <a href=#sf-sourmash-rust-1-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-rust-2><p>Even more now that it hit 1.0,
+it is a really nice language <a href=#sf-sourmash-rust-2-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-rust-3><p>and risk
+being kicked out of the lab =P <a href=#sf-sourmash-rust-3-back class=simple-footnote-back>↩</a></p></li></ol></section>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+    <a href="https://blog.luizirber.org/tag/sourmash.html">sourmash</a>
+    <a href="https://blog.luizirber.org/tag/python.html">python</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

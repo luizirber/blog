@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - Hacking</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="/feeds/hacking.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2010-08-10T14:08:00-03:00</updated><entry><title>Minha (quase) vida bandida</title><link href="https://blog.luizirber.org/2010/08/10/minha-quase-vida-bandida/" rel="alternate"></link><published>2010-08-10T14:08:00-03:00</published><updated>2010-08-10T14:08:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2010-08-10:/2010/08/10/minha-quase-vida-bandida/</id><summary type="html">&lt;p&gt;Blog juntando moscas, deixa eu ressucitar um projetinho de fim de semana
+para ver se anima um pouco.&lt;/p&gt;
+&lt;p&gt;A ideia inicial desse post surgiu na &lt;a href="http://www.pythonbrasil.org.br/"&gt;PythonBrasil&lt;/a&gt; do ano passado.
+Pensei em fazer uma lightning talk, mas não ficou pronta a tempo (Nota:
+sempre bom deixar alguma lightning talk preparada).&lt;/p&gt;
+&lt;p&gt;Como começou a história: recebi email de uma prima, pedindo para que os
+amigos e parentes ajudassem a votar na filha dela em um site de roupas
+infantis. A criança mais votada participaria de um comercial e ia
+embolsar um monte de roupas.&lt;/p&gt;
+&lt;p&gt;Ok, ok. Odeio esse tipo de spam, mas também não custa ajudar, né? Fui na
+página de votação. Votei uma vez, depois de preencher um captcha, e
+tentei votar de novo para ver o que acontecia. "Você votou na última
+hora, aguarde para votar novamente". Hmm. Como será que o controle disso
+é feito?&lt;/p&gt;
+&lt;p&gt;Abri o código. Hmm, essa função em javascript aqui que processa o evento
+do botão, ela chama uma URL...&lt;/p&gt;
+&lt;figure class='code'&gt;
+&lt;figcaption&gt;&lt;span&gt;votoAprovar.js&lt;/span&gt; &lt;a href='/downloads/code/votoAprovar.js'&gt;download&lt;/a&gt;&lt;/figcaption&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nx"&gt;votoAprovar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;cadastroId&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+  &lt;span class="nx"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;cadastroCaptcha&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;voto_v.php?votoStatus=1&amp;amp;cadastroId=&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="nx"&gt;cadastroId&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&amp;amp;captcha=&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="nx"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/figure&gt;
+
+&lt;p&gt;Opa. E se eu tentar acessar essa URL direto?&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;voto_v.php?votoStatus=1&amp;amp;cadastroId=98374&amp;amp;captcha=adb356
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Tenho que acertar o captcha. Onde está o captcha? Ah, olha só, o link da
+imagem é um arquivo captcha.php, será que dá para acessar direto? Deu.&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/original1.png" width="173" title="A imagem original." alt="A imagem original."&gt;&lt;/p&gt;
+&lt;p&gt;Resumindo, eu tinha a URL para votar, e atualizando o captcha eu
+conseguia votar quantas vezes quisesse. Mas ficar fazendo isso na mão é
+chato. Como será que funciona identificação de captcha? Uma pesquisa
+rapidinha e caí &lt;a href="http://alwaysmovefast.com/2007/11/21/cracking-captchas-for-fun-and-profit/"&gt;nesse site&lt;/a&gt;. E em Python, para facilitar ainda mais
+minha vida.&lt;/p&gt;
+&lt;p&gt;Brinquei um pouco com o PIL, e consegui deixar a imagem com caracteres
+bem definidos. Incrivelmente, só precisei converter para escala de
+cinza, e aplicar um limiar.&lt;/p&gt;
+&lt;figure class='code'&gt;
+&lt;figcaption&gt;&lt;span&gt;clean_captcha.py&lt;/span&gt; &lt;a href='/downloads/code/clean_captcha.py'&gt;download&lt;/a&gt;&lt;/figcaption&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+    &lt;span class="n"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;convert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;255&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;clean_captcha&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;img2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;img2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;
+    &lt;span class="n"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;img2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/figure&gt;
+
+&lt;p&gt;&lt;img class="center" src="/images/limpa1.png" width="173" title="Imagem, depois de processada pelo PIL." alt="Imagem, depois de processada pelo PIL."&gt;&lt;/p&gt;
+&lt;p&gt;E, conforme ia acumulando mais imagens, vi que a minha vida seria mais
+fácil ainda: o captcha só tinha caracteres hexadecimais, então nem
+precisaria mapear o alfabeto inteiro, só de zero a nove e de 'a' até
+'f'. Depois de limpar algumas imagens e juntá-las numa pasta, rodei o
+treinador do &lt;a href="http://code.google.com/p/tesseract-ocr/"&gt;tesseract-ocr&lt;/a&gt;, e depois dos arquivos de treinos
+prontos, tinha 100% de acerto nas imagens. Sigh, que maravilha de
+captcha...&lt;/p&gt;
+&lt;p&gt;Agora, testar. Criei um perfil falso, e me assustei. Tentei rodar o
+script para ver se contava um voto, e quando abri o perfil já tinha 5!
+Aparentemente, as mães fazem um "vote-no-meu-filho-que-eu-voto-no-seu",
+e como os perfis mais novos aparecem na página principal, me acharam
+rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.&lt;/p&gt;
+&lt;figure class='code'&gt;
+&lt;figcaption&gt;&lt;span&gt;break_captcha.py&lt;/span&gt; &lt;a href='/downloads/code/break_captcha.py'&gt;download&lt;/a&gt;&lt;/figcaption&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;commands&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;getoutput&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;StringIO&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;StringIO&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;PIL&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Image&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;mechanize&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+    &lt;span class="n"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;convert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;255&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;clean_captcha&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;img2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;img2&lt;/span&gt;
+
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;br&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;mechanize&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Browser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;voto&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;
+
+        &lt;span class="n"&gt;page&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;br&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;*****/captcha/captcha.php&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;img_str&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;StringIO&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+        &lt;span class="n"&gt;fp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;original.tif&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wb&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;img&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Image&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img_str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;save&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tiff&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;clean_captcha&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;fp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tmp.tif&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wb&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;save&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tiff&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+        &lt;span class="n"&gt;getoutput&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tesseract tmp.tif output -l brand&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;fp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;output.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;()[:&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+        &lt;span class="n"&gt;cadId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;28477&lt;/span&gt;
+
+        &lt;span class="n"&gt;vote_page&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;*****/voto_v.php?votoStatus=1&amp;amp;cadastroId=&lt;/span&gt;&lt;span class="si"&gt;%d&lt;/span&gt;&lt;span class="s1"&gt;&amp;amp;captcha=&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;cadId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;br&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vote_page&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/figure&gt;
+
+&lt;p&gt;Omiti o endereço do site, mas basicamente o script é esse.&lt;/p&gt;
+&lt;p&gt;Agora chega o grande momento, o clímax da história, onde o herói escolhe
+entre a fama e fortuna ou o que parece moralmente certo. (Que
+grandioso!). "Com grandes poderes vêm grandes responsabilidades!". E
+todo esse lero-lero.&lt;/p&gt;
+&lt;p&gt;Apesar de o propósito inicial ter sido ajudar a minha prima, rodar o
+script me pareceu uma ajuda grande demais. E meu objetivo era testar o
+buraco no sistema de votação, não me aproveitar dele. Acabei deixando
+pra lá, e o código ficou mofando no meu computador.&lt;/p&gt;
+&lt;p&gt;Hoje, quando fui escrever o post, vi que já aconteceu a segunda edição
+do concurso, e miseravelmente o sistema é exatamente o mesmo. Vou mandar
+esse post para a empresa, quem sabe para o próximo corrijam.&lt;/p&gt;
+&lt;p&gt;UPDATE: O &lt;a href="http://lameiro.wordpress.com"&gt;Lameiro&lt;/a&gt; deu a dica nos comentários: buscando no
+google.com.br por "captcha PHP" temos, como primeiro hit,
+&lt;a href="http://www.numaboa.com/informatica/tutos/php/949-captcha"&gt;um tutorial ensinando a gerar o captcha&lt;/a&gt;
+que esse site usa. E, como ele bem notou,
+deve ter muitos sites no Brasil com esse mesmo problema.&lt;/p&gt;
+&lt;p&gt;Fica a dica: nunca confie no primeiro hit do google para implementar a
+sua solução de segurança. Aliás, não confie em nenhuma, até saber como
+ela funciona.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Blog juntando moscas, deixa eu ressucitar um projetinho de fim de semana
+para ver se anima um pouco.&lt;/p&gt;
+&lt;p&gt;A ideia inicial desse post surgiu na &lt;a href="http://www.pythonbrasil.org.br/"&gt;PythonBrasil&lt;/a&gt; do ano passado.
+Pensei em fazer uma lightning talk, mas não ficou pronta a tempo (Nota:
+sempre bom deixar alguma lightning talk preparada).&lt;/p&gt;
+&lt;p&gt;Como começou a história: recebi email de uma prima, pedindo para que os
+amigos e parentes ajudassem a votar na filha dela em um site de roupas
+infantis. A criança mais votada participaria de um comercial e ia
+embolsar um monte de roupas.&lt;/p&gt;
+&lt;p&gt;Ok, ok. Odeio esse tipo de spam, mas também não custa ajudar, né? Fui na
+página de votação. Votei uma vez, depois de preencher um captcha, e
+tentei votar de novo para ver o que acontecia. "Você votou na última
+hora, aguarde para votar novamente". Hmm. Como será que o controle disso
+é feito?&lt;/p&gt;
+&lt;p&gt;Abri o código. Hmm, essa função em javascript aqui que processa o evento
+do botão, ela chama uma URL...&lt;/p&gt;
+&lt;figure class='code'&gt;
+&lt;figcaption&gt;&lt;span&gt;votoAprovar.js&lt;/span&gt; &lt;a href='/downloads/code/votoAprovar.js'&gt;download&lt;/a&gt;&lt;/figcaption&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nx"&gt;votoAprovar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;cadastroId&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+  &lt;span class="nx"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;cadastroCaptcha&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;voto_v.php?votoStatus=1&amp;amp;cadastroId=&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="nx"&gt;cadastroId&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&amp;amp;captcha=&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="nx"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/figure&gt;
+
+&lt;p&gt;Opa. E se eu tentar acessar essa URL direto?&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;voto_v.php?votoStatus=1&amp;amp;cadastroId=98374&amp;amp;captcha=adb356
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Tenho que acertar o captcha. Onde está o captcha? Ah, olha só, o link da
+imagem é um arquivo captcha.php, será que dá para acessar direto? Deu.&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/original1.png" width="173" title="A imagem original." alt="A imagem original."&gt;&lt;/p&gt;
+&lt;p&gt;Resumindo, eu tinha a URL para votar, e atualizando o captcha eu
+conseguia votar quantas vezes quisesse. Mas ficar fazendo isso na mão é
+chato. Como será que funciona identificação de captcha? Uma pesquisa
+rapidinha e caí &lt;a href="http://alwaysmovefast.com/2007/11/21/cracking-captchas-for-fun-and-profit/"&gt;nesse site&lt;/a&gt;. E em Python, para facilitar ainda mais
+minha vida.&lt;/p&gt;
+&lt;p&gt;Brinquei um pouco com o PIL, e consegui deixar a imagem com caracteres
+bem definidos. Incrivelmente, só precisei converter para escala de
+cinza, e aplicar um limiar.&lt;/p&gt;
+&lt;figure class='code'&gt;
+&lt;figcaption&gt;&lt;span&gt;clean_captcha.py&lt;/span&gt; &lt;a href='/downloads/code/clean_captcha.py'&gt;download&lt;/a&gt;&lt;/figcaption&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+    &lt;span class="n"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;convert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;255&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;clean_captcha&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;img2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;img2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;
+    &lt;span class="n"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;img2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/figure&gt;
+
+&lt;p&gt;&lt;img class="center" src="/images/limpa1.png" width="173" title="Imagem, depois de processada pelo PIL." alt="Imagem, depois de processada pelo PIL."&gt;&lt;/p&gt;
+&lt;p&gt;E, conforme ia acumulando mais imagens, vi que a minha vida seria mais
+fácil ainda: o captcha só tinha caracteres hexadecimais, então nem
+precisaria mapear o alfabeto inteiro, só de zero a nove e de 'a' até
+'f'. Depois de limpar algumas imagens e juntá-las numa pasta, rodei o
+treinador do &lt;a href="http://code.google.com/p/tesseract-ocr/"&gt;tesseract-ocr&lt;/a&gt;, e depois dos arquivos de treinos
+prontos, tinha 100% de acerto nas imagens. Sigh, que maravilha de
+captcha...&lt;/p&gt;
+&lt;p&gt;Agora, testar. Criei um perfil falso, e me assustei. Tentei rodar o
+script para ver se contava um voto, e quando abri o perfil já tinha 5!
+Aparentemente, as mães fazem um "vote-no-meu-filho-que-eu-voto-no-seu",
+e como os perfis mais novos aparecem na página principal, me acharam
+rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.&lt;/p&gt;
+&lt;figure class='code'&gt;
+&lt;figcaption&gt;&lt;span&gt;break_captcha.py&lt;/span&gt; &lt;a href='/downloads/code/break_captcha.py'&gt;download&lt;/a&gt;&lt;/figcaption&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;commands&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;getoutput&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;StringIO&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;StringIO&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;PIL&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Image&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;mechanize&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+    &lt;span class="n"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;convert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;255&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pixels&lt;/span&gt;
+
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;clean_captcha&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;img2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;captcha_to_greyscale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;light_pixels_to_white_pixels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;img2&lt;/span&gt;
+
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;br&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;mechanize&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Browser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;xrange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;voto&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;
+
+        &lt;span class="n"&gt;page&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;br&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;*****/captcha/captcha.php&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;img_str&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;StringIO&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+        &lt;span class="n"&gt;fp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;original.tif&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wb&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;img&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Image&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img_str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;save&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tiff&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;clean_captcha&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;fp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tmp.tif&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;wb&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;save&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tiff&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+        &lt;span class="n"&gt;getoutput&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tesseract tmp.tif output -l brand&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;fp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;output.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;captcha&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;()[:&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;fp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+        &lt;span class="n"&gt;cadId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;28477&lt;/span&gt;
+
+        &lt;span class="n"&gt;vote_page&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;*****/voto_v.php?votoStatus=1&amp;amp;cadastroId=&lt;/span&gt;&lt;span class="si"&gt;%d&lt;/span&gt;&lt;span class="s1"&gt;&amp;amp;captcha=&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;cadId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;br&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vote_page&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/figure&gt;
+
+&lt;p&gt;Omiti o endereço do site, mas basicamente o script é esse.&lt;/p&gt;
+&lt;p&gt;Agora chega o grande momento, o clímax da história, onde o herói escolhe
+entre a fama e fortuna ou o que parece moralmente certo. (Que
+grandioso!). "Com grandes poderes vêm grandes responsabilidades!". E
+todo esse lero-lero.&lt;/p&gt;
+&lt;p&gt;Apesar de o propósito inicial ter sido ajudar a minha prima, rodar o
+script me pareceu uma ajuda grande demais. E meu objetivo era testar o
+buraco no sistema de votação, não me aproveitar dele. Acabei deixando
+pra lá, e o código ficou mofando no meu computador.&lt;/p&gt;
+&lt;p&gt;Hoje, quando fui escrever o post, vi que já aconteceu a segunda edição
+do concurso, e miseravelmente o sistema é exatamente o mesmo. Vou mandar
+esse post para a empresa, quem sabe para o próximo corrijam.&lt;/p&gt;
+&lt;p&gt;UPDATE: O &lt;a href="http://lameiro.wordpress.com"&gt;Lameiro&lt;/a&gt; deu a dica nos comentários: buscando no
+google.com.br por "captcha PHP" temos, como primeiro hit,
+&lt;a href="http://www.numaboa.com/informatica/tutos/php/949-captcha"&gt;um tutorial ensinando a gerar o captcha&lt;/a&gt;
+que esse site usa. E, como ele bem notou,
+deve ter muitos sites no Brasil com esse mesmo problema.&lt;/p&gt;
+&lt;p&gt;Fica a dica: nunca confie no primeiro hit do google para implementar a
+sua solução de segurança. Aliás, não confie em nenhuma, até saber como
+ela funciona.&lt;/p&gt;</content><category term="captcha"></category><category term="PIL"></category><category term="python"></category><category term="tesseract"></category></entry><entry><title>Robô Shrek</title><link href="https://blog.luizirber.org/2009/06/12/robo-shrek/" rel="alternate"></link><published>2009-06-12T11:29:00-03:00</published><updated>2009-06-12T11:29:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2009-06-12:/2009/06/12/robo-shrek/</id><summary type="html">&lt;p&gt;Na última quarta-feira aconteceu a Feira de Informática Aplicada, ligada
+à Semana de Computação da UFSCar. Eu e Alphalpha resolvemos participar
+para testar o Arduino que eu tinha comprado no começo do ano. O tempo
+era curto, mas mesmo assim fomos em frente e juntamos algumas peças que
+sobraram do &lt;a href="http://www.youtube.com/watch?v=4PPXEsENpCY"&gt;robô&lt;/a&gt; do &lt;a href="http://www2.dc.ufscar.br/~gedai/"&gt;GEDAI&lt;/a&gt;, um N800, um Arduino Duemilanove e
+montamos nosso próprio robô, chamado de Shrek.&lt;/p&gt;
+&lt;p&gt;Por que Shrek? Porque Shrek é um ogro, ogros são como cebolas
+(&lt;span style="text-decoration:line-through;"&gt;fedem&lt;/span&gt; são feitos de
+camadas), e nosso robô é feito de várias camadas simples que, juntas,
+fazem algo complexo.&lt;/p&gt;
+&lt;p&gt;Como funciona? O Arduino controla os motores, e recebe dados pelo USB
+(como uma porta serial) vindos do N800. O N800 está conectado em uma
+rede wifi, e recebe comandos via socket. Além disso, também envia vídeo
+e áudio para a aplicação (que no momento roda em um PC), e a aplicação
+envia os comandos e exibe o vídeo e o áudio.&lt;/p&gt;
+&lt;p&gt;Devido ao pouco tempo, apenas 3 comandos simples foram implementados
+(frente, giro à esquerda, giro à direita), mas nosso objetivo estava
+cumprido: a comunicação entre as partes estava funcionando direitinho, e
+agora podemos partir para incrementá-lo.&lt;/p&gt;
+&lt;p&gt;Todo o código está disponível no &lt;a href="http://github.com/luizirber/shrekenc"&gt;GitHub&lt;/a&gt;, e queremos levá-lo
+para o FISL (depois de arranjarmos motores melhores).&lt;/p&gt;</summary><content type="html">&lt;p&gt;Na última quarta-feira aconteceu a Feira de Informática Aplicada, ligada
+à Semana de Computação da UFSCar. Eu e Alphalpha resolvemos participar
+para testar o Arduino que eu tinha comprado no começo do ano. O tempo
+era curto, mas mesmo assim fomos em frente e juntamos algumas peças que
+sobraram do &lt;a href="http://www.youtube.com/watch?v=4PPXEsENpCY"&gt;robô&lt;/a&gt; do &lt;a href="http://www2.dc.ufscar.br/~gedai/"&gt;GEDAI&lt;/a&gt;, um N800, um Arduino Duemilanove e
+montamos nosso próprio robô, chamado de Shrek.&lt;/p&gt;
+&lt;p&gt;Por que Shrek? Porque Shrek é um ogro, ogros são como cebolas
+(&lt;span style="text-decoration:line-through;"&gt;fedem&lt;/span&gt; são feitos de
+camadas), e nosso robô é feito de várias camadas simples que, juntas,
+fazem algo complexo.&lt;/p&gt;
+&lt;p&gt;Como funciona? O Arduino controla os motores, e recebe dados pelo USB
+(como uma porta serial) vindos do N800. O N800 está conectado em uma
+rede wifi, e recebe comandos via socket. Além disso, também envia vídeo
+e áudio para a aplicação (que no momento roda em um PC), e a aplicação
+envia os comandos e exibe o vídeo e o áudio.&lt;/p&gt;
+&lt;p&gt;Devido ao pouco tempo, apenas 3 comandos simples foram implementados
+(frente, giro à esquerda, giro à direita), mas nosso objetivo estava
+cumprido: a comunicação entre as partes estava funcionando direitinho, e
+agora podemos partir para incrementá-lo.&lt;/p&gt;
+&lt;p&gt;Todo o código está disponível no &lt;a href="http://github.com/luizirber/shrekenc"&gt;GitHub&lt;/a&gt;, e queremos levá-lo
+para o FISL (depois de arranjarmos motores melhores).&lt;/p&gt;</content><category term="arduino"></category><category term="FIA"></category><category term="gstreamer"></category><category term="N800"></category><category term="python"></category><category term="ufscar"></category><category term="Projetos"></category><category term="universidade"></category></entry><entry><title>Hand</title><link href="https://blog.luizirber.org/2009/02/12/hand/" rel="alternate"></link><published>2009-02-12T07:13:00-02:00</published><updated>2009-02-12T07:13:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2009-02-12:/2009/02/12/hand/</id><summary type="html">&lt;p&gt;Ontem, enquanto gravava um DVD, comecei a generalizar os scripts que
+geram os feeds do post anterior. E disso surgiu o Hand, um gerador de
+feeds RSS.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Como funciona?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;O meu objetivo inicial era gerar feeds para sites que não os
+disponibilizavam, recorrendo ao bom e velho &lt;a href="http://en.wikipedia.org/wiki/Screen_scraping"&gt;screen scraping&lt;/a&gt;. Comecei
+fazendo o feed dos quadrinhos da Folha, o mais complicado, pois era
+necessário fazer autenticação de usuário e percorrer várias páginas para
+extrair links. Ao fazer o dos Malvados, segui a mesma estrutura de
+funções, e comecei a perceber que dava para generalizar bastante o
+processo.&lt;/p&gt;
+&lt;p&gt;Eis que surge Hand. No fundo é uma classe que implementa alguns métodos
+(build_date, generate_description, build_feed, process), e exige que
+você derive a classe e implemente o método generate_data.
+generate_data é um método que retorna uma lista de dicionários, com
+cada dicionário contendo os campos title, page_link, description,
+pubDate e guid correspondentes a um item do feed. Simples assim.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;E funciona?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Yep. Mantenho quatro feeds no momento:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://luizirber.org/rss/fsp.xml"&gt;Quadrinhos da Folha de São Paulo&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luizirber.org/rss/malvados.xml"&gt;Malvados&lt;/a&gt; &lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="http://feed43.com/malvados.xml"&gt;Feed alternativo, sem o CATA CORNO GOOGLE&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Magias e Barbaridades &lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="http://magiasebarbaridades.blogspot.com/feeds/posts/default"&gt;Feed oficial&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Rehabilitating Mr. Wiggles &lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="http://www.instantrimshot.com"&gt;Feed oficial&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Onde posso ver esta maravilha?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;O código está disponível no &lt;a href="http://github.com/luizirber/Hand"&gt;GitHub&lt;/a&gt;, mas ainda está bem cru, preciso
+empacotá-lo direito.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Quais os próximos passos?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;O feed da Folha demora para ser gerado, porque toda vez que o script é
+rodado ele precisa consultar todas as páginas. Portanto penso em
+adicionar persistência, mas bem simples, um sqlite é mais que
+suficiente.&lt;/p&gt;
+&lt;p&gt;Além disso, quero descrever a configuração do feed (onde gerá-lo, qual
+template usar) num arquivo, e fazer a classe base ler essas opções.
+Assim fica ainda mais fácil fazer um novo feed.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Que nominho, hein?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Para quem não entendeu o nome: qual um bom para um gerador de feeds?
+Enquanto pensava, lembrei de uma música do &lt;a href="http://www.nin.com/"&gt;NIN&lt;/a&gt; chamada
+&lt;a href="http://en.wikipedia.org/wiki/The_Hand_That_Feeds"&gt;'The Hand That Feeds'&lt;/a&gt;. E, além disso, ele também te dá uma mão
+para gerar feeds, certo? &lt;a href="http://www.instantrimshot.com"&gt;*TU-DUM-TISH*&lt;/a&gt;!&lt;/p&gt;</summary><content type="html">&lt;p&gt;Ontem, enquanto gravava um DVD, comecei a generalizar os scripts que
+geram os feeds do post anterior. E disso surgiu o Hand, um gerador de
+feeds RSS.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Como funciona?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;O meu objetivo inicial era gerar feeds para sites que não os
+disponibilizavam, recorrendo ao bom e velho &lt;a href="http://en.wikipedia.org/wiki/Screen_scraping"&gt;screen scraping&lt;/a&gt;. Comecei
+fazendo o feed dos quadrinhos da Folha, o mais complicado, pois era
+necessário fazer autenticação de usuário e percorrer várias páginas para
+extrair links. Ao fazer o dos Malvados, segui a mesma estrutura de
+funções, e comecei a perceber que dava para generalizar bastante o
+processo.&lt;/p&gt;
+&lt;p&gt;Eis que surge Hand. No fundo é uma classe que implementa alguns métodos
+(build_date, generate_description, build_feed, process), e exige que
+você derive a classe e implemente o método generate_data.
+generate_data é um método que retorna uma lista de dicionários, com
+cada dicionário contendo os campos title, page_link, description,
+pubDate e guid correspondentes a um item do feed. Simples assim.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;E funciona?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Yep. Mantenho quatro feeds no momento:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://luizirber.org/rss/fsp.xml"&gt;Quadrinhos da Folha de São Paulo&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://luizirber.org/rss/malvados.xml"&gt;Malvados&lt;/a&gt; &lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="http://feed43.com/malvados.xml"&gt;Feed alternativo, sem o CATA CORNO GOOGLE&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Magias e Barbaridades &lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="http://magiasebarbaridades.blogspot.com/feeds/posts/default"&gt;Feed oficial&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Rehabilitating Mr. Wiggles &lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="http://www.instantrimshot.com"&gt;Feed oficial&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Onde posso ver esta maravilha?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;O código está disponível no &lt;a href="http://github.com/luizirber/Hand"&gt;GitHub&lt;/a&gt;, mas ainda está bem cru, preciso
+empacotá-lo direito.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Quais os próximos passos?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;O feed da Folha demora para ser gerado, porque toda vez que o script é
+rodado ele precisa consultar todas as páginas. Portanto penso em
+adicionar persistência, mas bem simples, um sqlite é mais que
+suficiente.&lt;/p&gt;
+&lt;p&gt;Além disso, quero descrever a configuração do feed (onde gerá-lo, qual
+template usar) num arquivo, e fazer a classe base ler essas opções.
+Assim fica ainda mais fácil fazer um novo feed.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Que nominho, hein?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Para quem não entendeu o nome: qual um bom para um gerador de feeds?
+Enquanto pensava, lembrei de uma música do &lt;a href="http://www.nin.com/"&gt;NIN&lt;/a&gt; chamada
+&lt;a href="http://en.wikipedia.org/wiki/The_Hand_That_Feeds"&gt;'The Hand That Feeds'&lt;/a&gt;. E, além disso, ele também te dá uma mão
+para gerar feeds, certo? &lt;a href="http://www.instantrimshot.com"&gt;*TU-DUM-TISH*&lt;/a&gt;!&lt;/p&gt;</content><category term="feed"></category><category term="mechanize"></category><category term="python"></category><category term="Projetos"></category></entry><entry><title>Feeds de quadrinhos</title><link href="https://blog.luizirber.org/2009/01/20/feeds-de-quadrinhos/" rel="alternate"></link><published>2009-01-20T17:29:00-02:00</published><updated>2009-01-20T17:29:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2009-01-20:/2009/01/20/feeds-de-quadrinhos/</id><summary type="html">&lt;p&gt;Infelizmente a &lt;a href="http://www1.folha.uol.com.br/fsp/"&gt;Folha de São Paulo&lt;/a&gt; não disponibiliza feeds dos
+quadrinhos diários dela. Isso significa privar-nos de &lt;a href="http://www.laerte.com.br"&gt;Laerte&lt;/a&gt; e
+&lt;a href="http://www2.uol.com.br/adaoonline/"&gt;Adão&lt;/a&gt;, mas não temam! Caso queiram tirinhas frescas toda a manhã no
+seu leitor de feeds favorito, basta usar o que &lt;a href="http://luizirber.org/rss/fsp.xml"&gt;eu fiz&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A idéia (sim, sou antigo, meus netos ainda vão dizer 'meu vô é do tempo
+que se escrevia ideia com acento') é simples, e foi baseada na do
+&lt;a href="http://leandrosiqueira.com/quadrinhos/"&gt;Leandro Siqueira&lt;/a&gt;: apesar do conteúdo da Folha ser exclusivo para
+assinantes, as imagens das tirinhas são acessíveis. Basta descobrir o
+padrão do nome delas. Mas percebi que as tirinhas de domingo não estavam
+aparecendo, pois existem autores diferentes nesse dia (Allan Sieber e
+irmãos Bá, atualmente). Então resolvi fazer um que fosse um pouquinho
+mais dinâmico, e deu certo, porque quando houve a transição das
+dominicais o feed continuou funcionando sem modificações.&lt;/p&gt;
+&lt;p&gt;Como foi feito? &lt;a href="http://www.python.org"&gt;Python&lt;/a&gt;, &lt;a href="http://www.crummy.com/software/BeautifulSoup/"&gt;Beautiful Soup&lt;/a&gt; e &lt;a href="http://wwwsearch.sourceforge.net/mechanize/"&gt;Mechanize&lt;/a&gt;. O script
+autentica no site, busca o índice dos quadrinhos, e acha o link das
+imagens para gerar o feed. Aliás, Beautiful Soup é uma das bibliotecas
+mais úteis que já usei, para mexer com HTML não tem nada melhor.&lt;/p&gt;
+&lt;p&gt;E, como o mais complicado já estava feito, semana passada fiz rapidinho
+um &lt;a href="http://luizirber.org/rss/malvados.xml"&gt;feed&lt;/a&gt; para os &lt;a href="http://www.malvados.com.br"&gt;Malvados&lt;/a&gt; também. Até tem um feed lá, mas é só
+para o blog. Ainda não resolvi como fazer para mostrar as séries, mas as
+normais aparecem sem problemas no feed (acho, eu uso Google Reader e
+aparece. Por favor, testem em outros readers e me avisem).&lt;/p&gt;
+&lt;p&gt;Ando pensando em generalizar um pouco os dois scripts, para facilitar a
+escrita de &lt;a href="http://en.wikipedia.org/wiki/Screen_scraping"&gt;screen scrapers&lt;/a&gt;, mas não sei se vale a pena, já que eles
+são extremamente dependentes da estrutura da página. Mas vamos ver o que
+sai =D&lt;/p&gt;</summary><content type="html">&lt;p&gt;Infelizmente a &lt;a href="http://www1.folha.uol.com.br/fsp/"&gt;Folha de São Paulo&lt;/a&gt; não disponibiliza feeds dos
+quadrinhos diários dela. Isso significa privar-nos de &lt;a href="http://www.laerte.com.br"&gt;Laerte&lt;/a&gt; e
+&lt;a href="http://www2.uol.com.br/adaoonline/"&gt;Adão&lt;/a&gt;, mas não temam! Caso queiram tirinhas frescas toda a manhã no
+seu leitor de feeds favorito, basta usar o que &lt;a href="http://luizirber.org/rss/fsp.xml"&gt;eu fiz&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A idéia (sim, sou antigo, meus netos ainda vão dizer 'meu vô é do tempo
+que se escrevia ideia com acento') é simples, e foi baseada na do
+&lt;a href="http://leandrosiqueira.com/quadrinhos/"&gt;Leandro Siqueira&lt;/a&gt;: apesar do conteúdo da Folha ser exclusivo para
+assinantes, as imagens das tirinhas são acessíveis. Basta descobrir o
+padrão do nome delas. Mas percebi que as tirinhas de domingo não estavam
+aparecendo, pois existem autores diferentes nesse dia (Allan Sieber e
+irmãos Bá, atualmente). Então resolvi fazer um que fosse um pouquinho
+mais dinâmico, e deu certo, porque quando houve a transição das
+dominicais o feed continuou funcionando sem modificações.&lt;/p&gt;
+&lt;p&gt;Como foi feito? &lt;a href="http://www.python.org"&gt;Python&lt;/a&gt;, &lt;a href="http://www.crummy.com/software/BeautifulSoup/"&gt;Beautiful Soup&lt;/a&gt; e &lt;a href="http://wwwsearch.sourceforge.net/mechanize/"&gt;Mechanize&lt;/a&gt;. O script
+autentica no site, busca o índice dos quadrinhos, e acha o link das
+imagens para gerar o feed. Aliás, Beautiful Soup é uma das bibliotecas
+mais úteis que já usei, para mexer com HTML não tem nada melhor.&lt;/p&gt;
+&lt;p&gt;E, como o mais complicado já estava feito, semana passada fiz rapidinho
+um &lt;a href="http://luizirber.org/rss/malvados.xml"&gt;feed&lt;/a&gt; para os &lt;a href="http://www.malvados.com.br"&gt;Malvados&lt;/a&gt; também. Até tem um feed lá, mas é só
+para o blog. Ainda não resolvi como fazer para mostrar as séries, mas as
+normais aparecem sem problemas no feed (acho, eu uso Google Reader e
+aparece. Por favor, testem em outros readers e me avisem).&lt;/p&gt;
+&lt;p&gt;Ando pensando em generalizar um pouco os dois scripts, para facilitar a
+escrita de &lt;a href="http://en.wikipedia.org/wiki/Screen_scraping"&gt;screen scrapers&lt;/a&gt;, mas não sei se vale a pena, já que eles
+são extremamente dependentes da estrutura da página. Mas vamos ver o que
+sai =D&lt;/p&gt;</content><category term="adao"></category><category term="beautifulsoup"></category><category term="feed"></category><category term="fsp"></category><category term="laerte"></category><category term="malvados"></category><category term="python"></category></entry></feed>

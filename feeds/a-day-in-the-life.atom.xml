@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - a day in the life</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="/feeds/a-day-in-the-life.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2013-06-27T12:00:00-03:00</updated><entry><title>Of ThinkPads and MacBooks</title><link href="https://blog.luizirber.org/2013/06/27/thinkpad/" rel="alternate"></link><published>2013-06-27T12:00:00-03:00</published><updated>2013-06-27T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2013-06-27:/2013/06/27/thinkpad/</id><summary type="html">&lt;p&gt;Since 2009 I was a Mac user. I was working with iOS development, and it made
+sense to have a MacBook for the SDK. I was curious too, because I've been
+using Linux distros (Debian, then Ubuntu, then Gentoo when Ubuntu was getting
+too heavy for my old laptop) for some time and was a bit tired of making
+everything work. Losing control was discomfortable at first, but so many
+things working out of the box (like sleep and hibernation!) was worth it. And
+Mac apps were much more polished (oh, Garageband).&lt;/p&gt;
+&lt;p&gt;When I arrived at INPE I got a Linux workstation, the mighty Papera (all the
+computers there have Tupi names, Tupi being a language spoken by native
+indians here in Brazil). And I tested some new things, like using Awesome&lt;a href="http://awesome.naquadah.org/"&gt;1&lt;/a&gt;
+as a window manager, and love it. But it lasted just for some months, because
+the machines were swapped for some iMacs and Papera was assigned for other
+person. I missed a tiling manager, but I also found Homebrew&lt;a href="http://mxcl.github.io/homebrew/"&gt;2&lt;/a&gt; and it helped
+a lot setting up a dev environment in OSX (I know macports and fink existed,
+but writing a Homebrew formula is pretty easy, I even contributed one back),
+so no big problems in the transition.&lt;/p&gt;
+&lt;p&gt;But after some time I was getting uneasy. New OSX versions seemed to remove
+features instead of adding then (sigh, matrix-organized Spaces...). Lack of
+expansibility on new laptops (despite MacBook Air being an awesome computer)
+was pushing me back too, because a maxed one would cost way more than I was
+willing to pay. And I was spending most of my time in SSH sessions to other
+computers or using web apps, so why not go back to Linux?&lt;/p&gt;
+&lt;p&gt;At the end of 2012 I bought a used ThinkPad X220 with the dock and everything.
+When I was younger I always liked the visual, with its black and red look, and
+the durability (MacBooks are pretty, but they are easy to scratch and bend).
+And the X220 was cheap and in perfect state, and with a small upgrade when I
+went to PyCon (ahem, 16 GB RAM and a 128 GB SSD) it is a BEAST now. And all
+these benefits too:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;I have Awesome again!&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Updated packages thanks to pacman (I installed Arch Linux and I'm loving
+    it)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;When I need a new package it is as easy to write a PKGBUILD file as it was
+    to write a Homebrew formula. I wrote some Debian packages in the past and
+    they worked, but there were so many rules and parts that I don't think I
+    want to write one again. I recognize that a lot of the rules and parts make
+    sense with a project as big as Debian (and Ubuntu and everyone else), but
+    it could be simpler.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Sleep works! Hibernation works! &lt;a href="http://forums.lenovo.com/t5/X-Series-ThinkPad-Laptops/x220-does-not-resume-from-sleep/m-p/1083233/highlight/false#M48825"&gt;Except when it doesn't because your EFI
+    is half full after the kernel wrote some stacktraces and the chip refuses
+    to wake up.&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It isn't for those faint of heart, but I'm happy to be back =]&lt;/p&gt;</summary><content type="html">&lt;p&gt;Since 2009 I was a Mac user. I was working with iOS development, and it made
+sense to have a MacBook for the SDK. I was curious too, because I've been
+using Linux distros (Debian, then Ubuntu, then Gentoo when Ubuntu was getting
+too heavy for my old laptop) for some time and was a bit tired of making
+everything work. Losing control was discomfortable at first, but so many
+things working out of the box (like sleep and hibernation!) was worth it. And
+Mac apps were much more polished (oh, Garageband).&lt;/p&gt;
+&lt;p&gt;When I arrived at INPE I got a Linux workstation, the mighty Papera (all the
+computers there have Tupi names, Tupi being a language spoken by native
+indians here in Brazil). And I tested some new things, like using Awesome&lt;a href="http://awesome.naquadah.org/"&gt;1&lt;/a&gt;
+as a window manager, and love it. But it lasted just for some months, because
+the machines were swapped for some iMacs and Papera was assigned for other
+person. I missed a tiling manager, but I also found Homebrew&lt;a href="http://mxcl.github.io/homebrew/"&gt;2&lt;/a&gt; and it helped
+a lot setting up a dev environment in OSX (I know macports and fink existed,
+but writing a Homebrew formula is pretty easy, I even contributed one back),
+so no big problems in the transition.&lt;/p&gt;
+&lt;p&gt;But after some time I was getting uneasy. New OSX versions seemed to remove
+features instead of adding then (sigh, matrix-organized Spaces...). Lack of
+expansibility on new laptops (despite MacBook Air being an awesome computer)
+was pushing me back too, because a maxed one would cost way more than I was
+willing to pay. And I was spending most of my time in SSH sessions to other
+computers or using web apps, so why not go back to Linux?&lt;/p&gt;
+&lt;p&gt;At the end of 2012 I bought a used ThinkPad X220 with the dock and everything.
+When I was younger I always liked the visual, with its black and red look, and
+the durability (MacBooks are pretty, but they are easy to scratch and bend).
+And the X220 was cheap and in perfect state, and with a small upgrade when I
+went to PyCon (ahem, 16 GB RAM and a 128 GB SSD) it is a BEAST now. And all
+these benefits too:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;I have Awesome again!&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Updated packages thanks to pacman (I installed Arch Linux and I'm loving
+    it)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;When I need a new package it is as easy to write a PKGBUILD file as it was
+    to write a Homebrew formula. I wrote some Debian packages in the past and
+    they worked, but there were so many rules and parts that I don't think I
+    want to write one again. I recognize that a lot of the rules and parts make
+    sense with a project as big as Debian (and Ubuntu and everyone else), but
+    it could be simpler.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Sleep works! Hibernation works! &lt;a href="http://forums.lenovo.com/t5/X-Series-ThinkPad-Laptops/x220-does-not-resume-from-sleep/m-p/1083233/highlight/false#M48825"&gt;Except when it doesn't because your EFI
+    is half full after the kernel wrote some stacktraces and the chip refuses
+    to wake up.&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It isn't for those faint of heart, but I'm happy to be back =]&lt;/p&gt;</content></entry><entry><title>A Tale of Two Stadiums</title><link href="https://blog.luizirber.org/2013/06/17/two-stadiums/" rel="alternate"></link><published>2013-06-17T22:00:00-03:00</published><updated>2013-06-17T22:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2013-06-17:/2013/06/17/two-stadiums/</id><summary type="html">&lt;p&gt;Last weekend I went with some friends to Maracanã watch Italy vs Mexico
+at the first round of the Confederations Cup.
+We got some cheap tickets (R$ 57, about US$ 25) on an area meant for
+Brazilians only (and that's why they were so cheap, usually tickets cost
+at least double). And it was so good to go again to a stadium, it's a very
+different experience from watching a game on TV, where the camera give you
+a limited perspective. Our seats were behind one of the goals, and we were
+lucky: we saw two goals on our side, one from Mexico (a penalty kick) and
+one from Italy, a beautiful goal by Balotelli, who was a bit of a diva, by
+the way, always complaining and making drama.&lt;/p&gt;
+&lt;p&gt;It was the third time I went to a stadium. Previous ones were Grêmio matches,
+one versus River Plate in 2002 and other versus Figueirense in 2008. These
+games were on Grêmio's last stadium, Olímpico Monumental, which gave way to
+a new one, the Arena, built at the entrance of the city (and far from the
+old one). This is happening a lot around here, given that next year we have
+the World Cup and there are at least ten new stadiums built or reformed for
+the competition. At first they should have been prepared with private
+funding, but as time passed and they were all late public funding came into
+the picture, and only in Maracanã more than one billion brazilian reais were
+spent.&lt;/p&gt;
+&lt;p&gt;They are now much closer to developed countries' stadiums, like those we used
+to see on TV. By brazilian standards they aren't even stadiums anymore,
+looking more like theaters, were you just sit and watch the game. It
+shouldn't be bad, but I couldn't avoid a comparison between this weekend
+game and my previous experience. OK, this time the crowd didn't have a
+prefered side and so it wasn't cheering up as much as I saw before, but it
+was worrisome because it was obvious that almost everyone at the match was
+people that could pay for the expensive tickets, and sometimes didn't even
+have a strong connection with football, something that always gave a match
+that catarsis aura.&lt;/p&gt;
+&lt;p&gt;Last week I tried to go with my family to see the new Grêmio stadium and we
+weren't so lucky. Cheapest tickets cost almost R$ 100 each, and for the four
+of us this meant R$ 400 less, not out of league but way too expensive. This
+high cost ticket means the usual fan can't go to the stadium anymore,
+and is replaced by this new fan, a consumer above everything else. And
+maybe it's just a romantic vision, and of course there were a lot of problems
+before, but the price paid for comfort might be too expensive in the long run.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Last weekend I went with some friends to Maracanã watch Italy vs Mexico
+at the first round of the Confederations Cup.
+We got some cheap tickets (R$ 57, about US$ 25) on an area meant for
+Brazilians only (and that's why they were so cheap, usually tickets cost
+at least double). And it was so good to go again to a stadium, it's a very
+different experience from watching a game on TV, where the camera give you
+a limited perspective. Our seats were behind one of the goals, and we were
+lucky: we saw two goals on our side, one from Mexico (a penalty kick) and
+one from Italy, a beautiful goal by Balotelli, who was a bit of a diva, by
+the way, always complaining and making drama.&lt;/p&gt;
+&lt;p&gt;It was the third time I went to a stadium. Previous ones were Grêmio matches,
+one versus River Plate in 2002 and other versus Figueirense in 2008. These
+games were on Grêmio's last stadium, Olímpico Monumental, which gave way to
+a new one, the Arena, built at the entrance of the city (and far from the
+old one). This is happening a lot around here, given that next year we have
+the World Cup and there are at least ten new stadiums built or reformed for
+the competition. At first they should have been prepared with private
+funding, but as time passed and they were all late public funding came into
+the picture, and only in Maracanã more than one billion brazilian reais were
+spent.&lt;/p&gt;
+&lt;p&gt;They are now much closer to developed countries' stadiums, like those we used
+to see on TV. By brazilian standards they aren't even stadiums anymore,
+looking more like theaters, were you just sit and watch the game. It
+shouldn't be bad, but I couldn't avoid a comparison between this weekend
+game and my previous experience. OK, this time the crowd didn't have a
+prefered side and so it wasn't cheering up as much as I saw before, but it
+was worrisome because it was obvious that almost everyone at the match was
+people that could pay for the expensive tickets, and sometimes didn't even
+have a strong connection with football, something that always gave a match
+that catarsis aura.&lt;/p&gt;
+&lt;p&gt;Last week I tried to go with my family to see the new Grêmio stadium and we
+weren't so lucky. Cheapest tickets cost almost R$ 100 each, and for the four
+of us this meant R$ 400 less, not out of league but way too expensive. This
+high cost ticket means the usual fan can't go to the stadium anymore,
+and is replaced by this new fan, a consumer above everything else. And
+maybe it's just a romantic vision, and of course there were a lot of problems
+before, but the price paid for comfort might be too expensive in the long run.&lt;/p&gt;</content></entry><entry><title>I finally met Tupã</title><link href="https://blog.luizirber.org/2013/06/07/tupa/" rel="alternate"></link><published>2013-06-07T23:45:00-03:00</published><updated>2013-06-07T23:45:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2013-06-07:/2013/06/07/tupa/</id><summary type="html">&lt;p&gt;So, after two and a half years, I finally met &lt;a href="http://supercomputacao.inpe.br/recursos2"&gt;Tupã&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.flickr.com/photos/luizirber/sets/72157633820118765/"&gt;&lt;img class="center" src="https://farm3.staticflickr.com/2875/8896385074_5a48573f57.jpg" width="500" height="375"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Curiously, it was only after I left INPE. &lt;a href="http://ciclotux.blogspot.com"&gt;Arnaldo&lt;/a&gt; came to Cachoeira
+to visit us and I planned to show him the center, but I wasn't expecting
+to do the whole tour. When I began working there they only showed the
+public part, because Tupã was off-limits at that time, and I thought it
+still was since then. Well, me and everybody else that got into the group
+after me... We went on a small tour to see Tupã, the engines, no-breaks
+and all the electrical installation needed to support the building.&lt;/p&gt;
+&lt;p&gt;And it was &lt;strong&gt;AMAZING!&lt;/strong&gt; I always liked more software than hardware, but it
+is awesome to see things that you just knew from a SSH session. I could see
+the tape library, disk arrays, the blinkenlights... It is in some ways the
+physical manifestation of your code, or at least you have a better notion
+of how many things are in motion when you execute something on the computer.&lt;/p&gt;
+&lt;p&gt;All in all, good times. It wasn't exactly what I expected at first, but I
+made some great friends there, I could bike to work everyday, and I
+learned (by trial and error) that you need to choose better who do you
+trust. So it goes.&lt;/p&gt;</summary><content type="html">&lt;p&gt;So, after two and a half years, I finally met &lt;a href="http://supercomputacao.inpe.br/recursos2"&gt;Tupã&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.flickr.com/photos/luizirber/sets/72157633820118765/"&gt;&lt;img class="center" src="https://farm3.staticflickr.com/2875/8896385074_5a48573f57.jpg" width="500" height="375"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Curiously, it was only after I left INPE. &lt;a href="http://ciclotux.blogspot.com"&gt;Arnaldo&lt;/a&gt; came to Cachoeira
+to visit us and I planned to show him the center, but I wasn't expecting
+to do the whole tour. When I began working there they only showed the
+public part, because Tupã was off-limits at that time, and I thought it
+still was since then. Well, me and everybody else that got into the group
+after me... We went on a small tour to see Tupã, the engines, no-breaks
+and all the electrical installation needed to support the building.&lt;/p&gt;
+&lt;p&gt;And it was &lt;strong&gt;AMAZING!&lt;/strong&gt; I always liked more software than hardware, but it
+is awesome to see things that you just knew from a SSH session. I could see
+the tape library, disk arrays, the blinkenlights... It is in some ways the
+physical manifestation of your code, or at least you have a better notion
+of how many things are in motion when you execute something on the computer.&lt;/p&gt;
+&lt;p&gt;All in all, good times. It wasn't exactly what I expected at first, but I
+made some great friends there, I could bike to work everyday, and I
+learned (by trial and error) that you need to choose better who do you
+trust. So it goes.&lt;/p&gt;</content></entry><entry><title>OMG Kitties!</title><link href="https://blog.luizirber.org/2009/05/26/omg-kitties/" rel="alternate"></link><published>2009-05-26T08:49:00-03:00</published><updated>2009-05-26T08:49:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2009-05-26:/2009/05/26/omg-kitties/</id><summary type="html">&lt;p&gt;Ontem foi o dia da toalha. Uma imagem vale mais que mil palavras.&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/toalha2009.jpg" width="300"&gt;&lt;/p&gt;
+&lt;p&gt;À esquerda, minha querida toalha. Ao fundo, &lt;a href="http://www.wowarmory.com/character-sheet.xml?r=Ravenholdt&amp;amp;n=Lebriziur"&gt;World of Warcraft&lt;/a&gt; (sim,
+cometi esse erro. Seja o que Deus quiser). E na frente, em primeiro
+plano, Ada.&lt;/p&gt;
+&lt;p&gt;Quem é Ada? Semana passada minha namorada veio perguntar se eu já tinha
+ouvido falar de Ada Byron, condessa de Lovelace (não confundir com
+&lt;a href="http://en.wikipedia.org/wiki/Linda_Lovelace"&gt;Linda Lovelace&lt;/a&gt;, condessa de... clique no link e veja). Eu disse
+"claro, a primeira programadora", e começamos a conversar sobre isso.
+Ela reclamou da falta de reconhecimento da importância dela, e acabamos
+concluindo que Ada é um nome legal.&lt;/p&gt;
+&lt;p&gt;Na sexta, fomos até a Arca de São Franscisco, uma entidade de proteção
+aos animais em São Carlos. E lá achamos essa gatinha, que deveria ter
+ficado em outro lugar, mas por incompatibilidade de gênios foi rejeitada
+e acabou ficando no apartamento mesmo. E resolvemos batizar ela como
+Ada. Diga-se que é a primeira vez que tenho um gato, o único animal de
+estimação que tive foi uma coelha, quando eu tinha uns 6 anos. Mas tô
+curtindo por enquanto =]&lt;/p&gt;
+&lt;p&gt;E acabei descobrindo que essa tirinha do XKCD realmente é verdade:&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://xkcd.com/231/"&gt;&lt;img class="center" src="https://imgs.xkcd.com/comics/cat_proximity.png" width="300" title=""Yes you are!  And youre sitting there!  Hi, kitty!"" alt=""Yes you are!  And youre sitting there!  Hi, kitty!""&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Randall Munroe, mestre.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Alguém aí tem dicas?&lt;/p&gt;</summary><content type="html">&lt;p&gt;Ontem foi o dia da toalha. Uma imagem vale mais que mil palavras.&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/toalha2009.jpg" width="300"&gt;&lt;/p&gt;
+&lt;p&gt;À esquerda, minha querida toalha. Ao fundo, &lt;a href="http://www.wowarmory.com/character-sheet.xml?r=Ravenholdt&amp;amp;n=Lebriziur"&gt;World of Warcraft&lt;/a&gt; (sim,
+cometi esse erro. Seja o que Deus quiser). E na frente, em primeiro
+plano, Ada.&lt;/p&gt;
+&lt;p&gt;Quem é Ada? Semana passada minha namorada veio perguntar se eu já tinha
+ouvido falar de Ada Byron, condessa de Lovelace (não confundir com
+&lt;a href="http://en.wikipedia.org/wiki/Linda_Lovelace"&gt;Linda Lovelace&lt;/a&gt;, condessa de... clique no link e veja). Eu disse
+"claro, a primeira programadora", e começamos a conversar sobre isso.
+Ela reclamou da falta de reconhecimento da importância dela, e acabamos
+concluindo que Ada é um nome legal.&lt;/p&gt;
+&lt;p&gt;Na sexta, fomos até a Arca de São Franscisco, uma entidade de proteção
+aos animais em São Carlos. E lá achamos essa gatinha, que deveria ter
+ficado em outro lugar, mas por incompatibilidade de gênios foi rejeitada
+e acabou ficando no apartamento mesmo. E resolvemos batizar ela como
+Ada. Diga-se que é a primeira vez que tenho um gato, o único animal de
+estimação que tive foi uma coelha, quando eu tinha uns 6 anos. Mas tô
+curtindo por enquanto =]&lt;/p&gt;
+&lt;p&gt;E acabei descobrindo que essa tirinha do XKCD realmente é verdade:&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://xkcd.com/231/"&gt;&lt;img class="center" src="https://imgs.xkcd.com/comics/cat_proximity.png" width="300" title=""Yes you are!  And youre sitting there!  Hi, kitty!"" alt=""Yes you are!  And youre sitting there!  Hi, kitty!""&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Randall Munroe, mestre.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Alguém aí tem dicas?&lt;/p&gt;</content></entry><entry><title>Tidbits</title><link href="https://blog.luizirber.org/2008/12/29/tidbits/" rel="alternate"></link><published>2008-12-29T06:54:00-02:00</published><updated>2008-12-29T06:54:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-12-29:/2008/12/29/tidbits/</id><summary type="html">&lt;p&gt;Um monte de coisas que merecem ser ditas, mas pequenas demais para posts
+separados. Vamos lá:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;A minha palestra na PyConBrasil desse ano está no &lt;a href="http://video.google.com/videoplay?docid=-2177235750911656588"&gt;Google Video&lt;/a&gt;.
+Desde metade de novembro, mas só descobri agora =D&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aliás, eu dei uma palestra em um evento chamado &lt;a href="http://arcodigital.com.br/mobile/prog_1712.php"&gt;Mobile Expert&lt;/a&gt;,
+promovido pela Editora Europa, na Livraria Cultura. Os slides estão
+&lt;a href="http://www.luizirber.org/talks/python_games"&gt;aqui&lt;/a&gt;. O detalhe é que eles erraram meu nome (que é com Z), o nome da
+linguagem (é PYTHON) e o nome da empresa (Pinuts StudioS, com S no
+final). Mas foi bem massa mesmo assim.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Liniers lançou o Macanudo #6 por conta própria, e a primeira edição,
+de 5000 exemplares, saiu com a capa em branco. E ele DESENHOU TODAS A
+MÃO. Quando fiquei sabendo disso logo dei um jeito de comprar dois, por
+uma loja argentina que vende na internet. Eles chegaram no começo de
+dezembro, e são umas belezinhas. Um ficou comigo, o outro dei de
+presente de natal para a Na.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Que, fodasticamente, fez três miniaturas em biscuit de alguns
+personagens da tirinha e me deu de Natal. Olhaê:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="http://www.flickr.com/photos/luizirber/3143780731/"&gt;&lt;img class="center" src="https://farm4.static.flickr.com/3224/3143780731_746a8da28d.jpg"&gt;&lt;/a&gt; Duende, Fellini y El Misterioso Hombre de Negro&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Finalizando com Liniers: &lt;a href="http://autoliniers.blogspot.com/2008/12/liniers-macanudo_28.html"&gt;ontem&lt;/a&gt; ele deu um susto naquelas pessoas
+que acompanham a tirinha e não entendem espanhol muito bem. Só que ontem
+era Dia dos Inocentes em países hispânicos, o equivalente ao nosso
+Primeiro de Abril. Tsc.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Agora MTV pega na parabólica. Yay! Não que seja grande coisa, mas pelo
+menos passa alguns clipes legais de madrugada, e por pior que esteja a
+programação ainda é uma opção interessante quando comparada aos outros
+canais disponíveis na TV aberta...&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Fallout 2 é FOODA. Tudo bem que tá todo mundo falando do 3, mas esse
+não roda no meu PC. Então aproveitei para jogar o &lt;a href="http://www.nma-fallout.com/forum/viewtopic.php?t=40443"&gt;Restoration
+Project&lt;/a&gt;, mod que adiciona alguns detalhes que tinham sido planejados,
+mas não foram implementados. Sweet!&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Alguém aí sabe jogar Magic? Ganhei um deck de natal, mas preciso de
+oponentes (de preferência compreensivos, e dispostos a explicar tudo).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://www.imdb.com/name/nm0594898/"&gt;Ela&lt;/a&gt; &lt;a href="http://www.imdb.com/title/tt0490196/"&gt;prova&lt;/a&gt; que &lt;a href="http://vainalousachefe.wordpress.com/"&gt;GG&lt;/a&gt; é &lt;a href="http://www.flickr.com/photos/luizirber/3145992838/"&gt;lindo&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</summary><content type="html">&lt;p&gt;Um monte de coisas que merecem ser ditas, mas pequenas demais para posts
+separados. Vamos lá:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;A minha palestra na PyConBrasil desse ano está no &lt;a href="http://video.google.com/videoplay?docid=-2177235750911656588"&gt;Google Video&lt;/a&gt;.
+Desde metade de novembro, mas só descobri agora =D&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aliás, eu dei uma palestra em um evento chamado &lt;a href="http://arcodigital.com.br/mobile/prog_1712.php"&gt;Mobile Expert&lt;/a&gt;,
+promovido pela Editora Europa, na Livraria Cultura. Os slides estão
+&lt;a href="http://www.luizirber.org/talks/python_games"&gt;aqui&lt;/a&gt;. O detalhe é que eles erraram meu nome (que é com Z), o nome da
+linguagem (é PYTHON) e o nome da empresa (Pinuts StudioS, com S no
+final). Mas foi bem massa mesmo assim.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Liniers lançou o Macanudo #6 por conta própria, e a primeira edição,
+de 5000 exemplares, saiu com a capa em branco. E ele DESENHOU TODAS A
+MÃO. Quando fiquei sabendo disso logo dei um jeito de comprar dois, por
+uma loja argentina que vende na internet. Eles chegaram no começo de
+dezembro, e são umas belezinhas. Um ficou comigo, o outro dei de
+presente de natal para a Na.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Que, fodasticamente, fez três miniaturas em biscuit de alguns
+personagens da tirinha e me deu de Natal. Olhaê:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="http://www.flickr.com/photos/luizirber/3143780731/"&gt;&lt;img class="center" src="https://farm4.static.flickr.com/3224/3143780731_746a8da28d.jpg"&gt;&lt;/a&gt; Duende, Fellini y El Misterioso Hombre de Negro&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Finalizando com Liniers: &lt;a href="http://autoliniers.blogspot.com/2008/12/liniers-macanudo_28.html"&gt;ontem&lt;/a&gt; ele deu um susto naquelas pessoas
+que acompanham a tirinha e não entendem espanhol muito bem. Só que ontem
+era Dia dos Inocentes em países hispânicos, o equivalente ao nosso
+Primeiro de Abril. Tsc.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Agora MTV pega na parabólica. Yay! Não que seja grande coisa, mas pelo
+menos passa alguns clipes legais de madrugada, e por pior que esteja a
+programação ainda é uma opção interessante quando comparada aos outros
+canais disponíveis na TV aberta...&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Fallout 2 é FOODA. Tudo bem que tá todo mundo falando do 3, mas esse
+não roda no meu PC. Então aproveitei para jogar o &lt;a href="http://www.nma-fallout.com/forum/viewtopic.php?t=40443"&gt;Restoration
+Project&lt;/a&gt;, mod que adiciona alguns detalhes que tinham sido planejados,
+mas não foram implementados. Sweet!&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Alguém aí sabe jogar Magic? Ganhei um deck de natal, mas preciso de
+oponentes (de preferência compreensivos, e dispostos a explicar tudo).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://www.imdb.com/name/nm0594898/"&gt;Ela&lt;/a&gt; &lt;a href="http://www.imdb.com/title/tt0490196/"&gt;prova&lt;/a&gt; que &lt;a href="http://vainalousachefe.wordpress.com/"&gt;GG&lt;/a&gt; é &lt;a href="http://www.flickr.com/photos/luizirber/3145992838/"&gt;lindo&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</content></entry><entry><title>Presente de aniversário</title><link href="https://blog.luizirber.org/2008/11/22/presente-de-aniversario/" rel="alternate"></link><published>2008-11-22T11:20:00-02:00</published><updated>2008-11-22T11:20:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-11-22:/2008/11/22/presente-de-aniversario/</id><summary type="html">&lt;p&gt;O meu aniversário foi dia 17, mas há pessoas impacientes no mundo. No
+dia 05 de novembro já tinha recebido um presente =]&lt;/p&gt;
+&lt;p&gt;Teaser:&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/asuka-hd1.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;O presente:&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/asuka-gk1.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;Tão legal quanto o presente é a reação das pessoas. Os que nunca ouviram
+falar de &lt;a href="http://en.wikipedia.org/wiki/Garage_kit"&gt;Garage Kit&lt;/a&gt; e &lt;a href="http://en.wikipedia.org/wiki/Asuka_Langley_Soryu"&gt;Evangelion&lt;/a&gt; dizem 'Mas isso não é coisa de
+menininha?'. Os que entendem dizem 'Que foda!'&lt;/p&gt;
+&lt;p&gt;Eu? Eu adorei, qualquer que seja a opinião dos outros =D&lt;/p&gt;
+&lt;p&gt;Obrigado, Na!&lt;/p&gt;</summary><content type="html">&lt;p&gt;O meu aniversário foi dia 17, mas há pessoas impacientes no mundo. No
+dia 05 de novembro já tinha recebido um presente =]&lt;/p&gt;
+&lt;p&gt;Teaser:&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/asuka-hd1.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;O presente:&lt;/p&gt;
+&lt;p&gt;&lt;img class="center" src="/images/asuka-gk1.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;Tão legal quanto o presente é a reação das pessoas. Os que nunca ouviram
+falar de &lt;a href="http://en.wikipedia.org/wiki/Garage_kit"&gt;Garage Kit&lt;/a&gt; e &lt;a href="http://en.wikipedia.org/wiki/Asuka_Langley_Soryu"&gt;Evangelion&lt;/a&gt; dizem 'Mas isso não é coisa de
+menininha?'. Os que entendem dizem 'Que foda!'&lt;/p&gt;
+&lt;p&gt;Eu? Eu adorei, qualquer que seja a opinião dos outros =D&lt;/p&gt;
+&lt;p&gt;Obrigado, Na!&lt;/p&gt;</content></entry><entry><title>PETAR</title><link href="https://blog.luizirber.org/2008/10/22/petar/" rel="alternate"></link><published>2008-10-22T18:01:00-02:00</published><updated>2008-10-22T18:01:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-10-22:/2008/10/22/petar/</id><summary type="html">&lt;p&gt;Fim de semana emocionante. No sábado de manhã fomos eu, Maja (a croata
+que esteve morando com a gente por dois meses, fazendo intercâmbio em
+Sanca) e a Stéfanie (a vizinha) para o &lt;a href="http://www.petaronline.com.br/"&gt;PETAR&lt;/a&gt;, a convite do Sinfa.
+Saímos bem cedo de São Carlos, cinco da manhã, passamos por São Paulo
+para encontrar o Sinfa e a namorada dele, e depois vamos em direção ao
+parque. Que, como fica na região sul de São Paulo, é longe pra dedéu.
+Chegamos lá só às quatro e tanto da tarde.&lt;/p&gt;
+&lt;p&gt;Mas já chegamos preocupados. Ao sair de São Carlos o tempo estava
+quente, chegando em Sampa chovia, e quanto mais para o sul íamos, mais a
+chuva castigava. E, ao chegar no PETAR, ela não tinha parado. Péssimo
+sinal, tínhamos poucas roupas para frio, e estávamos indo para o núcleo
+mais isolado e selvagem do lugar, o &lt;a href="http://www.petaronline.com.br/caboclos.htm"&gt;Caboclos&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Depois de sacolejar por mais uma hora em estradas de chão batido,
+chegamos ao local do acampamento. Várias cabanas, mas todas reservadas
+para pesquisadores. Vamos dar uma olhada no local do camping, e meus
+ossos já ficam gelados só de imaginar como vai ser a noite...&lt;/p&gt;
+&lt;p&gt;Eu e a Maja montamos rapidinho a barraca onde eu, ela e a Stéfanie vamos
+dormir, e depois vamos ajudar o Sinfa a montar a dele e da namorada
+(que, por sinal, é bem maior). Mais uns 20 minutos, e estamos
+suficientemente ensopados para começar a amaldiçoar a viagem. Ah, que
+vontade de estar em casa, assistindo a um filminho e comendo pipoca...&lt;/p&gt;
+&lt;p&gt;Mas como diz o sábio, já que tá que vá. Jantamos, e quando começamos a
+nos ajeitar para dormir, percebemos que a nossa barraca não é tão
+impermeável assim. Começamos a discutir seriamente a possibilidade de
+seguir viagem e ir para Curitiba. Mas antes que a situação piore, vamos
+todos para a barraca do Sinfa, e lá jogamos um pouco de truco antes de
+ir dormir (eu e Maja ganhamos, apesar de eu quase nunca jogar e de ser a
+primeira vez dela jogando =] )&lt;/p&gt;
+&lt;p&gt;No domingo de manhã somos acordados pela chegada do guia, mas a vontade
+de sair da cama era nula. Eu e a Stéfanie já tínhamos idéia de onde nos
+metemos, e somos contra seguir com a trilha planejada, até porque
+demoraríamos demais para ir embora e chegaríamos muito tarde em São
+Carlos. Mas a Maja ainda achava que seria uma trilha bem aberta e
+tranquila, com uma caverna acessível. Como eram 3 votos contra 2, vamos
+todos fazer a trilha.&lt;/p&gt;
+&lt;p&gt;Como eu sou um simplório, me diverti horrores. Cada vez que eu
+escorregava e caia na lama eu dava risada, possivelmente pela insanidade
+da coisa. E situações dessas são ótimas para deixar o humor negro e a
+ironia aflorar, então eu e a Stéfanie estávamos impossíveis. Pena que o
+guia não entendia metade das piadas que a gente fazia.&lt;/p&gt;
+&lt;p&gt;Aliás, o guia. Ele fez curso técnico em mecatrônica, mas enquanto não
+arranja um emprego trabalha no PETAR como guia. Ele deu umas explicações
+que deixariam cientistas de cabelo em pé (destaque para o Bagre Cego),
+mas era gente fina. E comentou, em certo ponto, que achou que nós
+seríamos um grupo de aventureiros experientes loucões, por querer ir na
+chuva na trilha mais difícil do parque. HAH! Um computeiro, uma croata
+que nunca viu mato na vida, e uma anêmica? Loucos com certeza,
+aventureiros contra a vontade, mas experientes nunca...&lt;/p&gt;
+&lt;p&gt;Depois de três horas de muitos tombos, arranhões e lama, chegamos até a
+caverna. Para descobrir que não podemos entrar, porque o rio está muito
+alto. Sem muitas opções, começamos a volta, agora por outro lado.
+Atravessamos o rio duas vezes (na segunda, muita correnteza), subimos
+uma encosta íngreme auxiliados por cordas, e cada vez mais me sinto um
+escoteirinho. O guia não está dando muita bola, mas a Maja e a Stéfanie
+estão exaustas, e várias vezes tenho que ajudá-las a atravessar alguns
+pontos. Aliás, é admirável a calma do guia: em vários pontos um
+escorregão levaria a uma queda beeeem horrenda, pelo menos uns 30 metros
+rolando ribanceira abaixo, e ele nem aí.&lt;/p&gt;
+&lt;p&gt;Perto do fim, a coisa está realmente feia. Maja desesperada porque vai
+ficar doente (err, e realmente ficou...), Stéfanie com hipoglicemia,
+Leandro e namorada um pouco mais atrás de nós. E eu? Sei lá de onde, mas
+ainda com energia para seguir adiante. Que dizer, sei sim, mas isso é
+assunto para outro post. Por mais que tenha sido uma roubada, que a
+gente tivesse que tomar banho frio logo depois (energia elétrica? pfff),
+que tívessemos que voltar para Sanca dividindo o único par de tênis
+limpos, eu estava me divertindo. Nada melhor do que rir de nós mesmos =D&lt;/p&gt;
+&lt;p&gt;Na segunda nem consegui ir trabalhar, foi muito difícil simplesmente
+sair da cama. Acho que a adrenalina da hora não deixou perceber que eu
+estava me estropiando todo.&lt;/p&gt;
+&lt;p&gt;Portanto, recomendações: Se for ao PETAR, comece pela caverna de
+Santana, e depois se arrisque nas mais selvagens. Vale a pena, mas evite
+ir na chuva! =D&lt;/p&gt;
+&lt;p&gt;UPDATE: já que tive um comentário ilustre por parte da Stéfanie, fique
+explicado que:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Ela ajudou a pregar no chão e a por a cobertura. Portanto, ajudou na
+montagem da nossa barraca.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Sim, eu fiquei a maior parte do tempo atrás dela. Ou seja, não fui
+de muita ajuda para ela (só quando ela escorregava e quase caia no chão,
+já no final da trilha). Ah, e também quando ela tava com hipoglicemia,
+servindo Negresco e dando apoio. Portanto, meu lado escoteirinho
+auxiliador apareceu mais para a Maja e, às vezes, pra namorada do Sinfa.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;E ela sabe muito bem de onde eu tirei energia =]&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</summary><content type="html">&lt;p&gt;Fim de semana emocionante. No sábado de manhã fomos eu, Maja (a croata
+que esteve morando com a gente por dois meses, fazendo intercâmbio em
+Sanca) e a Stéfanie (a vizinha) para o &lt;a href="http://www.petaronline.com.br/"&gt;PETAR&lt;/a&gt;, a convite do Sinfa.
+Saímos bem cedo de São Carlos, cinco da manhã, passamos por São Paulo
+para encontrar o Sinfa e a namorada dele, e depois vamos em direção ao
+parque. Que, como fica na região sul de São Paulo, é longe pra dedéu.
+Chegamos lá só às quatro e tanto da tarde.&lt;/p&gt;
+&lt;p&gt;Mas já chegamos preocupados. Ao sair de São Carlos o tempo estava
+quente, chegando em Sampa chovia, e quanto mais para o sul íamos, mais a
+chuva castigava. E, ao chegar no PETAR, ela não tinha parado. Péssimo
+sinal, tínhamos poucas roupas para frio, e estávamos indo para o núcleo
+mais isolado e selvagem do lugar, o &lt;a href="http://www.petaronline.com.br/caboclos.htm"&gt;Caboclos&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Depois de sacolejar por mais uma hora em estradas de chão batido,
+chegamos ao local do acampamento. Várias cabanas, mas todas reservadas
+para pesquisadores. Vamos dar uma olhada no local do camping, e meus
+ossos já ficam gelados só de imaginar como vai ser a noite...&lt;/p&gt;
+&lt;p&gt;Eu e a Maja montamos rapidinho a barraca onde eu, ela e a Stéfanie vamos
+dormir, e depois vamos ajudar o Sinfa a montar a dele e da namorada
+(que, por sinal, é bem maior). Mais uns 20 minutos, e estamos
+suficientemente ensopados para começar a amaldiçoar a viagem. Ah, que
+vontade de estar em casa, assistindo a um filminho e comendo pipoca...&lt;/p&gt;
+&lt;p&gt;Mas como diz o sábio, já que tá que vá. Jantamos, e quando começamos a
+nos ajeitar para dormir, percebemos que a nossa barraca não é tão
+impermeável assim. Começamos a discutir seriamente a possibilidade de
+seguir viagem e ir para Curitiba. Mas antes que a situação piore, vamos
+todos para a barraca do Sinfa, e lá jogamos um pouco de truco antes de
+ir dormir (eu e Maja ganhamos, apesar de eu quase nunca jogar e de ser a
+primeira vez dela jogando =] )&lt;/p&gt;
+&lt;p&gt;No domingo de manhã somos acordados pela chegada do guia, mas a vontade
+de sair da cama era nula. Eu e a Stéfanie já tínhamos idéia de onde nos
+metemos, e somos contra seguir com a trilha planejada, até porque
+demoraríamos demais para ir embora e chegaríamos muito tarde em São
+Carlos. Mas a Maja ainda achava que seria uma trilha bem aberta e
+tranquila, com uma caverna acessível. Como eram 3 votos contra 2, vamos
+todos fazer a trilha.&lt;/p&gt;
+&lt;p&gt;Como eu sou um simplório, me diverti horrores. Cada vez que eu
+escorregava e caia na lama eu dava risada, possivelmente pela insanidade
+da coisa. E situações dessas são ótimas para deixar o humor negro e a
+ironia aflorar, então eu e a Stéfanie estávamos impossíveis. Pena que o
+guia não entendia metade das piadas que a gente fazia.&lt;/p&gt;
+&lt;p&gt;Aliás, o guia. Ele fez curso técnico em mecatrônica, mas enquanto não
+arranja um emprego trabalha no PETAR como guia. Ele deu umas explicações
+que deixariam cientistas de cabelo em pé (destaque para o Bagre Cego),
+mas era gente fina. E comentou, em certo ponto, que achou que nós
+seríamos um grupo de aventureiros experientes loucões, por querer ir na
+chuva na trilha mais difícil do parque. HAH! Um computeiro, uma croata
+que nunca viu mato na vida, e uma anêmica? Loucos com certeza,
+aventureiros contra a vontade, mas experientes nunca...&lt;/p&gt;
+&lt;p&gt;Depois de três horas de muitos tombos, arranhões e lama, chegamos até a
+caverna. Para descobrir que não podemos entrar, porque o rio está muito
+alto. Sem muitas opções, começamos a volta, agora por outro lado.
+Atravessamos o rio duas vezes (na segunda, muita correnteza), subimos
+uma encosta íngreme auxiliados por cordas, e cada vez mais me sinto um
+escoteirinho. O guia não está dando muita bola, mas a Maja e a Stéfanie
+estão exaustas, e várias vezes tenho que ajudá-las a atravessar alguns
+pontos. Aliás, é admirável a calma do guia: em vários pontos um
+escorregão levaria a uma queda beeeem horrenda, pelo menos uns 30 metros
+rolando ribanceira abaixo, e ele nem aí.&lt;/p&gt;
+&lt;p&gt;Perto do fim, a coisa está realmente feia. Maja desesperada porque vai
+ficar doente (err, e realmente ficou...), Stéfanie com hipoglicemia,
+Leandro e namorada um pouco mais atrás de nós. E eu? Sei lá de onde, mas
+ainda com energia para seguir adiante. Que dizer, sei sim, mas isso é
+assunto para outro post. Por mais que tenha sido uma roubada, que a
+gente tivesse que tomar banho frio logo depois (energia elétrica? pfff),
+que tívessemos que voltar para Sanca dividindo o único par de tênis
+limpos, eu estava me divertindo. Nada melhor do que rir de nós mesmos =D&lt;/p&gt;
+&lt;p&gt;Na segunda nem consegui ir trabalhar, foi muito difícil simplesmente
+sair da cama. Acho que a adrenalina da hora não deixou perceber que eu
+estava me estropiando todo.&lt;/p&gt;
+&lt;p&gt;Portanto, recomendações: Se for ao PETAR, comece pela caverna de
+Santana, e depois se arrisque nas mais selvagens. Vale a pena, mas evite
+ir na chuva! =D&lt;/p&gt;
+&lt;p&gt;UPDATE: já que tive um comentário ilustre por parte da Stéfanie, fique
+explicado que:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Ela ajudou a pregar no chão e a por a cobertura. Portanto, ajudou na
+montagem da nossa barraca.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Sim, eu fiquei a maior parte do tempo atrás dela. Ou seja, não fui
+de muita ajuda para ela (só quando ela escorregava e quase caia no chão,
+já no final da trilha). Ah, e também quando ela tava com hipoglicemia,
+servindo Negresco e dando apoio. Portanto, meu lado escoteirinho
+auxiliador apareceu mais para a Maja e, às vezes, pra namorada do Sinfa.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;E ela sabe muito bem de onde eu tirei energia =]&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</content><category term="aventura"></category><category term="caverna"></category><category term="lama"></category><category term="PETAR"></category><category term="tombo"></category><category term="trilha"></category></entry><entry><title>Minha primeira hackeada</title><link href="https://blog.luizirber.org/2008/08/10/minha-primeira-hackeada/" rel="alternate"></link><published>2008-08-10T10:27:00-03:00</published><updated>2008-08-10T10:27:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-08-10:/2008/08/10/minha-primeira-hackeada/</id><summary type="html">&lt;p&gt;Memes de internet são como powerpoints no email: você pode até seguí-los
+ou lê-los, mas não deve repassar adiante essas pragas. Como o &lt;a href="http://vainalousachefe.wordpress.com/2008/07/31/minha-primeira-hackeada/" title="Vai na Lousa, Chéééééoééfe!"&gt;GG&lt;/a&gt;
+levantou a bola vou chutá-la, mas não recomendo que mais ninguém faça o
+mesmo! =D&lt;/p&gt;
+&lt;p&gt;Minha primeira hackeada? O primeiro computador lá de casa era um 286,
+comprado em 1993. Só rodava um editor de texto chamado Pangloss, e um
+misto de agenda, organizador pessoal e planilha chamado Every. E sei lá
+como, eu ainda conseguia me divertir com a bagaça. A minha mãe arranjou
+um curso de informática do Banco do Brasil chamado INFO2000, que
+ensinava enquanto contava uma historinha muito legalzinha sobre um
+viajante espacial.&lt;/p&gt;
+&lt;p&gt;E todos os softwares citados são tão velhos ou obscuros que não achei
+nada no Google sobre eles. Vou tentar recuperá-los da próxima vez que
+for para casa e achar mais informações.&lt;/p&gt;
+&lt;p&gt;Um dia meu primo levou 'Outrun' e 'Prince of Persia' em dois disquetes.
+E daí eu tive bastante o que fazer =D&lt;/p&gt;
+&lt;p&gt;Mas, hackeada mesmo, eu lembro que só fui fazer em um 486, em 1994. Um
+amigo meu trouxe vários Commander Keen (2, 3 e 5, se não me engano), e
+eu fiz um .BAT com um menu para acessar os jogos. Inútil, mas foi meu
+primeiro 'shell script': tinha que imprimir mensagens, ler a entrada do
+usuário, e executar o jogo correto.&lt;/p&gt;
+&lt;p&gt;Além disso, eu lembro que tive que fuçar várias vezes no CONFIG.SYS e no
+AUTOEXEC.BAT para desabilitar algumas coisas a fim de liberar memória
+(ah, os saudosos 640KB...) para algum jogo. Pra quem tinha nove anos na
+época e não tinha com quem aprender, até que está bom, né?&lt;/p&gt;
+&lt;p&gt;Uma outra história interessante: quando eu ia na quarta série as freiras
+do meu colégio compraram um computador e deixaram na secretaria. E,
+certo dia, a secretária foi me chamar na sala de aula, porque não estava
+conseguindo fazer algo (não lembro o quê, fazem 14 anos, oras!). Fui lá,
+resolvi, e voltei para a aula. Suporte técnico desde criança, hehehe.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Memes de internet são como powerpoints no email: você pode até seguí-los
+ou lê-los, mas não deve repassar adiante essas pragas. Como o &lt;a href="http://vainalousachefe.wordpress.com/2008/07/31/minha-primeira-hackeada/" title="Vai na Lousa, Chéééééoééfe!"&gt;GG&lt;/a&gt;
+levantou a bola vou chutá-la, mas não recomendo que mais ninguém faça o
+mesmo! =D&lt;/p&gt;
+&lt;p&gt;Minha primeira hackeada? O primeiro computador lá de casa era um 286,
+comprado em 1993. Só rodava um editor de texto chamado Pangloss, e um
+misto de agenda, organizador pessoal e planilha chamado Every. E sei lá
+como, eu ainda conseguia me divertir com a bagaça. A minha mãe arranjou
+um curso de informática do Banco do Brasil chamado INFO2000, que
+ensinava enquanto contava uma historinha muito legalzinha sobre um
+viajante espacial.&lt;/p&gt;
+&lt;p&gt;E todos os softwares citados são tão velhos ou obscuros que não achei
+nada no Google sobre eles. Vou tentar recuperá-los da próxima vez que
+for para casa e achar mais informações.&lt;/p&gt;
+&lt;p&gt;Um dia meu primo levou 'Outrun' e 'Prince of Persia' em dois disquetes.
+E daí eu tive bastante o que fazer =D&lt;/p&gt;
+&lt;p&gt;Mas, hackeada mesmo, eu lembro que só fui fazer em um 486, em 1994. Um
+amigo meu trouxe vários Commander Keen (2, 3 e 5, se não me engano), e
+eu fiz um .BAT com um menu para acessar os jogos. Inútil, mas foi meu
+primeiro 'shell script': tinha que imprimir mensagens, ler a entrada do
+usuário, e executar o jogo correto.&lt;/p&gt;
+&lt;p&gt;Além disso, eu lembro que tive que fuçar várias vezes no CONFIG.SYS e no
+AUTOEXEC.BAT para desabilitar algumas coisas a fim de liberar memória
+(ah, os saudosos 640KB...) para algum jogo. Pra quem tinha nove anos na
+época e não tinha com quem aprender, até que está bom, né?&lt;/p&gt;
+&lt;p&gt;Uma outra história interessante: quando eu ia na quarta série as freiras
+do meu colégio compraram um computador e deixaram na secretaria. E,
+certo dia, a secretária foi me chamar na sala de aula, porque não estava
+conseguindo fazer algo (não lembro o quê, fazem 14 anos, oras!). Fui lá,
+resolvi, e voltei para a aula. Suporte técnico desde criança, hehehe.&lt;/p&gt;</content></entry><entry><title>Dia do Amigo</title><link href="https://blog.luizirber.org/2008/07/20/dia-do-amigo/" rel="alternate"></link><published>2008-07-20T18:03:00-03:00</published><updated>2008-07-20T18:03:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-07-20:/2008/07/20/dia-do-amigo/</id><summary type="html">&lt;p&gt;&lt;img class="center" src="/images/20072008278-001.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;Às vezes dá vontade de fazer um blog só com tirinhas do Liniers, mas daí
+eu lembro que você sempre pode ir no site da &lt;a href="http://www.livrariacultura.com.br/scripts/cultura/catalogo/busca.asp?tipo_pesq=titulo&amp;amp;palavra=macanudo&amp;amp;topo=livro&amp;amp;sid=01351501910720655571867732&amp;amp;k5=259E5B04&amp;amp;uid=&amp;amp;lastreg=&amp;amp;parceiro=121233"&gt;Cultura&lt;/a&gt; e comprar as
+coletâneas. Tá esperando o quê?&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img class="center" src="/images/20072008278-001.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;Às vezes dá vontade de fazer um blog só com tirinhas do Liniers, mas daí
+eu lembro que você sempre pode ir no site da &lt;a href="http://www.livrariacultura.com.br/scripts/cultura/catalogo/busca.asp?tipo_pesq=titulo&amp;amp;palavra=macanudo&amp;amp;topo=livro&amp;amp;sid=01351501910720655571867732&amp;amp;k5=259E5B04&amp;amp;uid=&amp;amp;lastreg=&amp;amp;parceiro=121233"&gt;Cultura&lt;/a&gt; e comprar as
+coletâneas. Tá esperando o quê?&lt;/p&gt;</content></entry><entry><title>Feliz ano novo!</title><link href="https://blog.luizirber.org/2008/01/01/feliz-ano-novo/" rel="alternate"></link><published>2008-01-01T07:02:00-02:00</published><updated>2008-01-01T07:02:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-01-01:/2008/01/01/feliz-ano-novo/</id><summary type="html">&lt;p&gt;&lt;img class="center" src="/images/7669141.jpg"&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;img class="center" src="/images/7669141.jpg"&gt;&lt;/p&gt;</content></entry><entry><title>When yer 22</title><link href="https://blog.luizirber.org/2007/11/17/when-yer-22/" rel="alternate"></link><published>2007-11-17T20:04:00-02:00</published><updated>2007-11-17T20:04:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2007-11-17:/2007/11/17/when-yer-22/</id><summary type="html">&lt;p&gt;Stuck in the perpetual motion&lt;br&gt;
+Dying against the machine&lt;br&gt;
+The whole thing leaves&lt;br&gt;
+You a nothing instead of a these&lt;br&gt;
+The sun is black and the black halos fly&lt;br&gt;
+And your number is backwards again when you try&lt;br&gt;
+The sound is so cute when you're 22&lt;br&gt;
+When you're 22&lt;/p&gt;
+&lt;p&gt;Eggs break when you walk on the scramble&lt;br&gt;
+You're living against the machine&lt;br&gt;
+The whole thing leaves&lt;br&gt;
+You a nothing instead of a these&lt;br&gt;
+The bone is cracked and the cracked eggshells fly&lt;br&gt;
+And your number is backwards again when you drive&lt;br&gt;
+The whole thing's removed when you're 22&lt;br&gt;
+When you're 22&lt;/p&gt;
+&lt;p&gt;Nada a ver, mas não é todo dia que se faz aniversário e a idade bate com
+a música de uma de suas &lt;a href="http://www.flaminglips.com"&gt;bandas preferidas&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;E isto também é um teste da adulteração de posts do wordpress, já que eu
+não tinha internet dia 17 e postei isso no dia 19.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Stuck in the perpetual motion&lt;br&gt;
+Dying against the machine&lt;br&gt;
+The whole thing leaves&lt;br&gt;
+You a nothing instead of a these&lt;br&gt;
+The sun is black and the black halos fly&lt;br&gt;
+And your number is backwards again when you try&lt;br&gt;
+The sound is so cute when you're 22&lt;br&gt;
+When you're 22&lt;/p&gt;
+&lt;p&gt;Eggs break when you walk on the scramble&lt;br&gt;
+You're living against the machine&lt;br&gt;
+The whole thing leaves&lt;br&gt;
+You a nothing instead of a these&lt;br&gt;
+The bone is cracked and the cracked eggshells fly&lt;br&gt;
+And your number is backwards again when you drive&lt;br&gt;
+The whole thing's removed when you're 22&lt;br&gt;
+When you're 22&lt;/p&gt;
+&lt;p&gt;Nada a ver, mas não é todo dia que se faz aniversário e a idade bate com
+a música de uma de suas &lt;a href="http://www.flaminglips.com"&gt;bandas preferidas&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;E isto também é um teste da adulteração de posts do wordpress, já que eu
+não tinha internet dia 17 e postei isso no dia 19.&lt;/p&gt;</content></entry><entry><title>Dia da Toalha!</title><link href="https://blog.luizirber.org/2007/05/25/dia-da-toalha/" rel="alternate"></link><published>2007-05-25T23:00:00-03:00</published><updated>2007-05-25T23:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2007-05-25:/2007/05/25/dia-da-toalha/</id><summary type="html">&lt;p&gt;&lt;a href="http://www.flickr.com/photos/luizirber/sets/72157600266409006/detail/"&gt;&lt;img class="center" src="https://farm1.static.flickr.com/198/513954323_d0936294fd.jpg"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Hoje comemorou-se mais um dia da toalha, homenagem dos fãs de Douglas
+Adams à sua obra. Para mais algumas fotos tiradas durante o dia (ééé,
+dessa vez fiquei com a toalha do meu lado o dia inteiro =D), cliquem na
+foto acima.&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;a href="http://www.flickr.com/photos/luizirber/sets/72157600266409006/detail/"&gt;&lt;img class="center" src="https://farm1.static.flickr.com/198/513954323_d0936294fd.jpg"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Hoje comemorou-se mais um dia da toalha, homenagem dos fãs de Douglas
+Adams à sua obra. Para mais algumas fotos tiradas durante o dia (ééé,
+dessa vez fiquei com a toalha do meu lado o dia inteiro =D), cliquem na
+foto acima.&lt;/p&gt;</content><category term="Dia da toalha"></category><category term="towel day"></category></entry></feed>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Robô Shrek</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Robô Shrek</h1>
+
+    <time class="single" datetime="2009-06-12T11:29:00-03:00">12 Jun 2009</time>
+
+    <p>Na última quarta-feira aconteceu a Feira de Informática Aplicada, ligada
+à Semana de Computação da UFSCar. Eu e Alphalpha resolvemos participar
+para testar o Arduino que eu tinha comprado no começo do ano. O tempo
+era curto, mas mesmo assim fomos em frente e juntamos algumas peças que
+sobraram do <a href="http://www.youtube.com/watch?v=4PPXEsENpCY">robô</a> do <a href="http://www2.dc.ufscar.br/~gedai/">GEDAI</a>, um N800, um Arduino Duemilanove e
+montamos nosso próprio robô, chamado de Shrek.</p>
+<p>Por que Shrek? Porque Shrek é um ogro, ogros são como cebolas
+(<span style="text-decoration:line-through;">fedem</span> são feitos de
+camadas), e nosso robô é feito de várias camadas simples que, juntas,
+fazem algo complexo.</p>
+<p>Como funciona? O Arduino controla os motores, e recebe dados pelo USB
+(como uma porta serial) vindos do N800. O N800 está conectado em uma
+rede wifi, e recebe comandos via socket. Além disso, também envia vídeo
+e áudio para a aplicação (que no momento roda em um PC), e a aplicação
+envia os comandos e exibe o vídeo e o áudio.</p>
+<p>Devido ao pouco tempo, apenas 3 comandos simples foram implementados
+(frente, giro à esquerda, giro à direita), mas nosso objetivo estava
+cumprido: a comunicação entre as partes estava funcionando direitinho, e
+agora podemos partir para incrementá-lo.</p>
+<p>Todo o código está disponível no <a href="http://github.com/luizirber/shrekenc">GitHub</a>, e queremos levá-lo
+para o FISL (depois de arranjarmos motores melhores).</p>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/arduino.html">arduino</a>
+    <a href="https://blog.luizirber.org/tag/fia.html">FIA</a>
+    <a href="https://blog.luizirber.org/tag/gstreamer.html">gstreamer</a>
+    <a href="https://blog.luizirber.org/tag/n800.html">N800</a>
+    <a href="https://blog.luizirber.org/tag/python.html">python</a>
+    <a href="https://blog.luizirber.org/tag/ufscar.html">ufscar</a>
+    <a href="https://blog.luizirber.org/tag/projetos.html">Projetos</a>
+    <a href="https://blog.luizirber.org/tag/universidade.html">universidade</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

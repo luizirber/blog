@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Feeds de quadrinhos</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Feeds de quadrinhos</h1>
+
+    <time class="single" datetime="2009-01-20T17:29:00-02:00">20 Jan 2009</time>
+
+    <p>Infelizmente a <a href="http://www1.folha.uol.com.br/fsp/">Folha de São Paulo</a> não disponibiliza feeds dos
+quadrinhos diários dela. Isso significa privar-nos de <a href="http://www.laerte.com.br">Laerte</a> e
+<a href="http://www2.uol.com.br/adaoonline/">Adão</a>, mas não temam! Caso queiram tirinhas frescas toda a manhã no
+seu leitor de feeds favorito, basta usar o que <a href="http://luizirber.org/rss/fsp.xml">eu fiz</a>.</p>
+<p>A idéia (sim, sou antigo, meus netos ainda vão dizer 'meu vô é do tempo
+que se escrevia ideia com acento') é simples, e foi baseada na do
+<a href="http://leandrosiqueira.com/quadrinhos/">Leandro Siqueira</a>: apesar do conteúdo da Folha ser exclusivo para
+assinantes, as imagens das tirinhas são acessíveis. Basta descobrir o
+padrão do nome delas. Mas percebi que as tirinhas de domingo não estavam
+aparecendo, pois existem autores diferentes nesse dia (Allan Sieber e
+irmãos Bá, atualmente). Então resolvi fazer um que fosse um pouquinho
+mais dinâmico, e deu certo, porque quando houve a transição das
+dominicais o feed continuou funcionando sem modificações.</p>
+<p>Como foi feito? <a href="http://www.python.org">Python</a>, <a href="http://www.crummy.com/software/BeautifulSoup/">Beautiful Soup</a> e <a href="http://wwwsearch.sourceforge.net/mechanize/">Mechanize</a>. O script
+autentica no site, busca o índice dos quadrinhos, e acha o link das
+imagens para gerar o feed. Aliás, Beautiful Soup é uma das bibliotecas
+mais úteis que já usei, para mexer com HTML não tem nada melhor.</p>
+<p>E, como o mais complicado já estava feito, semana passada fiz rapidinho
+um <a href="http://luizirber.org/rss/malvados.xml">feed</a> para os <a href="http://www.malvados.com.br">Malvados</a> também. Até tem um feed lá, mas é só
+para o blog. Ainda não resolvi como fazer para mostrar as séries, mas as
+normais aparecem sem problemas no feed (acho, eu uso Google Reader e
+aparece. Por favor, testem em outros readers e me avisem).</p>
+<p>Ando pensando em generalizar um pouco os dois scripts, para facilitar a
+escrita de <a href="http://en.wikipedia.org/wiki/Screen_scraping">screen scrapers</a>, mas não sei se vale a pena, já que eles
+são extremamente dependentes da estrutura da página. Mas vamos ver o que
+sai =D</p>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/adao.html">adao</a>
+    <a href="https://blog.luizirber.org/tag/beautifulsoup.html">beautifulsoup</a>
+    <a href="https://blog.luizirber.org/tag/feed.html">feed</a>
+    <a href="https://blog.luizirber.org/tag/fsp.html">fsp</a>
+    <a href="https://blog.luizirber.org/tag/laerte.html">laerte</a>
+    <a href="https://blog.luizirber.org/tag/malvados.html">malvados</a>
+    <a href="https://blog.luizirber.org/tag/python.html">python</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

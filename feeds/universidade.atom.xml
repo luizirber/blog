@@ -1,0 +1,920 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - universidade</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="/feeds/universidade.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2018-08-23T17:00:00-03:00</updated><entry><title>Oxidizing sourmash: Python and FFI</title><link href="https://blog.luizirber.org/2018/08/23/sourmash-rust/" rel="alternate"></link><published>2018-08-23T17:00:00-03:00</published><updated>2018-08-23T17:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2018-08-23:/2018/08/23/sourmash-rust/</id><summary type="html">&lt;p&gt;I think the first time I heard about Rust was because Frank Mcsherry chose it to
+write a &lt;a href="https://github.com/frankmcsherry/timely-dataflow"&gt;timely dataflow&lt;/a&gt; implementation.
+Since then it started showing more and more in my news sources,
+leading to Armin Ronacher publishing a post in the Sentry blog last November about
+writing &lt;a href="https://blog.sentry.io/2017/11/14/evolving-our-rust-with-milksnake"&gt;Python extensions in Rust&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Last December I decided to give it a run:
+I spent some time porting the C++ bits of &lt;a href="https://github.com/dib-lab/sourmash"&gt;sourmash&lt;/a&gt;
+to Rust.
+The main advantage here is that it's a problem I know well,
+so I know what the code is supposed to do and can focus on figuring out
+syntax and the mental model for the language.
+I started digging into the &lt;code&gt;symbolic&lt;/code&gt; codebase and understanding what they did,
+and tried to mirror or improve it for my use cases.&lt;/p&gt;
+&lt;p&gt;(About the post title: The process of converting a codebase to Rust is referred as &lt;a href="https://wiki.mozilla.org/Oxidation"&gt;"Oxidation"&lt;/a&gt; in
+the Rust community, following the codename Mozilla chose for the process of
+integrating Rust components into the Firefox codebase.
+&lt;sup id=sf-sourmash-rust-1-back&gt;&lt;a href=#sf-sourmash-rust-1 class=simple-footnote title='The creator of the language is known to keep making up different explanations for the name of the language, but in this case "oxidation" refers to the chemical process that creates rust, and rust is the closest thing to metal (metal being the hardware). There are many terrible puns in the Rust community.'&gt;1&lt;/a&gt;&lt;/sup&gt;
+Many of these components were tested and derived in Servo, an experimental
+browser engine written in Rust, and are being integrated into Gecko,
+the current browser engine (mostly written in C++).)&lt;/p&gt;
+&lt;h2&gt;Why Rust?&lt;/h2&gt;
+&lt;p&gt;There are other programming languages more focused on scientific software
+that could be used instead, like Julia&lt;sup id=sf-sourmash-rust-2-back&gt;&lt;a href=#sf-sourmash-rust-2 class=simple-footnote title="Even more now that it hit 1.0, it is a really nice language"&gt;2&lt;/a&gt;&lt;/sup&gt;. Many programming languages start from a
+specific niche (like R and statistics,
+or Maple and mathematics) and grow into larger languages over time.
+While Rust goal is not to be a scientific language,
+its focus on being a general purpose language allows a phenomenon similar
+to what happened with Python, where people from many areas pushed the
+language in different directions (system scripting, web development,
+numerical programming...) allowing developers to combine all these things
+in their systems.&lt;/p&gt;
+&lt;p&gt;But by far my interest in Rust is for the many best practices it brings to the default experience:
+integrated package management (with Cargo),
+documentation (with rustdoc), testing and benchmarking.
+It's understandable that older languages like C/C++ need
+more effort to support some of these features (like modules and an unified
+build system), since they are designed by standard and need to keep backward
+compatibility with codebases that already exist.
+Nonetheless, the lack of features increase the effort needed to have good
+software engineering practices, since you need to choose a solution that might
+not be compatible with other similar but slightly different options,
+leading to fragmentation and increasing the impedance to use these features.&lt;/p&gt;
+&lt;p&gt;Another big reason is that Rust doesn't aim to completely replace what already
+exists, but complement and extend it. Two very good talks about how to do this,
+one by &lt;a href="https://ashleygwilliams.github.io/rustfest-2017/#1"&gt;Ashley Williams&lt;/a&gt;, another by &lt;a href="http://talks.edunham.net/lca2018/should-you-rewrite-in-rust/beamer.pdf"&gt;E. Dunham&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Converting from a C++ extension to Rust&lt;/h2&gt;
+&lt;p&gt;The current implementation of the core data structures in sourmash is in a
+C++ extension wrapped with Cython. My main goals for converting the code are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;support additional languages and platforms. sourmash is available as a Python
+  package and CLI, but we have R users in the lab that would benefit from having
+  an R package, and ideally we wouldn't need to rewrite the software every time
+  we want to support a new language.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;reducing the number of wheel packages necessary (one for each OS/platform).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;in the long run, use the Rust memory management concepts (lifetimes, borrowing)
+to increase parallelism in the code.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Many of these goals are attainable with our current C++ codebase, and
+"rewrite in a new language" is rarely the best way to solve a problem.
+But the reduced burden in maintenance due to better tooling,
+on top of features that would require careful planning to execute
+(increasing the parallelism without data races) while maintaining compatibility
+with the current codebase are promising enough to justify this experiment.
+&lt;a href="https://github.com/luizirber/2018-python-rust/blob/master/03.current_impl.md"&gt;&lt;img src="/images/arch_cpp.png" title="" current="" implementation""="" alt=""&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Cython provides a nice gradual path to migrate code from Python to C++,
+since it is a superset of the Python syntax. It also provides low overhead
+for many C++ features, especially the STL containers, with makes it easier
+to map C++ features to the Python equivalent.
+For research software this also lead to faster exploration of solutions before
+having to commit to lower level code, but without a good process it might also
+lead to code never crossing into the C++ layer and being stuck in the Cython
+layer. This doesn't make any difference for a Python user, but it becomes
+harder from users from other languages to benefit from this code (since your
+language would need some kind of support to calling Python code, which is not
+as readily available as calling C code).&lt;/p&gt;
+&lt;p&gt;Depending on the requirements, a downside is that Cython is tied to the CPython API,
+so generating the extension requires a development environment set up with
+the appropriate headers and compiler. This also makes the extension specific
+to a Python version: while this is not a problem for source distributions,
+generating wheels lead to one wheel for each OS and Python version supported.&lt;/p&gt;
+&lt;h2&gt;The new implementation&lt;/h2&gt;
+&lt;p&gt;This is the overall architecture of the Rust implementation:
+&lt;a href="https://github.com/luizirber/2018-python-rust/blob/master/04.rust_impl.md"&gt;&lt;img src="/images/arch_rust.png" title="" the="" rust="" implementation""="" alt=""&gt;&lt;/a&gt;
+It is pretty close to what &lt;code&gt;symbolic&lt;/code&gt; does,
+so let's walk through it.&lt;/p&gt;
+&lt;h3&gt;The Rust code&lt;/h3&gt;
+&lt;p&gt;If you take a look at my Rust code, you will see it is very... C++. A lot of the
+code is very similar to the original implementation, which is both a curse and a
+blessing: I'm pretty sure that are more idiomatic and performant ways of doing
+things, but most of the time I could lean on my current mental model for C++ to
+translate code. The biggest exception was the &lt;code&gt;merge&lt;/code&gt; function, were I was doing
+something on the C++ implementation that the borrow checker didn't like.
+Eventually I found it was because it couldn't keep track of the lifetime
+correctly and putting braces around it fixed the problem,
+which was both an epiphany and a WTF moment. &lt;a href="https://play.rust-lang.org/?gist=eae9de12950d1b2a7699cd49a3571c37&amp;amp;version=stable"&gt;Here&lt;/a&gt; is an example that triggers
+the problem, and the &lt;a href="https://play.rust-lang.org/?gist=c8733c5125766930a589c8d0412af99c&amp;amp;version=stable"&gt;solution&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;"Fighting the borrow checker" seems to be a common theme while learning Rust,
+but the compiler really tries to help you to understand what is happening and
+(most times) how to fix it. A lot of people grow to hate the borrow checker,
+but I see it more as a 'eat your vegetables' situation: you might not like it
+at first, but it's better in the long run. Even though I don't have a big
+codebase in Rust yet, it keeps you from doing things that will come back to bite
+you hard later.&lt;/p&gt;
+&lt;h3&gt;Generating C headers for Rust code: cbindgen&lt;/h3&gt;
+&lt;p&gt;With the Rust library working, the next step was taking the Rust code and generate C headers describing the
+functions and structs we expose with the &lt;code&gt;#[no_mangle]&lt;/code&gt; attribute in Rust
+(these are defined in the &lt;a href="https://github.com/luizirber/sourmash-rust/blob/ead9ae0ed3b2d16c9e3b8379919f3bfd2efd21ae/src/ffi.rs"&gt;&lt;code&gt;ffi.rs&lt;/code&gt;&lt;/a&gt; module in &lt;code&gt;sourmash-rust&lt;/code&gt;).
+This attribute tells the Rust compiler to generate names that are compatible
+with the C ABI, and so can be called from other languages that implement FFI
+mechanisms. FFI (the foreign function interface) is quite low-level,
+and pretty much defines things that C can represent: integers, floats, pointers
+and structs. It doesn't support higher level concepts like objects or generics,
+so in a sense it looks like a feature funnel.
+This might sound bad, but ends up being something that other languages can
+understand without needing too much extra functionality in their runtimes,
+which means that most languages have support to calling code through an FFI.&lt;/p&gt;
+&lt;p&gt;Writing the C header by hand is possible, but is very error prone.
+A better solution is to use &lt;a href="https://github.com/eqrion/cbindgen"&gt;&lt;code&gt;cbindgen&lt;/code&gt;&lt;/a&gt;,
+a program that takes Rust code and generate a C header file automatically.
+&lt;code&gt;cbindgen&lt;/code&gt; is developed primarily to generate the C headers for &lt;a href="https://github.com/servo/webrender/"&gt;webrender&lt;/a&gt;,
+the GPU-based renderer for servo,
+so it's pretty likely that if it can handle a complex codebase it will work
+just fine for the majority of projects.&lt;/p&gt;
+&lt;h3&gt;Interfacing with Python: CFFI and Milksnake&lt;/h3&gt;
+&lt;p&gt;Once we have the C headers, we can use the FFI to
+call Rust code in Python. Python has a FFI module in the standard library: &lt;code&gt;ctypes&lt;/code&gt;,
+but the Pypy developers also created CFFI, which has more features.&lt;/p&gt;
+&lt;p&gt;The C headers generated by cbindgen can be interpreted by CFFI to generate
+a low-level Python interface for the code. This is the equivalent of declaring
+the functions/methods and structs/classes in a &lt;code&gt;pxd&lt;/code&gt; file (in the Cython
+world): while the code is now usable in Python, it is not well adapted to
+the features and idioms available in the language.&lt;/p&gt;
+&lt;p&gt;Milksnake is the package developed by Sentry that takes care of running cargo
+for the Rust compilation and generating the CFFI boilerplate,
+making it easy to load the low-level CFFI bindings in Python.
+With this low-level binding available we can now write something more Pythonic
+(the &lt;code&gt;pyx&lt;/code&gt; file in Cython), and I ended up just renaming the &lt;code&gt;_minhash.pyx&lt;/code&gt; file
+back to &lt;code&gt;minhash.py&lt;/code&gt; and doing one-line fixes to replace the Cython-style code
+with the equivalent CFFI calls.&lt;/p&gt;
+&lt;p&gt;All of these changes should be transparent to the Python code, and to guarantee
+that I made sure that all the current tests that we have (both for the Python
+module and the command line interface) are still working after the changes.
+It also led to finding some quirks in the implementation,
+and even improvements in the current C++ code (because we were moving a lot of
+data from C++ to Python).&lt;/p&gt;
+&lt;h2&gt;Where I see this going&lt;/h2&gt;
+&lt;p&gt;It seems it worked as an experiment,
+and I presented a &lt;a href="https://github.com/luizirber/2018-python-rust"&gt;poster&lt;/a&gt; at &lt;a href="https://gccbosc2018.sched.com/event/FEWp/b23-oxidizing-python-writing-extensions-in-rust"&gt;GCCBOSC 2018&lt;/a&gt; and &lt;a href="https://scipy2018.scipy.org/ehome/index.php?eventid=299527&amp;amp;tabid=712461&amp;amp;cid=2233543&amp;amp;sessionid=21618890&amp;amp;sessionchoice=1&amp;amp;"&gt;SciPy 2018&lt;/a&gt; that
+was met with excitement by many people.
+Knowing that it is possible,
+I want to reiterate some points why Rust is pretty exciting for bioinformatics
+and science in general.&lt;/p&gt;
+&lt;h3&gt;Bioinformatics as libraries (and command line tools too!)&lt;/h3&gt;
+&lt;p&gt;Bioinformatics is an umbrella term for many different methods, depending on
+what analysis you want to do with your data (or model).
+In this sense, it's distinct from other scientific areas where it is possible
+to rely on a common set of libraries (numpy in linear algebra, for example), since a
+library supporting many disjoint methods tend to grow too big and hard to
+maintain.&lt;/p&gt;
+&lt;p&gt;The environment also tends to be very diverse, with different languages being
+used to implement the software. Because it is hard to interoperate,
+the methods tend to be implemented in command line programs that are stitched
+together in pipelines, a workflow describing how to connect the input and output of many different tools to
+generate results.
+Because the basic unit is a command-line tool,
+pipelines tend to rely on standard operating system abstractions like
+files and pipes to make the tools communicate with each other. But since tools
+might have input requirements distinct from what the previous tool provides,
+many times it is necessary to do format conversion or other adaptations to make the
+pipeline work.&lt;/p&gt;
+&lt;p&gt;Using tools as blackboxes, controllable through specific parameters at the
+command-line level, make exploratory analysis and algorithm reuse harder:
+if something needs to be investigated the user needs to resort to perturbations
+of the parameters or the input data, without access to the more feature-rich and
+meaningful abstraction happening inside the tool.&lt;/p&gt;
+&lt;p&gt;Even if many languages are used for writing the software, most of the time there
+is some part written in C or C++ for performance reasons, and these tend to be
+the core data structures of the computational method. Because it is not easy to
+package your C/C++ code in a way that other people can readily use it,
+most of this code is reinvented over and over again, or is copy and pasted into
+codebases and start diverging over time. Rust helps solve this problem with the
+integrated package management, and due to the FFI it can also be reused inside
+other programs written in other languages.&lt;/p&gt;
+&lt;p&gt;sourmash is not going to be Rust-only and abandon Python,
+and it would be crazy to do so when it has so many great exploratory tools
+for scientific discovery. But now we can also use our method in other languages
+and environment, instead of having our code stuck in one language.&lt;/p&gt;
+&lt;h3&gt;Don't rewrite it all!&lt;/h3&gt;
+&lt;p&gt;I could have gone all the way and rewrite sourmash in Rust&lt;sup id=sf-sourmash-rust-3-back&gt;&lt;a href=#sf-sourmash-rust-3 class=simple-footnote title="and risk being kicked out of the lab =P"&gt;3&lt;/a&gt;&lt;/sup&gt;, but it would be incredibly disruptive for
+the current sourmash users and it would take way longer to pull off. Because
+Rust is so focused in supporting existing code, you can do a slow transition and
+reuse what you already have while moving into more and more Rust code.
+A great example is this one-day effort by Rob Patro to bring &lt;a href="https://github.com/COMBINE-lab/cqf-rust"&gt;CQF&lt;/a&gt; (a C
+codebase) into Rust, using &lt;code&gt;bindgen&lt;/code&gt; (a generator of C bindings for Rust).
+Check &lt;a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/"&gt;the Twitter thread&lt;/a&gt; for more =]&lt;/p&gt;
+&lt;h3&gt;Good scientific citizens&lt;/h3&gt;
+&lt;p&gt;There is another MinHash implementation already written in Rust, &lt;a href="https://github.com/onecodex/finch-rs"&gt;finch&lt;/a&gt;.
+Early in my experiment I got an email from them asking if I wanted to work
+together, but since I wanted to learn the language I kept doing my thing. (They
+were totally cool with this, by the way). But the fun thing is that Rust has a
+pair of traits called &lt;a href="https://doc.rust-lang.org/rust-by-example/conversion/from_into.html"&gt;&lt;code&gt;From&lt;/code&gt; and &lt;code&gt;Into&lt;/code&gt;&lt;/a&gt; that you can implement for your
+type, and so I &lt;a href="https://github.com/luizirber/sourmash-rust/pull/1"&gt;did that&lt;/a&gt; and now we can have interoperable
+implementations. This synergy allows &lt;code&gt;finch&lt;/code&gt; to use &lt;code&gt;sourmash&lt;/code&gt; methods,
+and vice versa.&lt;/p&gt;
+&lt;p&gt;Maybe this sounds like a small thing, but I think it is really exciting. We can
+stop having incompatible but very similar methods, and instead all benefit from
+each other advances in a way that is supported by the language.&lt;/p&gt;
+&lt;h2&gt;Next time!&lt;/h2&gt;
+&lt;p&gt;Turns out Rust supports WebAssembly as a target,
+so... what if we run sourmash in the browser?
+That's what I'm covering in the &lt;a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/"&gt;next blog post&lt;/a&gt;,
+so stay tuned =]&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100602525575698239"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/rust/comments/99vakd/blog_post_converting_c_to_rust_and_interoperate/"&gt;Thread on reddit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1032779995129597952"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- rust libs --&gt;
+
+&lt;!-- why rust --&gt;
+
+&lt;!-- WASM and demos --&gt;
+
+&lt;!-- python and FFI --&gt;
+
+&lt;!-- rust examples --&gt;
+
+&lt;!-- cbindgen --&gt;
+
+&lt;!-- rust for pythonistas --&gt;
+
+&lt;!-- understanding rust --&gt;
+
+&lt;!-- rust and bio --&gt;
+
+&lt;!-- rust error handling --&gt;
+
+&lt;!-- other notes
+
+- Implement Default trait for defaults (less verbose than ::new...)
+  https://doc.rust-lang.org/std/default/trait.Default.html
+
+--&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sourmash-rust-1&gt;&lt;p&gt;The creator of the language is known to keep making up different
+explanations for the &lt;a href="https://www.reddit.com/r/rust/comments/27jvdt/internet_archaeology_the_definitive_endall_source/"&gt;name of the language&lt;/a&gt;,
+but in this case "oxidation" refers to the chemical process that creates
+rust, and rust is the closest thing to metal (metal being the hardware).
+There are many terrible puns in the Rust community. &lt;a href=#sf-sourmash-rust-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-rust-2&gt;&lt;p&gt;Even more now that it hit 1.0,
+it is a really nice language &lt;a href=#sf-sourmash-rust-2-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-rust-3&gt;&lt;p&gt;and risk
+being kicked out of the lab =P &lt;a href=#sf-sourmash-rust-3-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</summary><content type="html">&lt;p&gt;I think the first time I heard about Rust was because Frank Mcsherry chose it to
+write a &lt;a href="https://github.com/frankmcsherry/timely-dataflow"&gt;timely dataflow&lt;/a&gt; implementation.
+Since then it started showing more and more in my news sources,
+leading to Armin Ronacher publishing a post in the Sentry blog last November about
+writing &lt;a href="https://blog.sentry.io/2017/11/14/evolving-our-rust-with-milksnake"&gt;Python extensions in Rust&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Last December I decided to give it a run:
+I spent some time porting the C++ bits of &lt;a href="https://github.com/dib-lab/sourmash"&gt;sourmash&lt;/a&gt;
+to Rust.
+The main advantage here is that it's a problem I know well,
+so I know what the code is supposed to do and can focus on figuring out
+syntax and the mental model for the language.
+I started digging into the &lt;code&gt;symbolic&lt;/code&gt; codebase and understanding what they did,
+and tried to mirror or improve it for my use cases.&lt;/p&gt;
+&lt;p&gt;(About the post title: The process of converting a codebase to Rust is referred as &lt;a href="https://wiki.mozilla.org/Oxidation"&gt;"Oxidation"&lt;/a&gt; in
+the Rust community, following the codename Mozilla chose for the process of
+integrating Rust components into the Firefox codebase.
+&lt;sup id=sf-sourmash-rust-1-back&gt;&lt;a href=#sf-sourmash-rust-1 class=simple-footnote title='The creator of the language is known to keep making up different explanations for the name of the language, but in this case "oxidation" refers to the chemical process that creates rust, and rust is the closest thing to metal (metal being the hardware). There are many terrible puns in the Rust community.'&gt;1&lt;/a&gt;&lt;/sup&gt;
+Many of these components were tested and derived in Servo, an experimental
+browser engine written in Rust, and are being integrated into Gecko,
+the current browser engine (mostly written in C++).)&lt;/p&gt;
+&lt;h2&gt;Why Rust?&lt;/h2&gt;
+&lt;p&gt;There are other programming languages more focused on scientific software
+that could be used instead, like Julia&lt;sup id=sf-sourmash-rust-2-back&gt;&lt;a href=#sf-sourmash-rust-2 class=simple-footnote title="Even more now that it hit 1.0, it is a really nice language"&gt;2&lt;/a&gt;&lt;/sup&gt;. Many programming languages start from a
+specific niche (like R and statistics,
+or Maple and mathematics) and grow into larger languages over time.
+While Rust goal is not to be a scientific language,
+its focus on being a general purpose language allows a phenomenon similar
+to what happened with Python, where people from many areas pushed the
+language in different directions (system scripting, web development,
+numerical programming...) allowing developers to combine all these things
+in their systems.&lt;/p&gt;
+&lt;p&gt;But by far my interest in Rust is for the many best practices it brings to the default experience:
+integrated package management (with Cargo),
+documentation (with rustdoc), testing and benchmarking.
+It's understandable that older languages like C/C++ need
+more effort to support some of these features (like modules and an unified
+build system), since they are designed by standard and need to keep backward
+compatibility with codebases that already exist.
+Nonetheless, the lack of features increase the effort needed to have good
+software engineering practices, since you need to choose a solution that might
+not be compatible with other similar but slightly different options,
+leading to fragmentation and increasing the impedance to use these features.&lt;/p&gt;
+&lt;p&gt;Another big reason is that Rust doesn't aim to completely replace what already
+exists, but complement and extend it. Two very good talks about how to do this,
+one by &lt;a href="https://ashleygwilliams.github.io/rustfest-2017/#1"&gt;Ashley Williams&lt;/a&gt;, another by &lt;a href="http://talks.edunham.net/lca2018/should-you-rewrite-in-rust/beamer.pdf"&gt;E. Dunham&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Converting from a C++ extension to Rust&lt;/h2&gt;
+&lt;p&gt;The current implementation of the core data structures in sourmash is in a
+C++ extension wrapped with Cython. My main goals for converting the code are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;support additional languages and platforms. sourmash is available as a Python
+  package and CLI, but we have R users in the lab that would benefit from having
+  an R package, and ideally we wouldn't need to rewrite the software every time
+  we want to support a new language.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;reducing the number of wheel packages necessary (one for each OS/platform).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;in the long run, use the Rust memory management concepts (lifetimes, borrowing)
+to increase parallelism in the code.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Many of these goals are attainable with our current C++ codebase, and
+"rewrite in a new language" is rarely the best way to solve a problem.
+But the reduced burden in maintenance due to better tooling,
+on top of features that would require careful planning to execute
+(increasing the parallelism without data races) while maintaining compatibility
+with the current codebase are promising enough to justify this experiment.
+&lt;a href="https://github.com/luizirber/2018-python-rust/blob/master/03.current_impl.md"&gt;&lt;img src="/images/arch_cpp.png" title="" current="" implementation""="" alt=""&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Cython provides a nice gradual path to migrate code from Python to C++,
+since it is a superset of the Python syntax. It also provides low overhead
+for many C++ features, especially the STL containers, with makes it easier
+to map C++ features to the Python equivalent.
+For research software this also lead to faster exploration of solutions before
+having to commit to lower level code, but without a good process it might also
+lead to code never crossing into the C++ layer and being stuck in the Cython
+layer. This doesn't make any difference for a Python user, but it becomes
+harder from users from other languages to benefit from this code (since your
+language would need some kind of support to calling Python code, which is not
+as readily available as calling C code).&lt;/p&gt;
+&lt;p&gt;Depending on the requirements, a downside is that Cython is tied to the CPython API,
+so generating the extension requires a development environment set up with
+the appropriate headers and compiler. This also makes the extension specific
+to a Python version: while this is not a problem for source distributions,
+generating wheels lead to one wheel for each OS and Python version supported.&lt;/p&gt;
+&lt;h2&gt;The new implementation&lt;/h2&gt;
+&lt;p&gt;This is the overall architecture of the Rust implementation:
+&lt;a href="https://github.com/luizirber/2018-python-rust/blob/master/04.rust_impl.md"&gt;&lt;img src="/images/arch_rust.png" title="" the="" rust="" implementation""="" alt=""&gt;&lt;/a&gt;
+It is pretty close to what &lt;code&gt;symbolic&lt;/code&gt; does,
+so let's walk through it.&lt;/p&gt;
+&lt;h3&gt;The Rust code&lt;/h3&gt;
+&lt;p&gt;If you take a look at my Rust code, you will see it is very... C++. A lot of the
+code is very similar to the original implementation, which is both a curse and a
+blessing: I'm pretty sure that are more idiomatic and performant ways of doing
+things, but most of the time I could lean on my current mental model for C++ to
+translate code. The biggest exception was the &lt;code&gt;merge&lt;/code&gt; function, were I was doing
+something on the C++ implementation that the borrow checker didn't like.
+Eventually I found it was because it couldn't keep track of the lifetime
+correctly and putting braces around it fixed the problem,
+which was both an epiphany and a WTF moment. &lt;a href="https://play.rust-lang.org/?gist=eae9de12950d1b2a7699cd49a3571c37&amp;amp;version=stable"&gt;Here&lt;/a&gt; is an example that triggers
+the problem, and the &lt;a href="https://play.rust-lang.org/?gist=c8733c5125766930a589c8d0412af99c&amp;amp;version=stable"&gt;solution&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;"Fighting the borrow checker" seems to be a common theme while learning Rust,
+but the compiler really tries to help you to understand what is happening and
+(most times) how to fix it. A lot of people grow to hate the borrow checker,
+but I see it more as a 'eat your vegetables' situation: you might not like it
+at first, but it's better in the long run. Even though I don't have a big
+codebase in Rust yet, it keeps you from doing things that will come back to bite
+you hard later.&lt;/p&gt;
+&lt;h3&gt;Generating C headers for Rust code: cbindgen&lt;/h3&gt;
+&lt;p&gt;With the Rust library working, the next step was taking the Rust code and generate C headers describing the
+functions and structs we expose with the &lt;code&gt;#[no_mangle]&lt;/code&gt; attribute in Rust
+(these are defined in the &lt;a href="https://github.com/luizirber/sourmash-rust/blob/ead9ae0ed3b2d16c9e3b8379919f3bfd2efd21ae/src/ffi.rs"&gt;&lt;code&gt;ffi.rs&lt;/code&gt;&lt;/a&gt; module in &lt;code&gt;sourmash-rust&lt;/code&gt;).
+This attribute tells the Rust compiler to generate names that are compatible
+with the C ABI, and so can be called from other languages that implement FFI
+mechanisms. FFI (the foreign function interface) is quite low-level,
+and pretty much defines things that C can represent: integers, floats, pointers
+and structs. It doesn't support higher level concepts like objects or generics,
+so in a sense it looks like a feature funnel.
+This might sound bad, but ends up being something that other languages can
+understand without needing too much extra functionality in their runtimes,
+which means that most languages have support to calling code through an FFI.&lt;/p&gt;
+&lt;p&gt;Writing the C header by hand is possible, but is very error prone.
+A better solution is to use &lt;a href="https://github.com/eqrion/cbindgen"&gt;&lt;code&gt;cbindgen&lt;/code&gt;&lt;/a&gt;,
+a program that takes Rust code and generate a C header file automatically.
+&lt;code&gt;cbindgen&lt;/code&gt; is developed primarily to generate the C headers for &lt;a href="https://github.com/servo/webrender/"&gt;webrender&lt;/a&gt;,
+the GPU-based renderer for servo,
+so it's pretty likely that if it can handle a complex codebase it will work
+just fine for the majority of projects.&lt;/p&gt;
+&lt;h3&gt;Interfacing with Python: CFFI and Milksnake&lt;/h3&gt;
+&lt;p&gt;Once we have the C headers, we can use the FFI to
+call Rust code in Python. Python has a FFI module in the standard library: &lt;code&gt;ctypes&lt;/code&gt;,
+but the Pypy developers also created CFFI, which has more features.&lt;/p&gt;
+&lt;p&gt;The C headers generated by cbindgen can be interpreted by CFFI to generate
+a low-level Python interface for the code. This is the equivalent of declaring
+the functions/methods and structs/classes in a &lt;code&gt;pxd&lt;/code&gt; file (in the Cython
+world): while the code is now usable in Python, it is not well adapted to
+the features and idioms available in the language.&lt;/p&gt;
+&lt;p&gt;Milksnake is the package developed by Sentry that takes care of running cargo
+for the Rust compilation and generating the CFFI boilerplate,
+making it easy to load the low-level CFFI bindings in Python.
+With this low-level binding available we can now write something more Pythonic
+(the &lt;code&gt;pyx&lt;/code&gt; file in Cython), and I ended up just renaming the &lt;code&gt;_minhash.pyx&lt;/code&gt; file
+back to &lt;code&gt;minhash.py&lt;/code&gt; and doing one-line fixes to replace the Cython-style code
+with the equivalent CFFI calls.&lt;/p&gt;
+&lt;p&gt;All of these changes should be transparent to the Python code, and to guarantee
+that I made sure that all the current tests that we have (both for the Python
+module and the command line interface) are still working after the changes.
+It also led to finding some quirks in the implementation,
+and even improvements in the current C++ code (because we were moving a lot of
+data from C++ to Python).&lt;/p&gt;
+&lt;h2&gt;Where I see this going&lt;/h2&gt;
+&lt;p&gt;It seems it worked as an experiment,
+and I presented a &lt;a href="https://github.com/luizirber/2018-python-rust"&gt;poster&lt;/a&gt; at &lt;a href="https://gccbosc2018.sched.com/event/FEWp/b23-oxidizing-python-writing-extensions-in-rust"&gt;GCCBOSC 2018&lt;/a&gt; and &lt;a href="https://scipy2018.scipy.org/ehome/index.php?eventid=299527&amp;amp;tabid=712461&amp;amp;cid=2233543&amp;amp;sessionid=21618890&amp;amp;sessionchoice=1&amp;amp;"&gt;SciPy 2018&lt;/a&gt; that
+was met with excitement by many people.
+Knowing that it is possible,
+I want to reiterate some points why Rust is pretty exciting for bioinformatics
+and science in general.&lt;/p&gt;
+&lt;h3&gt;Bioinformatics as libraries (and command line tools too!)&lt;/h3&gt;
+&lt;p&gt;Bioinformatics is an umbrella term for many different methods, depending on
+what analysis you want to do with your data (or model).
+In this sense, it's distinct from other scientific areas where it is possible
+to rely on a common set of libraries (numpy in linear algebra, for example), since a
+library supporting many disjoint methods tend to grow too big and hard to
+maintain.&lt;/p&gt;
+&lt;p&gt;The environment also tends to be very diverse, with different languages being
+used to implement the software. Because it is hard to interoperate,
+the methods tend to be implemented in command line programs that are stitched
+together in pipelines, a workflow describing how to connect the input and output of many different tools to
+generate results.
+Because the basic unit is a command-line tool,
+pipelines tend to rely on standard operating system abstractions like
+files and pipes to make the tools communicate with each other. But since tools
+might have input requirements distinct from what the previous tool provides,
+many times it is necessary to do format conversion or other adaptations to make the
+pipeline work.&lt;/p&gt;
+&lt;p&gt;Using tools as blackboxes, controllable through specific parameters at the
+command-line level, make exploratory analysis and algorithm reuse harder:
+if something needs to be investigated the user needs to resort to perturbations
+of the parameters or the input data, without access to the more feature-rich and
+meaningful abstraction happening inside the tool.&lt;/p&gt;
+&lt;p&gt;Even if many languages are used for writing the software, most of the time there
+is some part written in C or C++ for performance reasons, and these tend to be
+the core data structures of the computational method. Because it is not easy to
+package your C/C++ code in a way that other people can readily use it,
+most of this code is reinvented over and over again, or is copy and pasted into
+codebases and start diverging over time. Rust helps solve this problem with the
+integrated package management, and due to the FFI it can also be reused inside
+other programs written in other languages.&lt;/p&gt;
+&lt;p&gt;sourmash is not going to be Rust-only and abandon Python,
+and it would be crazy to do so when it has so many great exploratory tools
+for scientific discovery. But now we can also use our method in other languages
+and environment, instead of having our code stuck in one language.&lt;/p&gt;
+&lt;h3&gt;Don't rewrite it all!&lt;/h3&gt;
+&lt;p&gt;I could have gone all the way and rewrite sourmash in Rust&lt;sup id=sf-sourmash-rust-3-back&gt;&lt;a href=#sf-sourmash-rust-3 class=simple-footnote title="and risk being kicked out of the lab =P"&gt;3&lt;/a&gt;&lt;/sup&gt;, but it would be incredibly disruptive for
+the current sourmash users and it would take way longer to pull off. Because
+Rust is so focused in supporting existing code, you can do a slow transition and
+reuse what you already have while moving into more and more Rust code.
+A great example is this one-day effort by Rob Patro to bring &lt;a href="https://github.com/COMBINE-lab/cqf-rust"&gt;CQF&lt;/a&gt; (a C
+codebase) into Rust, using &lt;code&gt;bindgen&lt;/code&gt; (a generator of C bindings for Rust).
+Check &lt;a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/"&gt;the Twitter thread&lt;/a&gt; for more =]&lt;/p&gt;
+&lt;h3&gt;Good scientific citizens&lt;/h3&gt;
+&lt;p&gt;There is another MinHash implementation already written in Rust, &lt;a href="https://github.com/onecodex/finch-rs"&gt;finch&lt;/a&gt;.
+Early in my experiment I got an email from them asking if I wanted to work
+together, but since I wanted to learn the language I kept doing my thing. (They
+were totally cool with this, by the way). But the fun thing is that Rust has a
+pair of traits called &lt;a href="https://doc.rust-lang.org/rust-by-example/conversion/from_into.html"&gt;&lt;code&gt;From&lt;/code&gt; and &lt;code&gt;Into&lt;/code&gt;&lt;/a&gt; that you can implement for your
+type, and so I &lt;a href="https://github.com/luizirber/sourmash-rust/pull/1"&gt;did that&lt;/a&gt; and now we can have interoperable
+implementations. This synergy allows &lt;code&gt;finch&lt;/code&gt; to use &lt;code&gt;sourmash&lt;/code&gt; methods,
+and vice versa.&lt;/p&gt;
+&lt;p&gt;Maybe this sounds like a small thing, but I think it is really exciting. We can
+stop having incompatible but very similar methods, and instead all benefit from
+each other advances in a way that is supported by the language.&lt;/p&gt;
+&lt;h2&gt;Next time!&lt;/h2&gt;
+&lt;p&gt;Turns out Rust supports WebAssembly as a target,
+so... what if we run sourmash in the browser?
+That's what I'm covering in the &lt;a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/"&gt;next blog post&lt;/a&gt;,
+so stay tuned =]&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/100602525575698239"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/rust/comments/99vakd/blog_post_converting_c_to_rust_and_interoperate/"&gt;Thread on reddit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1032779995129597952"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- rust libs --&gt;
+
+&lt;!-- why rust --&gt;
+
+&lt;!-- WASM and demos --&gt;
+
+&lt;!-- python and FFI --&gt;
+
+&lt;!-- rust examples --&gt;
+
+&lt;!-- cbindgen --&gt;
+
+&lt;!-- rust for pythonistas --&gt;
+
+&lt;!-- understanding rust --&gt;
+
+&lt;!-- rust and bio --&gt;
+
+&lt;!-- rust error handling --&gt;
+
+&lt;!-- other notes
+
+- Implement Default trait for defaults (less verbose than ::new...)
+  https://doc.rust-lang.org/std/default/trait.Default.html
+
+--&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sourmash-rust-1&gt;&lt;p&gt;The creator of the language is known to keep making up different
+explanations for the &lt;a href="https://www.reddit.com/r/rust/comments/27jvdt/internet_archaeology_the_definitive_endall_source/"&gt;name of the language&lt;/a&gt;,
+but in this case "oxidation" refers to the chemical process that creates
+rust, and rust is the closest thing to metal (metal being the hardware).
+There are many terrible puns in the Rust community. &lt;a href=#sf-sourmash-rust-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-rust-2&gt;&lt;p&gt;Even more now that it hit 1.0,
+it is a really nice language &lt;a href=#sf-sourmash-rust-2-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-rust-3&gt;&lt;p&gt;and risk
+being kicked out of the lab =P &lt;a href=#sf-sourmash-rust-3-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</content><category term="rust"></category><category term="sourmash"></category><category term="python"></category></entry><entry><title>Minhashing all the things (part 1): microbial genomes</title><link href="https://blog.luizirber.org/2016/12/28/soursigs-arch-1/" rel="alternate"></link><published>2016-12-28T12:00:00-02:00</published><updated>2016-12-28T12:00:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2016-12-28:/2016/12/28/soursigs-arch-1/</id><summary type="html">&lt;p&gt;With the &lt;a href="http://ivory.idyll.org/blog/2016-sourmash-sbt.html"&gt;MinHash&lt;/a&gt; &lt;a href="http://ivory.idyll.org/blog/2016-sourmash-sbt-more.html"&gt;craze&lt;/a&gt; currently going on in the &lt;a href="http://ivory.idyll.org/lab/"&gt;lab&lt;/a&gt;,
+we started discussing how to calculate signatures efficiently,
+how to index them for search and also how to distribute them.
+As a proof of concept I started implementing a system to read public data available on the &lt;a href="https://www.ncbi.nlm.nih.gov/sra"&gt;Sequence Read Archive&lt;/a&gt;,
+as well as a variation of the &lt;a href="https://www.cs.cmu.edu/~ckingsf/software/bloomtree/"&gt;Sequence Bloom Tree&lt;/a&gt; using Minhashes as leaves/datasets instead of the whole k-mer set (as Bloom Filters).&lt;/p&gt;
+&lt;p&gt;Since this is a PoC,
+I also wanted to explore some solutions that allow maintaining the least amount of explicit servers:
+I'm OK with offloading a queue system to &lt;a href="https://aws.amazon.com/sqs/"&gt;Amazon SQS&lt;/a&gt; instead of maintaining a server running &lt;a href="https://www.rabbitmq.com/"&gt;RabbitMQ&lt;/a&gt;,
+for example.
+Even with all the DevOps movement you still can't ignore the Ops part,
+and if you have a team to run your infrastructure,
+good for you!
+But I'm a grad student and the last thing I want to be doing is babysitting servers =]&lt;/p&gt;
+&lt;h2&gt;Going serverless: AWS Lambda&lt;/h2&gt;
+&lt;p&gt;The first plan was to use &lt;a href="https://aws.amazon.com/lambda/"&gt;AWS Lambda&lt;/a&gt; to calculate signatures.
+Lambda is a service that exposes functions,
+and it manages all the runtime details (server provisioning and so on),
+while charging by the time and memory it takes to run the function.
+Despite all the promises,
+it is a bit annoying to balance everything to make an useful Lambda,
+so I used the &lt;a href="https://gordon.readthedocs.io/en/latest/"&gt;Gordon framework&lt;/a&gt; to structure it.
+I was pretty happy with it,
+until I added our &lt;a href="https://github.com/dib-lab/sourmash"&gt;MinHash package&lt;/a&gt; and,
+since it is a C++ extension,
+needed to compile and send the resulting package to Lambda.
+I was using my local machine for that,
+but Lambda packaging is pretty much 'put all the Python files in one directory,
+compress and upload it to S3',
+which of course didn't work because I don't have the same library versions that &lt;a href="https://aws.amazon.com/amazon-linux-ami/"&gt;Amazon Linux&lt;/a&gt; runs.
+I managed to hack a &lt;a href="https://github.com/jorgebastida/gordon/compare/master...luizirber:refactor/python_package"&gt;fix&lt;/a&gt;,
+but it would be wonderful if Amazon adopted wheels and stayed more in line with the &lt;a href="https://packaging.python.org/"&gt;Python Package Authority&lt;/a&gt; solutions
+(and hey, &lt;a href="https://www.python.org/dev/peps/pep-0513/"&gt;binary wheels&lt;/a&gt; even work on Linux now!).&lt;/p&gt;
+&lt;p&gt;Anyway,
+after I deployed the Lambda function and tried to run it...
+I fairly quickly realized that 5 minutes is far too short to calculate a signature.
+This is not a CPU-bound problem,
+it's just that we are downloading the data and network I/O is the bottleneck.
+I think Lambda will still be a good solution together with &lt;a href="https://aws.amazon.com/api-gateway/"&gt;API Gateway&lt;/a&gt;
+for triggering calculations and providing other useful services despite the drawbacks,
+but at this point I started looking for alternative architectures.&lt;/p&gt;
+&lt;h2&gt;Back to the comfort zone: Snakemake&lt;/h2&gt;
+&lt;p&gt;Focusing on computing signatures first and thinking about other issues later,
+I wrote a quick &lt;a href="https://bitbucket.org/snakemake/snakemake/wiki/Home"&gt;Snakemake&lt;/a&gt; rules file and started calculating signatures
+for all the &lt;a href="https://github.com/luizirber/soursigs/blob/6c6acf6429cec2e2e4a076dfc32adbf27fab1eed/Snakefile#L81"&gt;transcriptomic&lt;/a&gt; datasets I could find on the SRA.
+Totaling 671 TB,
+it was way over my storage capacity,
+but since both the &lt;a href="https://github.com/ncbi/sra-tools"&gt;SRA Toolkit&lt;/a&gt; and &lt;a href="https://github.com/dib-lab/sourmash"&gt;sourmash&lt;/a&gt; have streaming modes,
+I piped the output of the first as the input for the second and... voila!
+We have a duct-taped but working system.
+Again,
+the issue becomes network bottlenecks:
+the SRA seems to limit each IP to ~100 Mbps,
+it would take 621 days to calculate everything.
+Classes were happening during these development,
+so I just considered it good enough and started running it in a 32-core server hosted at &lt;a href="https://www.rackspace.com/openstack/public"&gt;Rackspace&lt;/a&gt;
+to at least have some signatures to play with.&lt;/p&gt;
+&lt;h2&gt;Offloading computation: Celery + Amazon SQS&lt;/h2&gt;
+&lt;p&gt;With classes over,
+we changed directions a bit:
+instead of going through the transcriptomic dataset,
+we decided to focus on microbial genomes,
+especially all those unassembled ones on SRA.
+(We didn't forget the transcriptomic dataset,
+but microbial genomes are small-ish,
+more manageable and we already have the microbial SBTs to search against).
+There are 412k SRA IDs matching the &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/Snakefile#L71"&gt;new search&lt;/a&gt;,
+totalling 28 TB of data.
+We have storage to save it,
+but since we want a scalable solution (something that would work with the 8 PB of data in the SRA,
+for example),
+I avoided downloading all the data beforehand and kept doing it in a streaming way.&lt;/p&gt;
+&lt;p&gt;I started to redesign the Snakemake solution:
+first thing was to move the body of the rule to a &lt;a href="http://docs.celeryproject.org/en/latest/userguide/tasks.html"&gt;Celery task&lt;/a&gt;
+and use Snakemake to control what tasks to run and get the results,
+but send the computation to a (local or remote) Celery worker.
+I checked other work queue solutions,
+but they were either too simple or required running specialized servers.
+(and thanks to &lt;a href="http://ggmarcondes.com"&gt;Gabriel Marcondes&lt;/a&gt; for enlightening me about how to best
+use Celery!).
+With Celery I managed to use &lt;a href="https://aws.amazon.com/sqs/"&gt;Amazon SQS&lt;/a&gt; as a broker
+(the queue of tasks to be executed,
+in Celery parlance),
+and &lt;a href="https://github.com/robgolding/celery-s3"&gt;celery-s3&lt;/a&gt; as the results backend.
+While not an official part of Celery,
+using S3 to keep results allowed to avoid deploying another service
+(usually Celery uses redis or RabbitMQ for result backend).
+I didn't configure it properly tho,
+and ended up racking up \$200 in charges because I was querying S3 too much,
+but my advisor thought it was &lt;a href="https://twitter.com/ctitusbrown/status/812003429535006721"&gt;funny and mocked me on Twitter&lt;/a&gt; (I don't mind,
+he is the one paying the bill =P).
+For initial tests I just ran the workers locally on the 32-core server,
+but... What if the worker was easy to deploy,
+and other people wanted to run additional workers?&lt;/p&gt;
+&lt;h3&gt;Docker workers&lt;/h3&gt;
+&lt;p&gt;I wrote a &lt;a href="https://github.com/luizirber/soursigs/blob/6c6acf6429cec2e2e4a076dfc32adbf27fab1eed/Dockerfile"&gt;Dockerfile&lt;/a&gt; with all the dependencies,
+and made it available on &lt;a href="https://hub.docker.com/r/luizirber/soursigs/tags/"&gt;Docker hub&lt;/a&gt;.
+I still need to provide credentials to access SQS and S3,
+but now I can deploy workers anywhere,
+even... on the &lt;a href="https://cloud.google.com/"&gt;Google Cloud Platform&lt;/a&gt;.
+They have a free trial with \$300 in credits,
+so I used the &lt;a href="https://cloud.google.com/container-engine/"&gt;Container Engine&lt;/a&gt; to deploy a &lt;a href="http://kubernetes.io/"&gt;Kubernetes&lt;/a&gt; cluster and run
+workers under a &lt;a href="http://kubernetes.io/docs/user-guide/replication-controller/"&gt;Replication Controller&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Just to keep track: we are posting Celery tasks from a Rackspace server
+to Amazon SQS,
+running workers inside Docker managed by Kubernetes on GCP,
+putting results on Amazon S3
+and finally reading the results on Rackspace and then posting it to &lt;a href="https://ipfs.io/ipns/minhash.oxli.org/microbial/"&gt;IPFS&lt;/a&gt;.
+IPFS is the Interplanetary File System,
+a decentralized solution to share data.
+But more about this later!&lt;/p&gt;
+&lt;h3&gt;HPCC workers&lt;/h3&gt;
+&lt;p&gt;Even with Docker workers running on GCP and the Rackspace server,
+it was progressing slowly and,
+while it wouldn't be terribly expensive to spin up more nodes on GCP,
+I decided to go use the resources we already have:
+the &lt;a href="https://wiki.hpcc.msu.edu/"&gt;MSU HPCC&lt;/a&gt;.
+I couldn't run Docker containers there (HPC is wary of Docker,
+but &lt;a href="https://github.com/NERSC/2016-11-14-sc16-Container-Tutorial"&gt;we are trying to change that!&lt;/a&gt;),
+so I used Conda to create a clean environment and used the &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/requirements.txt"&gt;requirements&lt;/a&gt;
+file (coupled with some &lt;code&gt;PATH&lt;/code&gt; magic) to replicate what I have inside the Docker container.
+The Dockerfile was very useful,
+because I mostly ran the same commands to recreate the environment.
+Finally,
+I wrote a &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/submit"&gt;submission script&lt;/a&gt; to start a job array with 40 jobs,
+and after a bit of tuning I decided to use 12 Celery workers for each job,
+totalling 480 workers.&lt;/p&gt;
+&lt;p&gt;This solution still requires a bit of babysitting,
+especially when I was tuning how many workers to run per job,
+but it achieved around 1600 signatures per hour,
+leading to about 10 days to calculate for all 412k datasets.
+Instead of downloading the whole dataset,
+we are &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/soursigs/tasks.py#L15"&gt;reading the first million reads&lt;/a&gt; and using our &lt;a href="https://peerj.com/preprints/890/"&gt;streaming error trimming&lt;/a&gt;
+solution to calculate the signatures
+(and also to test if it is the best solution for this case).&lt;/p&gt;
+&lt;h3&gt;Clever algorithms are better than brute force?&lt;/h3&gt;
+&lt;p&gt;While things were progressing,
+Titus was using the &lt;a href="https://github.com/dib-lab/sourmash/pull/45"&gt;Sequence Bloom Tree + Minhash&lt;/a&gt; code to categorize the new datasets into the 50k genomes in the [RefSeq] database,
+but 99\% of the signatures didn't match anything.
+After assembling a dataset that didn't match,
+he found out it did match something,
+so... The current approach is not so good.&lt;/p&gt;
+&lt;p&gt;(UPDATE: it was a bug in the search,
+so this way of calculating signatures probably also work.
+Anyway,
+the next approach is faster and more reasonable,
+so yay bug!)&lt;/p&gt;
+&lt;p&gt;Yesterday he came up with a new way to filter solid k-mers instead of doing
+error trimming (and named it... &lt;a href="https://github.com/dib-lab/syrah"&gt;syrah&lt;/a&gt;?
+Oh, SyRAh...
+So many puns in this lab).
+I &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/soursigs/tasks.py#L34"&gt;created a new Celery task&lt;/a&gt; and refactored the Snakemake rule,
+and started running it again...
+And wow is it faster!
+It is currently doing around 4200 signatures per hour,
+and it will end in less than five days.
+The syrah approach probably works for the vast majority of the SRA,
+but metagenomes and metatranscriptomes will probably fail because the minority members of the population will not be represented.
+But hey,
+we have people in the lab working on that too =]&lt;/p&gt;
+&lt;h1&gt;Future&lt;/h1&gt;
+&lt;p&gt;The solution works,
+but several improvements can be made.
+First,
+I use Snakemake at both ends,
+both to keep track of the work done and get the workers results.
+I can make the workers a bit smarter and post the results to a S3 bucket,
+and so I only need to use Snakemake to track what work needs to be done and post tasks to the queue.
+This removes the need for celery-s3 and querying S3 all the time,
+and opens the path to use Lambda again to trigger updates to IPFS.&lt;/p&gt;
+&lt;p&gt;I'm insisting on using IPFS to make the data available because...
+Well, it is super cool!
+I always wanted to have a system like bittorrent to distribute data,
+but IPFS builds up on top of other very good ideas from bitcoin (bitswap),
+and git (the DAG representation) to make a resilient system and,
+even more important,
+something that can be used in a scientific context to both increase bandwidth for important resources (like, well, the SRA)
+and to make sure data can stay around if the centralized solution goes away.
+The &lt;a href="https://github.com/ga4gh/cgtd"&gt;Cancer Gene Trust&lt;/a&gt; project is already using it,
+and I do hope more projects show up and adopt IPFS as a first-class dependency.
+And,
+even crazier,
+we can actually use IPFS to store our SBT implementation,
+but more about this in part 2!&lt;/p&gt;</summary><content type="html">&lt;p&gt;With the &lt;a href="http://ivory.idyll.org/blog/2016-sourmash-sbt.html"&gt;MinHash&lt;/a&gt; &lt;a href="http://ivory.idyll.org/blog/2016-sourmash-sbt-more.html"&gt;craze&lt;/a&gt; currently going on in the &lt;a href="http://ivory.idyll.org/lab/"&gt;lab&lt;/a&gt;,
+we started discussing how to calculate signatures efficiently,
+how to index them for search and also how to distribute them.
+As a proof of concept I started implementing a system to read public data available on the &lt;a href="https://www.ncbi.nlm.nih.gov/sra"&gt;Sequence Read Archive&lt;/a&gt;,
+as well as a variation of the &lt;a href="https://www.cs.cmu.edu/~ckingsf/software/bloomtree/"&gt;Sequence Bloom Tree&lt;/a&gt; using Minhashes as leaves/datasets instead of the whole k-mer set (as Bloom Filters).&lt;/p&gt;
+&lt;p&gt;Since this is a PoC,
+I also wanted to explore some solutions that allow maintaining the least amount of explicit servers:
+I'm OK with offloading a queue system to &lt;a href="https://aws.amazon.com/sqs/"&gt;Amazon SQS&lt;/a&gt; instead of maintaining a server running &lt;a href="https://www.rabbitmq.com/"&gt;RabbitMQ&lt;/a&gt;,
+for example.
+Even with all the DevOps movement you still can't ignore the Ops part,
+and if you have a team to run your infrastructure,
+good for you!
+But I'm a grad student and the last thing I want to be doing is babysitting servers =]&lt;/p&gt;
+&lt;h2&gt;Going serverless: AWS Lambda&lt;/h2&gt;
+&lt;p&gt;The first plan was to use &lt;a href="https://aws.amazon.com/lambda/"&gt;AWS Lambda&lt;/a&gt; to calculate signatures.
+Lambda is a service that exposes functions,
+and it manages all the runtime details (server provisioning and so on),
+while charging by the time and memory it takes to run the function.
+Despite all the promises,
+it is a bit annoying to balance everything to make an useful Lambda,
+so I used the &lt;a href="https://gordon.readthedocs.io/en/latest/"&gt;Gordon framework&lt;/a&gt; to structure it.
+I was pretty happy with it,
+until I added our &lt;a href="https://github.com/dib-lab/sourmash"&gt;MinHash package&lt;/a&gt; and,
+since it is a C++ extension,
+needed to compile and send the resulting package to Lambda.
+I was using my local machine for that,
+but Lambda packaging is pretty much 'put all the Python files in one directory,
+compress and upload it to S3',
+which of course didn't work because I don't have the same library versions that &lt;a href="https://aws.amazon.com/amazon-linux-ami/"&gt;Amazon Linux&lt;/a&gt; runs.
+I managed to hack a &lt;a href="https://github.com/jorgebastida/gordon/compare/master...luizirber:refactor/python_package"&gt;fix&lt;/a&gt;,
+but it would be wonderful if Amazon adopted wheels and stayed more in line with the &lt;a href="https://packaging.python.org/"&gt;Python Package Authority&lt;/a&gt; solutions
+(and hey, &lt;a href="https://www.python.org/dev/peps/pep-0513/"&gt;binary wheels&lt;/a&gt; even work on Linux now!).&lt;/p&gt;
+&lt;p&gt;Anyway,
+after I deployed the Lambda function and tried to run it...
+I fairly quickly realized that 5 minutes is far too short to calculate a signature.
+This is not a CPU-bound problem,
+it's just that we are downloading the data and network I/O is the bottleneck.
+I think Lambda will still be a good solution together with &lt;a href="https://aws.amazon.com/api-gateway/"&gt;API Gateway&lt;/a&gt;
+for triggering calculations and providing other useful services despite the drawbacks,
+but at this point I started looking for alternative architectures.&lt;/p&gt;
+&lt;h2&gt;Back to the comfort zone: Snakemake&lt;/h2&gt;
+&lt;p&gt;Focusing on computing signatures first and thinking about other issues later,
+I wrote a quick &lt;a href="https://bitbucket.org/snakemake/snakemake/wiki/Home"&gt;Snakemake&lt;/a&gt; rules file and started calculating signatures
+for all the &lt;a href="https://github.com/luizirber/soursigs/blob/6c6acf6429cec2e2e4a076dfc32adbf27fab1eed/Snakefile#L81"&gt;transcriptomic&lt;/a&gt; datasets I could find on the SRA.
+Totaling 671 TB,
+it was way over my storage capacity,
+but since both the &lt;a href="https://github.com/ncbi/sra-tools"&gt;SRA Toolkit&lt;/a&gt; and &lt;a href="https://github.com/dib-lab/sourmash"&gt;sourmash&lt;/a&gt; have streaming modes,
+I piped the output of the first as the input for the second and... voila!
+We have a duct-taped but working system.
+Again,
+the issue becomes network bottlenecks:
+the SRA seems to limit each IP to ~100 Mbps,
+it would take 621 days to calculate everything.
+Classes were happening during these development,
+so I just considered it good enough and started running it in a 32-core server hosted at &lt;a href="https://www.rackspace.com/openstack/public"&gt;Rackspace&lt;/a&gt;
+to at least have some signatures to play with.&lt;/p&gt;
+&lt;h2&gt;Offloading computation: Celery + Amazon SQS&lt;/h2&gt;
+&lt;p&gt;With classes over,
+we changed directions a bit:
+instead of going through the transcriptomic dataset,
+we decided to focus on microbial genomes,
+especially all those unassembled ones on SRA.
+(We didn't forget the transcriptomic dataset,
+but microbial genomes are small-ish,
+more manageable and we already have the microbial SBTs to search against).
+There are 412k SRA IDs matching the &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/Snakefile#L71"&gt;new search&lt;/a&gt;,
+totalling 28 TB of data.
+We have storage to save it,
+but since we want a scalable solution (something that would work with the 8 PB of data in the SRA,
+for example),
+I avoided downloading all the data beforehand and kept doing it in a streaming way.&lt;/p&gt;
+&lt;p&gt;I started to redesign the Snakemake solution:
+first thing was to move the body of the rule to a &lt;a href="http://docs.celeryproject.org/en/latest/userguide/tasks.html"&gt;Celery task&lt;/a&gt;
+and use Snakemake to control what tasks to run and get the results,
+but send the computation to a (local or remote) Celery worker.
+I checked other work queue solutions,
+but they were either too simple or required running specialized servers.
+(and thanks to &lt;a href="http://ggmarcondes.com"&gt;Gabriel Marcondes&lt;/a&gt; for enlightening me about how to best
+use Celery!).
+With Celery I managed to use &lt;a href="https://aws.amazon.com/sqs/"&gt;Amazon SQS&lt;/a&gt; as a broker
+(the queue of tasks to be executed,
+in Celery parlance),
+and &lt;a href="https://github.com/robgolding/celery-s3"&gt;celery-s3&lt;/a&gt; as the results backend.
+While not an official part of Celery,
+using S3 to keep results allowed to avoid deploying another service
+(usually Celery uses redis or RabbitMQ for result backend).
+I didn't configure it properly tho,
+and ended up racking up \$200 in charges because I was querying S3 too much,
+but my advisor thought it was &lt;a href="https://twitter.com/ctitusbrown/status/812003429535006721"&gt;funny and mocked me on Twitter&lt;/a&gt; (I don't mind,
+he is the one paying the bill =P).
+For initial tests I just ran the workers locally on the 32-core server,
+but... What if the worker was easy to deploy,
+and other people wanted to run additional workers?&lt;/p&gt;
+&lt;h3&gt;Docker workers&lt;/h3&gt;
+&lt;p&gt;I wrote a &lt;a href="https://github.com/luizirber/soursigs/blob/6c6acf6429cec2e2e4a076dfc32adbf27fab1eed/Dockerfile"&gt;Dockerfile&lt;/a&gt; with all the dependencies,
+and made it available on &lt;a href="https://hub.docker.com/r/luizirber/soursigs/tags/"&gt;Docker hub&lt;/a&gt;.
+I still need to provide credentials to access SQS and S3,
+but now I can deploy workers anywhere,
+even... on the &lt;a href="https://cloud.google.com/"&gt;Google Cloud Platform&lt;/a&gt;.
+They have a free trial with \$300 in credits,
+so I used the &lt;a href="https://cloud.google.com/container-engine/"&gt;Container Engine&lt;/a&gt; to deploy a &lt;a href="http://kubernetes.io/"&gt;Kubernetes&lt;/a&gt; cluster and run
+workers under a &lt;a href="http://kubernetes.io/docs/user-guide/replication-controller/"&gt;Replication Controller&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Just to keep track: we are posting Celery tasks from a Rackspace server
+to Amazon SQS,
+running workers inside Docker managed by Kubernetes on GCP,
+putting results on Amazon S3
+and finally reading the results on Rackspace and then posting it to &lt;a href="https://ipfs.io/ipns/minhash.oxli.org/microbial/"&gt;IPFS&lt;/a&gt;.
+IPFS is the Interplanetary File System,
+a decentralized solution to share data.
+But more about this later!&lt;/p&gt;
+&lt;h3&gt;HPCC workers&lt;/h3&gt;
+&lt;p&gt;Even with Docker workers running on GCP and the Rackspace server,
+it was progressing slowly and,
+while it wouldn't be terribly expensive to spin up more nodes on GCP,
+I decided to go use the resources we already have:
+the &lt;a href="https://wiki.hpcc.msu.edu/"&gt;MSU HPCC&lt;/a&gt;.
+I couldn't run Docker containers there (HPC is wary of Docker,
+but &lt;a href="https://github.com/NERSC/2016-11-14-sc16-Container-Tutorial"&gt;we are trying to change that!&lt;/a&gt;),
+so I used Conda to create a clean environment and used the &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/requirements.txt"&gt;requirements&lt;/a&gt;
+file (coupled with some &lt;code&gt;PATH&lt;/code&gt; magic) to replicate what I have inside the Docker container.
+The Dockerfile was very useful,
+because I mostly ran the same commands to recreate the environment.
+Finally,
+I wrote a &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/submit"&gt;submission script&lt;/a&gt; to start a job array with 40 jobs,
+and after a bit of tuning I decided to use 12 Celery workers for each job,
+totalling 480 workers.&lt;/p&gt;
+&lt;p&gt;This solution still requires a bit of babysitting,
+especially when I was tuning how many workers to run per job,
+but it achieved around 1600 signatures per hour,
+leading to about 10 days to calculate for all 412k datasets.
+Instead of downloading the whole dataset,
+we are &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/soursigs/tasks.py#L15"&gt;reading the first million reads&lt;/a&gt; and using our &lt;a href="https://peerj.com/preprints/890/"&gt;streaming error trimming&lt;/a&gt;
+solution to calculate the signatures
+(and also to test if it is the best solution for this case).&lt;/p&gt;
+&lt;h3&gt;Clever algorithms are better than brute force?&lt;/h3&gt;
+&lt;p&gt;While things were progressing,
+Titus was using the &lt;a href="https://github.com/dib-lab/sourmash/pull/45"&gt;Sequence Bloom Tree + Minhash&lt;/a&gt; code to categorize the new datasets into the 50k genomes in the [RefSeq] database,
+but 99\% of the signatures didn't match anything.
+After assembling a dataset that didn't match,
+he found out it did match something,
+so... The current approach is not so good.&lt;/p&gt;
+&lt;p&gt;(UPDATE: it was a bug in the search,
+so this way of calculating signatures probably also work.
+Anyway,
+the next approach is faster and more reasonable,
+so yay bug!)&lt;/p&gt;
+&lt;p&gt;Yesterday he came up with a new way to filter solid k-mers instead of doing
+error trimming (and named it... &lt;a href="https://github.com/dib-lab/syrah"&gt;syrah&lt;/a&gt;?
+Oh, SyRAh...
+So many puns in this lab).
+I &lt;a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/soursigs/tasks.py#L34"&gt;created a new Celery task&lt;/a&gt; and refactored the Snakemake rule,
+and started running it again...
+And wow is it faster!
+It is currently doing around 4200 signatures per hour,
+and it will end in less than five days.
+The syrah approach probably works for the vast majority of the SRA,
+but metagenomes and metatranscriptomes will probably fail because the minority members of the population will not be represented.
+But hey,
+we have people in the lab working on that too =]&lt;/p&gt;
+&lt;h1&gt;Future&lt;/h1&gt;
+&lt;p&gt;The solution works,
+but several improvements can be made.
+First,
+I use Snakemake at both ends,
+both to keep track of the work done and get the workers results.
+I can make the workers a bit smarter and post the results to a S3 bucket,
+and so I only need to use Snakemake to track what work needs to be done and post tasks to the queue.
+This removes the need for celery-s3 and querying S3 all the time,
+and opens the path to use Lambda again to trigger updates to IPFS.&lt;/p&gt;
+&lt;p&gt;I'm insisting on using IPFS to make the data available because...
+Well, it is super cool!
+I always wanted to have a system like bittorrent to distribute data,
+but IPFS builds up on top of other very good ideas from bitcoin (bitswap),
+and git (the DAG representation) to make a resilient system and,
+even more important,
+something that can be used in a scientific context to both increase bandwidth for important resources (like, well, the SRA)
+and to make sure data can stay around if the centralized solution goes away.
+The &lt;a href="https://github.com/ga4gh/cgtd"&gt;Cancer Gene Trust&lt;/a&gt; project is already using it,
+and I do hope more projects show up and adopt IPFS as a first-class dependency.
+And,
+even crazier,
+we can actually use IPFS to store our SBT implementation,
+but more about this in part 2!&lt;/p&gt;</content></entry><entry><title>When life gives you lemons</title><link href="https://blog.luizirber.org/2015/10/05/zotero/" rel="alternate"></link><published>2015-10-05T12:00:00-03:00</published><updated>2015-10-05T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2015-10-05:/2015/10/05/zotero/</id><summary type="html">&lt;p&gt;Two weeks ago,
+during the CS graduate orientation at &lt;a href="http://ucdavis.edu"&gt;UC Davis&lt;/a&gt;,
+the IT person was showing that we have access to 50 GB on &lt;a href="https://ucdavis.box.com/"&gt;Box&lt;/a&gt; and UNLIMITED storage on Google Drive
+(I'm currently testing the limits of UNLIMITED, stay tuned).
+I promptly forgot about Box because I've been using Syncthing for file syncing and it's been working quite well,
+or at least way better than owncloud (which took infinite amounts of time to sync my stuff).&lt;/p&gt;
+&lt;p&gt;Anyway,
+today I was checking &lt;a href="http://www.papershipapp.com/"&gt;PaperShip&lt;/a&gt; (wonderful app, by the way)
+and noticed my &lt;a href="https://www.zotero.org/"&gt;Zotero&lt;/a&gt; free account was almost full (it is only 300 MB).
+I knew Zotero had &lt;a href="https://www.zotero.org/support/sync#webdav"&gt;WebDAV&lt;/a&gt; support,
+but I don't want to maintain a WebDAV server.
+Turns out Box has &lt;a href="https://support.box.com/hc/en-us/articles/200519748-Does-Box-support-WebDAV-"&gt;WebDAV support&lt;/a&gt;,
+and even found &lt;a href="http://web.archive.org/web/20180617051357/http://guides.library.cornell.edu/zotero_to_Box"&gt;instructions&lt;/a&gt; on how to set everything up.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Two weeks ago,
+during the CS graduate orientation at &lt;a href="http://ucdavis.edu"&gt;UC Davis&lt;/a&gt;,
+the IT person was showing that we have access to 50 GB on &lt;a href="https://ucdavis.box.com/"&gt;Box&lt;/a&gt; and UNLIMITED storage on Google Drive
+(I'm currently testing the limits of UNLIMITED, stay tuned).
+I promptly forgot about Box because I've been using Syncthing for file syncing and it's been working quite well,
+or at least way better than owncloud (which took infinite amounts of time to sync my stuff).&lt;/p&gt;
+&lt;p&gt;Anyway,
+today I was checking &lt;a href="http://www.papershipapp.com/"&gt;PaperShip&lt;/a&gt; (wonderful app, by the way)
+and noticed my &lt;a href="https://www.zotero.org/"&gt;Zotero&lt;/a&gt; free account was almost full (it is only 300 MB).
+I knew Zotero had &lt;a href="https://www.zotero.org/support/sync#webdav"&gt;WebDAV&lt;/a&gt; support,
+but I don't want to maintain a WebDAV server.
+Turns out Box has &lt;a href="https://support.box.com/hc/en-us/articles/200519748-Does-Box-support-WebDAV-"&gt;WebDAV support&lt;/a&gt;,
+and even found &lt;a href="http://web.archive.org/web/20180617051357/http://guides.library.cornell.edu/zotero_to_Box"&gt;instructions&lt;/a&gt; on how to set everything up.&lt;/p&gt;</content></entry><entry><title>Livro de auto-ajuda?</title><link href="https://blog.luizirber.org/2007/11/20/livro-de-auto-ajuda/" rel="alternate"></link><published>2007-11-20T01:04:00-02:00</published><updated>2007-11-20T01:04:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2007-11-20:/2007/11/20/livro-de-auto-ajuda/</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Nevertheless, this algorithm is slower, more complicated, more
+expensive, and less robust than the original centralized one. Why
+bother studying it under these conditions? (...) &lt;strong&gt;Finally, like
+eating spinach and learning Latin in high school, some things are said
+to be good for you in some abstract way&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Andrew Tanenbaum, Distributed Operating Systems. Às vezes o rapaz viaja
+um pouco no meio das explicações =D&lt;/p&gt;</summary><content type="html">&lt;blockquote&gt;
+&lt;p&gt;Nevertheless, this algorithm is slower, more complicated, more
+expensive, and less robust than the original centralized one. Why
+bother studying it under these conditions? (...) &lt;strong&gt;Finally, like
+eating spinach and learning Latin in high school, some things are said
+to be good for you in some abstract way&lt;/strong&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Andrew Tanenbaum, Distributed Operating Systems. Às vezes o rapaz viaja
+um pouco no meio das explicações =D&lt;/p&gt;</content></entry><entry><title>Planeta Comp@UFSCAR</title><link href="https://blog.luizirber.org/2006/11/12/planeta-compufscar/" rel="alternate"></link><published>2006-11-12T00:29:00-02:00</published><updated>2006-11-12T00:29:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-12:/2006/11/12/planeta-compufscar/</id><summary type="html">&lt;p&gt;Grande Pacu! Agora você que quer saber tudo sobre o que rola nos
+bastidores da vida computeira ufscariana já tem onde encontrar!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.comp.ufscar.br/~fcpn/planet/"&gt;Planeta Comp@UFSCAR&lt;/a&gt; !&lt;/p&gt;</summary><content type="html">&lt;p&gt;Grande Pacu! Agora você que quer saber tudo sobre o que rola nos
+bastidores da vida computeira ufscariana já tem onde encontrar!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.comp.ufscar.br/~fcpn/planet/"&gt;Planeta Comp@UFSCAR&lt;/a&gt; !&lt;/p&gt;</content></entry></feed>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Minhashing all the things (part 1): microbial genomes</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Minhashing all the things (part 1): microbial genomes</h1>
+
+    <time class="single" datetime="2016-12-28T12:00:00-02:00">28 Dec 2016</time>
+
+    <p>With the <a href="http://ivory.idyll.org/blog/2016-sourmash-sbt.html">MinHash</a> <a href="http://ivory.idyll.org/blog/2016-sourmash-sbt-more.html">craze</a> currently going on in the <a href="http://ivory.idyll.org/lab/">lab</a>,
+we started discussing how to calculate signatures efficiently,
+how to index them for search and also how to distribute them.
+As a proof of concept I started implementing a system to read public data available on the <a href="https://www.ncbi.nlm.nih.gov/sra">Sequence Read Archive</a>,
+as well as a variation of the <a href="https://www.cs.cmu.edu/~ckingsf/software/bloomtree/">Sequence Bloom Tree</a> using Minhashes as leaves/datasets instead of the whole k-mer set (as Bloom Filters).</p>
+<p>Since this is a PoC,
+I also wanted to explore some solutions that allow maintaining the least amount of explicit servers:
+I'm OK with offloading a queue system to <a href="https://aws.amazon.com/sqs/">Amazon SQS</a> instead of maintaining a server running <a href="https://www.rabbitmq.com/">RabbitMQ</a>,
+for example.
+Even with all the DevOps movement you still can't ignore the Ops part,
+and if you have a team to run your infrastructure,
+good for you!
+But I'm a grad student and the last thing I want to be doing is babysitting servers =]</p>
+<h2>Going serverless: AWS Lambda</h2>
+<p>The first plan was to use <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> to calculate signatures.
+Lambda is a service that exposes functions,
+and it manages all the runtime details (server provisioning and so on),
+while charging by the time and memory it takes to run the function.
+Despite all the promises,
+it is a bit annoying to balance everything to make an useful Lambda,
+so I used the <a href="https://gordon.readthedocs.io/en/latest/">Gordon framework</a> to structure it.
+I was pretty happy with it,
+until I added our <a href="https://github.com/dib-lab/sourmash">MinHash package</a> and,
+since it is a C++ extension,
+needed to compile and send the resulting package to Lambda.
+I was using my local machine for that,
+but Lambda packaging is pretty much 'put all the Python files in one directory,
+compress and upload it to S3',
+which of course didn't work because I don't have the same library versions that <a href="https://aws.amazon.com/amazon-linux-ami/">Amazon Linux</a> runs.
+I managed to hack a <a href="https://github.com/jorgebastida/gordon/compare/master...luizirber:refactor/python_package">fix</a>,
+but it would be wonderful if Amazon adopted wheels and stayed more in line with the <a href="https://packaging.python.org/">Python Package Authority</a> solutions
+(and hey, <a href="https://www.python.org/dev/peps/pep-0513/">binary wheels</a> even work on Linux now!).</p>
+<p>Anyway,
+after I deployed the Lambda function and tried to run it...
+I fairly quickly realized that 5 minutes is far too short to calculate a signature.
+This is not a CPU-bound problem,
+it's just that we are downloading the data and network I/O is the bottleneck.
+I think Lambda will still be a good solution together with <a href="https://aws.amazon.com/api-gateway/">API Gateway</a>
+for triggering calculations and providing other useful services despite the drawbacks,
+but at this point I started looking for alternative architectures.</p>
+<h2>Back to the comfort zone: Snakemake</h2>
+<p>Focusing on computing signatures first and thinking about other issues later,
+I wrote a quick <a href="https://bitbucket.org/snakemake/snakemake/wiki/Home">Snakemake</a> rules file and started calculating signatures
+for all the <a href="https://github.com/luizirber/soursigs/blob/6c6acf6429cec2e2e4a076dfc32adbf27fab1eed/Snakefile#L81">transcriptomic</a> datasets I could find on the SRA.
+Totaling 671 TB,
+it was way over my storage capacity,
+but since both the <a href="https://github.com/ncbi/sra-tools">SRA Toolkit</a> and <a href="https://github.com/dib-lab/sourmash">sourmash</a> have streaming modes,
+I piped the output of the first as the input for the second and... voila!
+We have a duct-taped but working system.
+Again,
+the issue becomes network bottlenecks:
+the SRA seems to limit each IP to ~100 Mbps,
+it would take 621 days to calculate everything.
+Classes were happening during these development,
+so I just considered it good enough and started running it in a 32-core server hosted at <a href="https://www.rackspace.com/openstack/public">Rackspace</a>
+to at least have some signatures to play with.</p>
+<h2>Offloading computation: Celery + Amazon SQS</h2>
+<p>With classes over,
+we changed directions a bit:
+instead of going through the transcriptomic dataset,
+we decided to focus on microbial genomes,
+especially all those unassembled ones on SRA.
+(We didn't forget the transcriptomic dataset,
+but microbial genomes are small-ish,
+more manageable and we already have the microbial SBTs to search against).
+There are 412k SRA IDs matching the <a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/Snakefile#L71">new search</a>,
+totalling 28 TB of data.
+We have storage to save it,
+but since we want a scalable solution (something that would work with the 8 PB of data in the SRA,
+for example),
+I avoided downloading all the data beforehand and kept doing it in a streaming way.</p>
+<p>I started to redesign the Snakemake solution:
+first thing was to move the body of the rule to a <a href="http://docs.celeryproject.org/en/latest/userguide/tasks.html">Celery task</a>
+and use Snakemake to control what tasks to run and get the results,
+but send the computation to a (local or remote) Celery worker.
+I checked other work queue solutions,
+but they were either too simple or required running specialized servers.
+(and thanks to <a href="http://ggmarcondes.com">Gabriel Marcondes</a> for enlightening me about how to best
+use Celery!).
+With Celery I managed to use <a href="https://aws.amazon.com/sqs/">Amazon SQS</a> as a broker
+(the queue of tasks to be executed,
+in Celery parlance),
+and <a href="https://github.com/robgolding/celery-s3">celery-s3</a> as the results backend.
+While not an official part of Celery,
+using S3 to keep results allowed to avoid deploying another service
+(usually Celery uses redis or RabbitMQ for result backend).
+I didn't configure it properly tho,
+and ended up racking up \$200 in charges because I was querying S3 too much,
+but my advisor thought it was <a href="https://twitter.com/ctitusbrown/status/812003429535006721">funny and mocked me on Twitter</a> (I don't mind,
+he is the one paying the bill =P).
+For initial tests I just ran the workers locally on the 32-core server,
+but... What if the worker was easy to deploy,
+and other people wanted to run additional workers?</p>
+<h3>Docker workers</h3>
+<p>I wrote a <a href="https://github.com/luizirber/soursigs/blob/6c6acf6429cec2e2e4a076dfc32adbf27fab1eed/Dockerfile">Dockerfile</a> with all the dependencies,
+and made it available on <a href="https://hub.docker.com/r/luizirber/soursigs/tags/">Docker hub</a>.
+I still need to provide credentials to access SQS and S3,
+but now I can deploy workers anywhere,
+even... on the <a href="https://cloud.google.com/">Google Cloud Platform</a>.
+They have a free trial with \$300 in credits,
+so I used the <a href="https://cloud.google.com/container-engine/">Container Engine</a> to deploy a <a href="http://kubernetes.io/">Kubernetes</a> cluster and run
+workers under a <a href="http://kubernetes.io/docs/user-guide/replication-controller/">Replication Controller</a>.</p>
+<p>Just to keep track: we are posting Celery tasks from a Rackspace server
+to Amazon SQS,
+running workers inside Docker managed by Kubernetes on GCP,
+putting results on Amazon S3
+and finally reading the results on Rackspace and then posting it to <a href="https://ipfs.io/ipns/minhash.oxli.org/microbial/">IPFS</a>.
+IPFS is the Interplanetary File System,
+a decentralized solution to share data.
+But more about this later!</p>
+<h3>HPCC workers</h3>
+<p>Even with Docker workers running on GCP and the Rackspace server,
+it was progressing slowly and,
+while it wouldn't be terribly expensive to spin up more nodes on GCP,
+I decided to go use the resources we already have:
+the <a href="https://wiki.hpcc.msu.edu/">MSU HPCC</a>.
+I couldn't run Docker containers there (HPC is wary of Docker,
+but <a href="https://github.com/NERSC/2016-11-14-sc16-Container-Tutorial">we are trying to change that!</a>),
+so I used Conda to create a clean environment and used the <a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/requirements.txt">requirements</a>
+file (coupled with some <code>PATH</code> magic) to replicate what I have inside the Docker container.
+The Dockerfile was very useful,
+because I mostly ran the same commands to recreate the environment.
+Finally,
+I wrote a <a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/submit">submission script</a> to start a job array with 40 jobs,
+and after a bit of tuning I decided to use 12 Celery workers for each job,
+totalling 480 workers.</p>
+<p>This solution still requires a bit of babysitting,
+especially when I was tuning how many workers to run per job,
+but it achieved around 1600 signatures per hour,
+leading to about 10 days to calculate for all 412k datasets.
+Instead of downloading the whole dataset,
+we are <a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/soursigs/tasks.py#L15">reading the first million reads</a> and using our <a href="https://peerj.com/preprints/890/">streaming error trimming</a>
+solution to calculate the signatures
+(and also to test if it is the best solution for this case).</p>
+<h3>Clever algorithms are better than brute force?</h3>
+<p>While things were progressing,
+Titus was using the <a href="https://github.com/dib-lab/sourmash/pull/45">Sequence Bloom Tree + Minhash</a> code to categorize the new datasets into the 50k genomes in the [RefSeq] database,
+but 99\% of the signatures didn't match anything.
+After assembling a dataset that didn't match,
+he found out it did match something,
+so... The current approach is not so good.</p>
+<p>(UPDATE: it was a bug in the search,
+so this way of calculating signatures probably also work.
+Anyway,
+the next approach is faster and more reasonable,
+so yay bug!)</p>
+<p>Yesterday he came up with a new way to filter solid k-mers instead of doing
+error trimming (and named it... <a href="https://github.com/dib-lab/syrah">syrah</a>?
+Oh, SyRAh...
+So many puns in this lab).
+I <a href="https://github.com/luizirber/soursigs/blob/a049cbc5733adbcffaaf91e176bbcda43763ed23/soursigs/tasks.py#L34">created a new Celery task</a> and refactored the Snakemake rule,
+and started running it again...
+And wow is it faster!
+It is currently doing around 4200 signatures per hour,
+and it will end in less than five days.
+The syrah approach probably works for the vast majority of the SRA,
+but metagenomes and metatranscriptomes will probably fail because the minority members of the population will not be represented.
+But hey,
+we have people in the lab working on that too =]</p>
+<h1>Future</h1>
+<p>The solution works,
+but several improvements can be made.
+First,
+I use Snakemake at both ends,
+both to keep track of the work done and get the workers results.
+I can make the workers a bit smarter and post the results to a S3 bucket,
+and so I only need to use Snakemake to track what work needs to be done and post tasks to the queue.
+This removes the need for celery-s3 and querying S3 all the time,
+and opens the path to use Lambda again to trigger updates to IPFS.</p>
+<p>I'm insisting on using IPFS to make the data available because...
+Well, it is super cool!
+I always wanted to have a system like bittorrent to distribute data,
+but IPFS builds up on top of other very good ideas from bitcoin (bitswap),
+and git (the DAG representation) to make a resilient system and,
+even more important,
+something that can be used in a scientific context to both increase bandwidth for important resources (like, well, the SRA)
+and to make sure data can stay around if the centralized solution goes away.
+The <a href="https://github.com/ga4gh/cgtd">Cancer Gene Trust</a> project is already using it,
+and I do hope more projects show up and adopt IPFS as a first-class dependency.
+And,
+even crazier,
+we can actually use IPFS to store our SBT implementation,
+but more about this in part 2!</p>
+
+    <div class="taglist"></div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>
