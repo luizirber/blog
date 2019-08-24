@@ -130,12 +130,12 @@ better with frontend development since then, so here is the new demo:
     </div>
   </div>
 </div>
-<link rel="stylesheet" href="{filename}/static/sourmash-wasm/app.css">
-<script src="{filename}/static/sourmash-wasm/dist/bundle.js"></script>
+<link rel="stylesheet" href="{static}/static/sourmash-wasm/app.css">
+<script src="{static}/static/sourmash-wasm/dist/bundle.js"></script>
 
 For the source code for this demo, check the [sourmash-wasm][42] directory.
 
-[42]: {filename}/static/sourmash-wasm/index.html
+[42]: {static}/static/sourmash-wasm/index.html
 
 ## Next steps
 
