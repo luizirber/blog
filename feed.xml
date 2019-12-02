@@ -1,5 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>Gabbleblotchits</title><link>https://blog.luizirber.org/</link><description>Vogon Poetry, Computers and (some) biology</description><lastBuildDate>Sat, 05 Jan 2019 17:00:00 -0200</lastBuildDate><item><title>Scientific Rust #rust2019</title><link>https://blog.luizirber.org/2019/01/05/rust-2019/</link><description>&lt;p&gt;The Rust community requested feedback last year for where the language should go
+<rss version="2.0"><channel><title>Gabbleblotchits</title><link>https://blog.luizirber.org/</link><description>Vogon Poetry, Computers and (some) biology</description><lastBuildDate>Sun, 01 Dec 2019 12:00:00 -0300</lastBuildDate><item><title>Scientific Rust #rust2020</title><link>https://blog.luizirber.org/2019/12/01/rust-2020/</link><description>&lt;p&gt;In January I wrote a &lt;a href="https://blog.luizirber.org/2019/01/05/rust-2019/"&gt;post&lt;/a&gt; for the Rust 2019 call for blogs.
+The &lt;a href="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html"&gt;2020 call&lt;/a&gt; is aiming for an RFC and roadmap earlier this time,
+so here is my 2020 post =]&lt;/p&gt;
+&lt;h3&gt;Last call review: what happened?&lt;/h3&gt;
+&lt;h4&gt;An attribute proc-macro like &lt;code&gt;#[wasm_bindgen]&lt;/code&gt; but for FFI&lt;/h4&gt;
+&lt;p&gt;This sort of happened... because WebAssembly is growing =]&lt;/p&gt;
+&lt;p&gt;I was very excited when &lt;a href="https://hacks.mozilla.org/2019/08/webassembly-interface-types/"&gt;Interface Types&lt;/a&gt; showed up in August,
+and while it is still very experimental it is moving fast and bringing saner
+paths for interoperability than raw C FFIs.
+David Beazley even point this at the end of his &lt;a href="https://www.youtube.com/watch?v=r-A78RgMhZU"&gt;PyCon India keynote&lt;/a&gt;,
+talking about how easy is to get information out of a WebAssembly module
+compared to what had to be done for SWIG.&lt;/p&gt;
+&lt;p&gt;This doesn't solve the problem where strict C compatibility is required,
+or for platforms where a WebAssembly runtime is not available,
+but I think it is a great solution for scientific software
+(or, at least, for my use cases =]).&lt;/p&gt;
+&lt;h4&gt;"More -sys and Rust-like crates for interoperability with the larger ecosystems" and "More (bioinformatics) tools using Rust!"&lt;/h4&gt;
+&lt;p&gt;I did some of those this year (&lt;a href="https://crates.io/crates/bbhash-sys"&gt;bbhash-sys&lt;/a&gt; and &lt;a href="https://crates.io/crates/mqf"&gt;mqf&lt;/a&gt;),
+and also found some great crates to use in my projects.
+Rust is picking up steam in bioinformatics,
+being used as the primary choice for high quality software
+(like &lt;a href="https://varlociraptor.github.io/"&gt;varlociraptor&lt;/a&gt;, 
+or the many coming from &lt;a href="https://github.com/10XGenomics/"&gt;10X Genomics&lt;/a&gt;)
+but it is still somewhat hard to find more details
+(I mostly find it on Twitter,
+and sometime Google Scholar alerts).
+It would be great to start bringing this info together,
+which leads to...&lt;/p&gt;
+&lt;h4&gt;"A place to find other scientists?"&lt;/h4&gt;
+&lt;p&gt;Hey, this one happened! &lt;a href="https://twitter.com/algo_luca/status/1081966759048028162"&gt;Luca Palmieri&lt;/a&gt; started a conversation on &lt;a href=""&gt;reddit&lt;/a&gt; and
+the &lt;a href="https://discord.gg/EXTSq4v"&gt;#science-and-ai&lt;/a&gt; Discord channel on the Rust community server was born!
+I think it works pretty well,
+and Luca also has being doing a great job running &lt;a href="https://github.com/LukeMathWalker/ndarray-koans"&gt;workshops&lt;/a&gt;
+and guiding the conversation around &lt;a href="https://github.com/rust-ml/discussion"&gt;rust-ml&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;https://www.reddit.com/r/rust/comments/ae77gt/scientific_computingmachine_learning_do_we_want_a/&lt;/p&gt;
+&lt;h2&gt;Rust 2021: Interoperability&lt;/h2&gt;
+&lt;p&gt;Rust is amazing because it is very good at bringing many concepts and ideas that
+seem contradictory at first,
+but can really shine when &lt;a href="https://rust-lang.github.io/rustconf-2018-keynote/#127"&gt;synthesized&lt;/a&gt;.
+But can we share this combined wisdom and also improve the situation in other
+places too?
+Despite the "Rewrite it in Rust" meme,
+increased interoperability is something that is already driving a lot of the
+best aspects of Rust:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Interoperability with other languages: as I said before,
+  with WebAssembly (and Rust being having the best toolchain for it)
+  there is a clear route to achieve this,
+  but it will not replace all the software that already exist and can benefit
+  from FFI and C compatibility.
+  Bringing together developers from the many language specific binding
+  generators (&lt;a href="https://github.com/tildeio/helix"&gt;helix&lt;/a&gt;, &lt;a href="https://github.com/neon-bindings/neon"&gt;neon&lt;/a&gt;, &lt;a href="https://github.com/rusterlium/rustler"&gt;rustler&lt;/a&gt;, &lt;a href="https://github.com/PyO3/pyo3"&gt;PyO3&lt;/a&gt;...) and figuring out what's missing from
+  them (or what is the common parts that can be shared) also seems productive.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Interoperability with new and unexplored domains.
+  I think Rust benefits enormously from not focusing only in one domain,
+  and choosing to prioritize CLI, WebAssembly, Networking and Embedded is a good
+  subset to start tackling problems,
+  but how to guide other domains to also use Rust and come up with new
+  contributors and expose missing pieces of the larger picture?&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Another point extremely close to interoperability is training.
+A great way to interoperate with other languages and domains is having good
+documentation and material from transitioning into Rust without having to figure
+everything at once.
+Rust documentation is already amazing,
+especially considering the many books published by each working group.
+But... there is a gap on the transitions,
+both from understanding the basics of the language and using it,
+to the progression from beginner to intermediate and expert.&lt;/p&gt;
+&lt;p&gt;I see good resources for &lt;a href="https://github.com/yoshuawuyts/rust-for-js-people"&gt;JavaScript&lt;/a&gt; and &lt;a href="https://github.com/rochacbruno/py2rs"&gt;Python&lt;/a&gt; developers,
+but we are still covering a pretty small niche:
+programmers curious enough to go learn another language,
+or looking for solutions for problems in their current language.&lt;/p&gt;
+&lt;p&gt;Can we bring more people into Rust?
+&lt;a href="https://rustbridge.com/"&gt;RustBridge&lt;/a&gt; is obviously the reference here,
+but there is space for much,
+much more.
+Using Rust in &lt;a href="https://carpentries.org/"&gt;The Carpentries&lt;/a&gt; lessons?
+Creating &lt;code&gt;RustOpenSci&lt;/code&gt;,
+mirroring the communities of practice of &lt;a href="https://ropensci.org/about/"&gt;rOpenSci&lt;/a&gt; and &lt;a href="https://www.pyopensci.org/"&gt;pyOpenSci&lt;/a&gt;?&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">luizirber</dc:creator><pubDate>Sun, 01 Dec 2019 12:00:00 -0300</pubDate><guid isPermaLink="false">tag:blog.luizirber.org,2019-12-01:/2019/12/01/rust-2020/</guid><category>bioinformatics</category><category>rust</category></item><item><title>on PhDware</title><link>https://blog.luizirber.org/2019/04/01/phdware/</link><description>&lt;p&gt;https://twitter.com/psteinb_/status/1200429807940571140&lt;/p&gt;
+&lt;p&gt;"The previous PhD student used a self-developed code. I have managed to get
+the code(s), however, it is not working and gives multiple errors when I try."&lt;/p&gt;
+&lt;h1&gt;StopPhDWare Students and scientists need training in coding etc to mitigate&lt;/h1&gt;
+&lt;p&gt;time sinks like the above. #reproducibility&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">luizirber</dc:creator><pubDate>Mon, 01 Apr 2019 12:00:00 -0300</pubDate><guid isPermaLink="false">tag:blog.luizirber.org,2019-04-01:/2019/04/01/phdware/</guid><category>bioinformatics</category><category>sourmash</category></item><item><title>Every PR as a release</title><link>https://blog.luizirber.org/2019/04/01/releases/</link><description>&lt;p&gt;Last month we finally released sourmash 2.0 (yay!),
+after more than an year of &lt;a href="https://twitter.com/ctitusbrown/status/1009495554974289920"&gt;alpha releases&lt;/a&gt;.
+Not committing to a final release was starting to get problematic,
+especially on tracking in which version something was added.
+Also, it was quite confusing to install from PyPI because pre-releases are not detected by default,
+forcing the users to run &lt;code&gt;pip install --pre sourmash&lt;/code&gt; for the latest version.&lt;/p&gt;
+&lt;!--
+A big part of the problem comes from attaching special meaning to versions.
+In the scientific context this shows up on having a new article describing the
+new version of the tool,
+--&gt;
+
+&lt;p&gt;Titus tweet:
+https://twitter.com/ctitusbrown/status/1108880702437646338&lt;/p&gt;
+&lt;p&gt;sourmash release: https://twitter.com/luizirber/status/1108846466502520832
+postmodernism https://twitter.com/luizirber/status/1108851897593556992
+technical debt: https://twitter.com/luizirber/status/1108850604175060992&lt;/p&gt;
+&lt;p&gt;conventional commits: https://www.conventionalcommits.org/en/v1.0.0-beta.2/
+https://www.conventionalcommits.org/en/v1.0.0-beta.2/#how-does-this-relate-to-semver&lt;/p&gt;
+&lt;p&gt;request process:
+https://github.com/request/request/issues/3142
+https://github.com/mikeal/merge-release&lt;/p&gt;
+&lt;p&gt;Notes on versioning and PRs
+https://github.com/dib-lab/sourmash/issues/655&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/101367104235280253"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1081729107170193408"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!--
+Heng Li on maintaining bioinformatics software
+http://lh3.github.io/2019/03/11/on-maintaining-bioinformatics-software
+--&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">luizirber</dc:creator><pubDate>Mon, 01 Apr 2019 12:00:00 -0300</pubDate><guid isPermaLink="false">tag:blog.luizirber.org,2019-04-01:/2019/04/01/releases/</guid><category>bioinformatics</category><category>sourmash</category></item><item><title>Oxidizing sourmash: incremental refactoring</title><link>https://blog.luizirber.org/2019/03/27/sourmash-refactoring/</link><description>&lt;p&gt;refactoring
+https://www.youtube.com/c/JonGjengset&lt;/p&gt;
+&lt;p&gt;Preparatory refactoring:
+http://www.cs.uni.edu/~wallingf/blog/archives/monthly/2019-04.html#e2019-04-04T16_40_30.htm&lt;/p&gt;
+&lt;p&gt;Enum vs box trait
+https://users.rust-lang.org/t/performance-implications-of-box-trait-vs-enum-delegation/11957&lt;/p&gt;
+&lt;p&gt;serde is black magic
+https://serde.rs/enum-representations.html#untagged&lt;/p&gt;
+&lt;p&gt;tech debt and refactoring X runway
+https://twitter.com/lpolovets/status/1110612794339004416&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">luizirber</dc:creator><pubDate>Wed, 27 Mar 2019 17:00:00 -0300</pubDate><guid isPermaLink="false">tag:blog.luizirber.org,2019-03-27:/2019/03/27/sourmash-refactoring/</guid><category>rust</category><category>sourmash</category><category>python</category></item><item><title>Scientific Rust #rust2019</title><link>https://blog.luizirber.org/2019/01/05/rust-2019/</link><description>&lt;p&gt;The Rust community requested feedback last year for where the language should go
 in 2018, and now they are running it again for 2019.
 Last year I was too new in Rust to organize a blog post,
 but after an year using it I feel more comfortable writing this!&lt;/p&gt;
@@ -181,12 +319,12 @@ and now that it was working I started looking into how to use the WebAssembly
 target in Rust.&lt;/p&gt;
 &lt;h2&gt;WebAssembly?&lt;/h2&gt;
 &lt;p&gt;From the &lt;a href="https://webassembly.org/"&gt;official site&lt;/a&gt;,&lt;/p&gt;
-&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;WebAssembly (abbreviated Wasm) is a binary
-instruction format for a stack-based
-virtual machine. Wasm is designed as a
-portable target for compilation of high-level
-languages like C/C++/Rust, enabling deployment
-on the web for client and server applications.
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=nv&gt;WebAssembly&lt;/span&gt; &lt;span class=ss&gt;(&lt;/span&gt;&lt;span class=nv&gt;abbreviated&lt;/span&gt; &lt;span class=nv&gt;Wasm&lt;/span&gt;&lt;span class=ss&gt;)&lt;/span&gt; &lt;span class=nv&gt;is&lt;/span&gt; &lt;span class=nv&gt;a&lt;/span&gt; &lt;span class=nv&gt;binary&lt;/span&gt;
+&lt;span class=nv&gt;instruction&lt;/span&gt; &lt;span class=nv&gt;format&lt;/span&gt; &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nv&gt;a&lt;/span&gt; &lt;span class=nv&gt;stack&lt;/span&gt;&lt;span class=o&gt;-&lt;/span&gt;&lt;span class=nv&gt;based&lt;/span&gt;
+&lt;span class=nv&gt;virtual&lt;/span&gt; &lt;span class=nv&gt;machine&lt;/span&gt;. &lt;span class=nv&gt;Wasm&lt;/span&gt; &lt;span class=nv&gt;is&lt;/span&gt; &lt;span class=nv&gt;designed&lt;/span&gt; &lt;span class=nv&gt;as&lt;/span&gt; &lt;span class=nv&gt;a&lt;/span&gt;
+&lt;span class=nv&gt;portable&lt;/span&gt; &lt;span class=nv&gt;target&lt;/span&gt; &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nv&gt;compilation&lt;/span&gt; &lt;span class=nv&gt;of&lt;/span&gt; &lt;span class=nv&gt;high&lt;/span&gt;&lt;span class=o&gt;-&lt;/span&gt;&lt;span class=nv&gt;level&lt;/span&gt;
+&lt;span class=nv&gt;languages&lt;/span&gt; &lt;span class=nv&gt;like&lt;/span&gt; &lt;span class=nv&gt;C&lt;/span&gt;&lt;span class=o&gt;/&lt;/span&gt;&lt;span class=nv&gt;C&lt;/span&gt;&lt;span class=o&gt;++/&lt;/span&gt;&lt;span class=nv&gt;Rust&lt;/span&gt;, &lt;span class=nv&gt;enabling&lt;/span&gt; &lt;span class=nv&gt;deployment&lt;/span&gt;
+&lt;span class=nv&gt;on&lt;/span&gt; &lt;span class=nv&gt;the&lt;/span&gt; &lt;span class=nv&gt;web&lt;/span&gt; &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nv&gt;client&lt;/span&gt; &lt;span class=nv&gt;and&lt;/span&gt; &lt;span class=nv&gt;server&lt;/span&gt; &lt;span class=nv&gt;applications&lt;/span&gt;.
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -2299,7 +2437,7 @@ do botão, ela chama uma URL...&lt;/p&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Opa. E se eu tentar acessar essa URL direto?&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;voto_v.php?votoStatus=1&amp;amp;cadastroId=98374&amp;amp;captcha=adb356
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;voto_v&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;php&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt;&lt;span class="n"&gt;votoStatus&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;cadastroId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;98374&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;captcha&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;adb356&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 

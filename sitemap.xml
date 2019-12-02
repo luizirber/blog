@@ -5,29 +5,57 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/</loc>
-<lastmod>2019-08-23T22:31:00-00:00</lastmod>
+<lastmod>2019-12-01T21:14:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/archives.html</loc>
-<lastmod>2019-08-23T22:31:00-00:00</lastmod>
+<lastmod>2019-12-01T21:14:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/tags.html</loc>
-<lastmod>2019-08-23T22:31:00-00:00</lastmod>
+<lastmod>2019-12-01T21:14:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/categories.html</loc>
-<lastmod>2019-08-23T22:31:00-00:00</lastmod>
+<lastmod>2019-12-01T21:14:43-00:00</lastmod>
 <changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://blog.luizirber.org/2019/12/01/rust-2020/</loc>
+<lastmod>2019-12-01T12:00:00-03:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://blog.luizirber.org/2019/04/01/phdware/</loc>
+<lastmod>2019-04-01T12:00:00-03:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://blog.luizirber.org/2019/04/01/releases/</loc>
+<lastmod>2019-04-01T12:00:00-03:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://blog.luizirber.org/2019/03/27/sourmash-refactoring/</loc>
+<lastmod>2019-03-27T17:00:00-03:00</lastmod>
+<changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
@@ -488,7 +516,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/category/science.html</loc>
-<lastmod>2019-01-05T17:00:00-03:06</lastmod>
+<lastmod>2019-12-01T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -509,21 +537,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/tag/bioinformatics.html</loc>
-<lastmod>2019-01-05T17:00:00-03:06</lastmod>
+<lastmod>2019-12-01T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/tag/rust.html</loc>
-<lastmod>2019-01-05T17:00:00-03:06</lastmod>
+<lastmod>2019-12-01T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/tag/sourmash.html</loc>
-<lastmod>2018-09-24T17:00:00-03:06</lastmod>
+<lastmod>2019-04-01T12:00:00-03:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://blog.luizirber.org/tag/python.html</loc>
+<lastmod>2019-03-27T17:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -545,13 +580,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>https://blog.luizirber.org/tag/webassembly.html</loc>
 <lastmod>2018-08-27T15:30:00-03:06</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>https://blog.luizirber.org/tag/python.html</loc>
-<lastmod>2018-08-23T17:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -761,7 +789,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/author/luizirber.html</loc>
-<lastmod>2019-01-05T17:00:00-03:06</lastmod>
+<lastmod>2019-12-01T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

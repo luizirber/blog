@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - Projetos</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="/feeds/projetos.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2008-09-30T05:14:00-03:00</updated><entry><title>#iphonedev-br</title><link href="https://blog.luizirber.org/2008/09/30/iphonedev-br/" rel="alternate"></link><published>2008-09-30T05:14:00-03:00</published><updated>2008-09-30T05:14:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-09-30:/2008/09/30/iphonedev-br/</id><summary type="html">&lt;p&gt;Buenas. Estava eu no #python-br quando o &lt;a href="http://elyezer.com/"&gt;Elyézer&lt;/a&gt; perguntou algo
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - Projetos</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/feeds/projetos.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2008-09-30T05:14:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>#iphonedev-br</title><link href="https://blog.luizirber.org/2008/09/30/iphonedev-br/" rel="alternate"></link><published>2008-09-30T05:14:00-03:00</published><updated>2008-09-30T05:14:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2008-09-30:/2008/09/30/iphonedev-br/</id><content type="html">&lt;p&gt;Buenas. Estava eu no #python-br quando o &lt;a href="http://elyezer.com/"&gt;Elyézer&lt;/a&gt; perguntou algo
 sobre Python e Objective-C. Indiquei o PyObjC, e ele perguntou se ele
 estava disponível no iPhone. Hmm, não está.&lt;/p&gt;
 &lt;p&gt;Mas achei mais alguém desenvolvendo pra iPhone!&lt;/p&gt;
@@ -9,17 +9,7 @@ estava disponível no iPhone. Hmm, não está.&lt;/p&gt;
 agruras do Objective C (que, na minha opinião, é beeeem melhor que C++
 ...), apareça no #iphonedev-br @ irc.freenode.org .&lt;/p&gt;
 &lt;p&gt;UPDATE: Se você não tem um cliente IRC instalado, o &lt;a href="http://mibbit.com/"&gt;mibbit&lt;/a&gt; pode te
-salvar. Dica do &lt;a href="http://ayharano.wordpress.com/"&gt;Frank&lt;/a&gt;!&lt;/p&gt;</summary><content type="html">&lt;p&gt;Buenas. Estava eu no #python-br quando o &lt;a href="http://elyezer.com/"&gt;Elyézer&lt;/a&gt; perguntou algo
-sobre Python e Objective-C. Indiquei o PyObjC, e ele perguntou se ele
-estava disponível no iPhone. Hmm, não está.&lt;/p&gt;
-&lt;p&gt;Mas achei mais alguém desenvolvendo pra iPhone!&lt;/p&gt;
-&lt;p&gt;Antes que ficasse off-topic demais pra #python-br, fomos para o canal
-#iphonedev-br no Freenode. E agora precisamos popularizá-lo!&lt;/p&gt;
-&lt;p&gt;Então, se você procura por um lugar em português para discutir as
-agruras do Objective C (que, na minha opinião, é beeeem melhor que C++
-...), apareça no #iphonedev-br @ irc.freenode.org .&lt;/p&gt;
-&lt;p&gt;UPDATE: Se você não tem um cliente IRC instalado, o &lt;a href="http://mibbit.com/"&gt;mibbit&lt;/a&gt; pode te
-salvar. Dica do &lt;a href="http://ayharano.wordpress.com/"&gt;Frank&lt;/a&gt;!&lt;/p&gt;</content><category term="brazil"></category><category term="dev"></category><category term="iphone"></category><category term="irc"></category></entry><entry><title>Um fim de semana produtivo</title><link href="https://blog.luizirber.org/2007/05/21/um-fim-de-semana-produtivo/" rel="alternate"></link><published>2007-05-21T00:17:00-03:00</published><updated>2007-05-21T00:17:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2007-05-21:/2007/05/21/um-fim-de-semana-produtivo/</id><summary type="html">&lt;p&gt;Um screenshot vale mais que mil palavras:&lt;/p&gt;
+salvar. Dica do &lt;a href="http://ayharano.wordpress.com/"&gt;Frank&lt;/a&gt;!&lt;/p&gt;</content><category term="brazil"></category><category term="dev"></category><category term="iphone"></category><category term="irc"></category></entry><entry><title>Um fim de semana produtivo</title><link href="https://blog.luizirber.org/2007/05/21/um-fim-de-semana-produtivo/" rel="alternate"></link><published>2007-05-21T00:17:00-03:00</published><updated>2007-05-21T00:17:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2007-05-21:/2007/05/21/um-fim-de-semana-produtivo/</id><content type="html">&lt;p&gt;Um screenshot vale mais que mil palavras:&lt;/p&gt;
 &lt;p&gt;&lt;img class="center" src="/images/bugbrother-stats.jpg" title=""Ignorem os vales, valorizem os picos!"" alt=""Ignorem os vales, valorizem os picos!""&gt;&lt;/p&gt;
 &lt;p&gt;Brinde: com preguiça de escrever aquele monte de macros e boilerplate
 pra declarar um GObject? Use o &lt;a href="http://www.5z.com/jirka/gob.html"&gt;gob&lt;/a&gt;! Aparentemente ele tá sem
@@ -31,53 +21,7 @@ que você analise interfaces gráficas construídas com GTK+. Basta passar
 o mouse em cima e ele indica nome, posição na memória, e se você olhar
 direitinho, mais um monte de propriedades.&lt;/p&gt;
 &lt;p&gt;Happy Hacking!&lt;/p&gt;
-&lt;p&gt;P.S: Esperem sentados pela segunda parte do relato do FISL.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Um screenshot vale mais que mil palavras:&lt;/p&gt;
-&lt;p&gt;&lt;img class="center" src="/images/bugbrother-stats.jpg" title=""Ignorem os vales, valorizem os picos!"" alt=""Ignorem os vales, valorizem os picos!""&gt;&lt;/p&gt;
-&lt;p&gt;Brinde: com preguiça de escrever aquele monte de macros e boilerplate
-pra declarar um GObject? Use o &lt;a href="http://www.5z.com/jirka/gob.html"&gt;gob&lt;/a&gt;! Aparentemente ele tá sem
-desenvolvimento ativo a algum tempo, mas funciona bem. Mas é claro que
-você vai escrever o código direitinho quando tiver tempo, certo? ;-D&lt;/p&gt;
-&lt;p&gt;Outro software interessantíssimo: &lt;a href="http://sourceforge.net/projects/g-inspector"&gt;G-Inspector&lt;/a&gt;. Esse faz mais tempo
-ainda que tá sem desenvolvimento, mas também funciona muito bem. Permite
-que você analise interfaces gráficas construídas com GTK+. Basta passar
-o mouse em cima e ele indica nome, posição na memória, e se você olhar
-direitinho, mais um monte de propriedades.&lt;/p&gt;
-&lt;p&gt;Happy Hacking!&lt;/p&gt;
-&lt;p&gt;P.S: Esperem sentados pela segunda parte do relato do FISL.&lt;/p&gt;</content></entry><entry><title>BugBrother</title><link href="https://blog.luizirber.org/2006/10/31/bugbrother/" rel="alternate"></link><published>2006-10-31T22:44:00-03:00</published><updated>2006-10-31T22:44:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-10-31:/2006/10/31/bugbrother/</id><summary type="html">&lt;p&gt;&lt;a href="http://sourceforge.net/projects/bugbrother"&gt;BugBrother&lt;/a&gt; é o protótipo (ou melhor, versão de desenvolvimento) do
-programa que eu estou desenvolvendo na &lt;a href="http://www.cnpdia.embrapa.br/"&gt;Embrapa&lt;/a&gt;, o &lt;a href="http://repositorio.agrolivre.gov.br/projects/sacam"&gt;SACAM&lt;/a&gt;, que
-significa Sistema de Análise Comportamental de Animais em Movimento. Sua
-função, agora que a sigla é conhecida, é um tanto óbvia: Consiste em
-capturar imagens de uma entrada de vídeo e aplicar algoritmos de
-detecção de movimento, a fim de guardar uma trilha do movimento
-realizado pelo animal. A partir dessa trilha e após definir áreas numa
-imagem de referência é possível reportar estatísticas úteis para
-estudos, realizados geralmente por entomólogos. O experimento básico
-feito por eles é realizado com o auxílio de um olfatômetro em forma de
-Y, onde o inseto é liberado no pé do Y e nas outras duas extremidades
-são liberados feromônios ou outras substâncias. As estatísticas geradas
-são úteis no estudo de novas armadilhas químicas para insetos, muito
-menos danosas do que agrotóxicos.O funcionamento básico do programa
-passa por essas etapas:  &lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Capturar a imagem de uma entrada de vídeo (atualmente qualquer
-dispositivo compatível com Video4Linux)  &lt;/li&gt;
-&lt;li&gt;Aplicar um algoritmo de detecção de movimento e guardar as
-coordenadas (X,Y) geradas pelo movimento detectado.  &lt;/li&gt;
-&lt;li&gt;A partir dessas coordenadas calcular parâmetros como tortuosidade,
-desvio angular e velocidade do inseto analisado.  &lt;/li&gt;
-&lt;li&gt;Gerar relatórios.  &lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Atualmente os dois primeiros itens estão funcionais, o terceiro está
-próximo de ser terminado e o último começará a ser desenvolvido na
-próxima semana.&lt;/p&gt;
-&lt;p&gt;Um ponto que possa ter causado interesse: digo que é o protótipo pois no
-momento ele está sendo desenvolvido usando &lt;a href="http://www.python.org"&gt;Python&lt;/a&gt; + &lt;a href="http://www.pygtk.org"&gt;PyGTK&lt;/a&gt; +
-&lt;a href="http://www.gstreamer.org"&gt;GStreamer&lt;/a&gt;. Devido a problemas de desempenho (principalmente em
-relação ao algoritmo de detecção) ele será implementado novamente, em C
-+ &lt;a href="http://www.gtk.org"&gt;GTK+&lt;/a&gt; + &lt;a href="http://www.gstreamer.org"&gt;GStreamer&lt;/a&gt;, após a conclusão e avaliação do protótipo. O
-que é uma pena, pois do ponto de vista de clareza de código e
-reaproveitamento será um retrocesso. Mas a vida não é sempre o que a
-gente quer =D&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;a href="http://sourceforge.net/projects/bugbrother"&gt;BugBrother&lt;/a&gt; é o protótipo (ou melhor, versão de desenvolvimento) do
+&lt;p&gt;P.S: Esperem sentados pela segunda parte do relato do FISL.&lt;/p&gt;</content></entry><entry><title>BugBrother</title><link href="https://blog.luizirber.org/2006/10/31/bugbrother/" rel="alternate"></link><published>2006-10-31T22:44:00-03:00</published><updated>2006-10-31T22:44:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-10-31:/2006/10/31/bugbrother/</id><content type="html">&lt;p&gt;&lt;a href="http://sourceforge.net/projects/bugbrother"&gt;BugBrother&lt;/a&gt; é o protótipo (ou melhor, versão de desenvolvimento) do
 programa que eu estou desenvolvendo na &lt;a href="http://www.cnpdia.embrapa.br/"&gt;Embrapa&lt;/a&gt;, o &lt;a href="http://repositorio.agrolivre.gov.br/projects/sacam"&gt;SACAM&lt;/a&gt;, que
 significa Sistema de Análise Comportamental de Animais em Movimento. Sua
 função, agora que a sigla é conhecida, é um tanto óbvia: Consiste em

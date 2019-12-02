@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>"Walkthrough: Fixing a bug in khmer"</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>"Walkthrough: Fixing a bug in khmer"</h1>
+
+    <time class="single" datetime="2015-09-25T12:00:00-03:00">25 Sep 2015</time>
+
+    <p>The annoying thing about users is:
+they will find ways to break your beautiful software.</p>
+<p>A recent <a href="https://github.com/dib-lab/khmer/issues/1305">issue</a> broke (horribly) some code I wrote,
+so it's up to me to go dig the problem and solve it.
+Luckily it is a well written issue,
+showing how to reproduce the problem.</p>
+<p>First step: add a test reproducing the problem,
+so we can catch it if it happens again.
+<!-- TODO: paste link to commit? --></p>
+<p>We use [nose][4] to run our test cases,
+and there is an option to run only one test:</p>
+<div class="highlight"><pre><span></span>python setup.py nosetests --tests tests.test_hll:test_unique_kemrs_empty_stream
+</pre></div>
+
+
+<p>And our test reproduce the problem, yay!</p>
+<div class="highlight"><pre><span></span><span class="o">======================================================================</span>
+FAIL: tests.test_streaming_io.test_unique_kmers_empty_stream
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+  File <span class="s2">&quot;/home/chick/.virtualenvs/khmer_34/lib/python3.4/site-packages/nose/case.py&quot;</span>, line <span class="m">198</span>, in runTest
+    self.test<span class="o">(</span>*self.arg<span class="o">)</span>
+  File <span class="s2">&quot;/home/chick/cloud/msu/khmer-master/tests/test_streaming_io.py&quot;</span>, line <span class="m">552</span>, in test_unique_kmers_empty_stream
+    <span class="o">(</span>status, out, err<span class="o">)</span> <span class="o">=</span> run_shell_cmd<span class="o">(</span>cmd<span class="o">)</span>
+  File <span class="s2">&quot;/home/chick/cloud/msu/khmer-master/tests/khmer_tst_utils.py&quot;</span>, line <span class="m">207</span>, in run_shell_cmd
+    raise AssertionError<span class="o">(</span><span class="s2">&quot;exit code is non zero: %d&quot;</span> % p.returncode<span class="o">)</span>
+nose.proxy.AssertionError: <span class="nb">exit</span> code is non zero: <span class="m">134</span>
+-------------------- &gt;&gt; begin captured stdout &lt;&lt; ---------------------
+running:  cat &lt; /dev/null <span class="p">|</span> /home/chick/cloud/msu/khmer-master/tests/../scripts/unique-kmers.py -k <span class="m">20</span> -
+out:
+err: terminate called without an active exception
+Aborted
+
+
+--------------------- &gt;&gt; end captured stdout &lt;&lt; ----------------------
+
+----------------------------------------------------------------------
+</pre></div>
+
+
+<p>Now, let's fix it.
+The error message suggests the C++ code threw an exception,
+it wasn't captured and so the runtime aborted.
+The test is using the <code>run_shell_cmd</code> function to execute the command in a new process,
+so we are unable to track down what is happening.</p>
+<p>Since we can't detect the problem on the Python level,
+we'll use a debugger (GDB) to track the error.
+But it is not so simple:
+there is no easy way of piping input to a process inside GDB.
+Luckily,
+there is <a href="http://stackoverflow.com/questions/21814947/using-gdb-with-piped-input-without-creating-file">gdbserver</a>:
+we can use it to initialize the process,
+and then connect with GDB to debug it!
+In one terminal, run</p>
+<div class="highlight"><pre><span></span>cat &lt; /dev/null <span class="p">|</span> gdbserver :2345 python <span class="k">$(</span>which unique-kmers.py<span class="k">)</span> -k <span class="m">20</span> -
+</pre></div>
+
+
+<p>and then in another one,
+let's run GDB and connect:</p>
+<div class="highlight"><pre><span></span>gdb python
+</pre></div>
+
+
+<p><a href="https://github.com/dib-lab/khmer/pull/1306">PR</a>
+<a href="http://linux.die.net/man/1/gdbserver">gdbserver man page</a></p>
+<p>[4]: <nose link></p>
+
+    <div class="taglist"></div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

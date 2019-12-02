@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Scientific Rust #rust2020</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Scientific Rust #rust2020</h1>
+
+    <time class="single" datetime="2019-12-01T12:00:00-03:00">01 Dec 2019</time>
+
+    <p>In January I wrote a <a href="https://blog.luizirber.org/2019/01/05/rust-2019/">post</a> for the Rust 2019 call for blogs.
+The <a href="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html">2020 call</a> is aiming for an RFC and roadmap earlier this time,
+so here is my 2020 post =]</p>
+<h3>Last call review: what happened?</h3>
+<h4>An attribute proc-macro like <code>#[wasm_bindgen]</code> but for FFI</h4>
+<p>This sort of happened... because WebAssembly is growing =]</p>
+<p>I was very excited when <a href="https://hacks.mozilla.org/2019/08/webassembly-interface-types/">Interface Types</a> showed up in August,
+and while it is still very experimental it is moving fast and bringing saner
+paths for interoperability than raw C FFIs.
+David Beazley even point this at the end of his <a href="https://www.youtube.com/watch?v=r-A78RgMhZU">PyCon India keynote</a>,
+talking about how easy is to get information out of a WebAssembly module
+compared to what had to be done for SWIG.</p>
+<p>This doesn't solve the problem where strict C compatibility is required,
+or for platforms where a WebAssembly runtime is not available,
+but I think it is a great solution for scientific software
+(or, at least, for my use cases =]).</p>
+<h4>"More -sys and Rust-like crates for interoperability with the larger ecosystems" and "More (bioinformatics) tools using Rust!"</h4>
+<p>I did some of those this year (<a href="https://crates.io/crates/bbhash-sys">bbhash-sys</a> and <a href="https://crates.io/crates/mqf">mqf</a>),
+and also found some great crates to use in my projects.
+Rust is picking up steam in bioinformatics,
+being used as the primary choice for high quality software
+(like <a href="https://varlociraptor.github.io/">varlociraptor</a>, 
+or the many coming from <a href="https://github.com/10XGenomics/">10X Genomics</a>)
+but it is still somewhat hard to find more details
+(I mostly find it on Twitter,
+and sometime Google Scholar alerts).
+It would be great to start bringing this info together,
+which leads to...</p>
+<h4>"A place to find other scientists?"</h4>
+<p>Hey, this one happened! <a href="https://twitter.com/algo_luca/status/1081966759048028162">Luca Palmieri</a> started a conversation on <a href="">reddit</a> and
+the <a href="https://discord.gg/EXTSq4v">#science-and-ai</a> Discord channel on the Rust community server was born!
+I think it works pretty well,
+and Luca also has being doing a great job running <a href="https://github.com/LukeMathWalker/ndarray-koans">workshops</a>
+and guiding the conversation around <a href="https://github.com/rust-ml/discussion">rust-ml</a>.</p>
+<p>https://www.reddit.com/r/rust/comments/ae77gt/scientific_computingmachine_learning_do_we_want_a/</p>
+<h2>Rust 2021: Interoperability</h2>
+<p>Rust is amazing because it is very good at bringing many concepts and ideas that
+seem contradictory at first,
+but can really shine when <a href="https://rust-lang.github.io/rustconf-2018-keynote/#127">synthesized</a>.
+But can we share this combined wisdom and also improve the situation in other
+places too?
+Despite the "Rewrite it in Rust" meme,
+increased interoperability is something that is already driving a lot of the
+best aspects of Rust:</p>
+<ul>
+<li>
+<p>Interoperability with other languages: as I said before,
+  with WebAssembly (and Rust being having the best toolchain for it)
+  there is a clear route to achieve this,
+  but it will not replace all the software that already exist and can benefit
+  from FFI and C compatibility.
+  Bringing together developers from the many language specific binding
+  generators (<a href="https://github.com/tildeio/helix">helix</a>, <a href="https://github.com/neon-bindings/neon">neon</a>, <a href="https://github.com/rusterlium/rustler">rustler</a>, <a href="https://github.com/PyO3/pyo3">PyO3</a>...) and figuring out what's missing from
+  them (or what is the common parts that can be shared) also seems productive.</p>
+</li>
+<li>
+<p>Interoperability with new and unexplored domains.
+  I think Rust benefits enormously from not focusing only in one domain,
+  and choosing to prioritize CLI, WebAssembly, Networking and Embedded is a good
+  subset to start tackling problems,
+  but how to guide other domains to also use Rust and come up with new
+  contributors and expose missing pieces of the larger picture?</p>
+</li>
+</ul>
+<p>Another point extremely close to interoperability is training.
+A great way to interoperate with other languages and domains is having good
+documentation and material from transitioning into Rust without having to figure
+everything at once.
+Rust documentation is already amazing,
+especially considering the many books published by each working group.
+But... there is a gap on the transitions,
+both from understanding the basics of the language and using it,
+to the progression from beginner to intermediate and expert.</p>
+<p>I see good resources for <a href="https://github.com/yoshuawuyts/rust-for-js-people">JavaScript</a> and <a href="https://github.com/rochacbruno/py2rs">Python</a> developers,
+but we are still covering a pretty small niche:
+programmers curious enough to go learn another language,
+or looking for solutions for problems in their current language.</p>
+<p>Can we bring more people into Rust?
+<a href="https://rustbridge.com/">RustBridge</a> is obviously the reference here,
+but there is space for much,
+much more.
+Using Rust in <a href="https://carpentries.org/">The Carpentries</a> lessons?
+Creating <code>RustOpenSci</code>,
+mirroring the communities of practice of <a href="https://ropensci.org/about/">rOpenSci</a> and <a href="https://www.pyopensci.org/">pyOpenSci</a>?</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="https://social.lasanha.org/@luizirber/">Thread on Mastodon</a></li>
+<li><a href="https://twitter.com/luizirber/status/">Thread on Twitter</a></li>
+</ul>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/bioinformatics.html">bioinformatics</a>
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Science and the decentralized web - Managing signature collections using dat</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Science and the decentralized web - Managing signature collections using dat</h1>
+
+    <time class="single" datetime="2018-08-02T12:00:00-03:00">02 Aug 2018</time>
+
+    <p>dat is pretty exciting because the main use case, easily sharing files with
+other people, fits very well in a scientific workflow. On top of that,
+the <a href="https://www.beakerbrowser.com/">Beaker browser</a> is a nice demo of what a browser with dat built-in looks
+like, and it's pretty cool to have easy forking and editing of websites (with
+integrated versioning and everything).</p>
+<p>For this PoC I want to use the same UI for drag and dropping sequence data and
+calculating the signatures, but allow the user to save the signatures in a dat
+archive. This is similar to how <a href="https://github.com/beakerbrowser/fritter">Fritter</a> and <a href="https://github.com/Rotonde/rotonde-client">Rotonde</a> save the user
+profiles, and it's nice because it allows a separation between the UI and the
+data (so when new updates to the UI are available, the data still works just
+fine). The alternative would be to put everything in the same dat archive, but
+then users would need to 'upgrade' the dat archive themselves when new UI
+versions are available.</p>
+<h2>How did it go?</h2>
+<p>My initial plan was to run it all thru Beaker, but due to wasm-bindgen using
+the BigInt JS spec and electron 2.x (a Beaker dependency) being on Chromium 61
+I can't test it there yet...
+<sup id=sf-science-dweb-dat-1-back><a href=#sf-science-dweb-dat-1 class=simple-footnote title="I even tried to cross my fingers and build Beaker with electron 3 (currently on beta), but wouldn't be that useful because electron 3 is at Chromium 66...">1</a></sup></p>
+<p>Trying to do something on a regular browser it is, then. Turns out that <a href="https://github.com/datproject/dat-js/issues/5">dat-js</a>
+is out of date and there is no clear way to use <code>dat</code> (there are suggestions for
+using <a href="https://github.com/mafintosh/hyperdrive/issues/166">hyperdrive</a> directly, but it needs a <code>dat-gateway</code> to be able to
+access the network, which is clumsy and kind of defeats the purpose of the
+no-server part). There is a <a href="https://blog.datproject.org/2018/05/14/dat-shopping-list/">good demo</a> showing how to do that, but at this
+point I think I'll let the idea floating some more and wait for a newer Chromium
+on Beaker.</p><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-science-dweb-dat-1><p>I even tried to cross my fingers and build Beaker with electron 3
+(currently on beta), but wouldn't be that useful because electron 3 is at
+Chromium 66... <a href=#sf-science-dweb-dat-1-back class=simple-footnote-back>↩</a></p></li></ol></section>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/dweb.html">dweb</a>
+    <a href="https://blog.luizirber.org/tag/ipfs.html">ipfs</a>
+    <a href="https://blog.luizirber.org/tag/dat.html">dat</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

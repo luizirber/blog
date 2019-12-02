@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Science and the decentralized web - Using IPFS to calculate signatures from GenBank</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Science and the decentralized web - Using IPFS to calculate signatures from GenBank</h1>
+
+    <time class="single" datetime="2018-08-02T12:00:00-03:00">02 Aug 2018</time>
+
+    <p>I presented a <a href="https://github.com/luizirber/2017-recomb/blob/master/03.sharing.md">poster</a> at RECOMB 2017 about using IPFS for distributing the
+sourmash search indexes, but also discussed a bit about sharing public genomic
+data databases in IPFS<sup id=sf-science-dweb-ipfs-1-back><a href=#sf-science-dweb-ipfs-1 class=simple-footnote title=" ">1</a></sup></p><hr>
+Sharing datasets in IPFS<p></p>
+<p>IPFS is a content-addressable storage,
+meaning that a file will always have the same multihash value (and so,
+the same address in the network),
+as long as the content is the same.
+This can change how databases and archives (like the SRA) are offered and implemented,
+since users can collaborate by choosing to share subsets of the archive and spread the network bandwidth.
+More importantly,
+it avoids the central point of failure,
+while still allowing for curation and quality assurance of the data.</p>
+<p>A common way of interacting with the SRA is using the SRA Toolkit,
+which generates a local cache.
+By indexing their local caches and sharing on IPFS,
+other users can download data directly from peers,
+decreasing the load on the central SRA servers.
+If the <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3129670/">central repository is not available</a>,
+the data can still be found by connecting to peers instead.
+SRA submission guidelines can also be updated to require that each submission is available for a period of time on the submitter IPFS node after it is accepted,
+to increase redundancy and help seed the content to other users.
+</p><hr>
+. This is not a trivial problem, because:<p></p>
+<ul>
+<li>
+<p>The SRA is growing more and more every day, so just keeping up is already a
+  challenge.
+  <a href="https://speakerdeck.com/benlangmead/using-huge-public-sequencing-datasets-to-answer-scientific-questions-1?slide=6"><img class=center src="/images/sra_growth.png" title="'Up and up we go!'" alt="'Up and up we go!'"></a>
+  From Ben Langmead tutorial, "Using huge public sequencing datasets to answer scientific questions".</p>
+</li>
+<li>
+<p>IPFS is still an experimental technology, so asking NCBI to support nodes
+  officialy is very unlikely to be a positive answer (and, let's be fair, they
+  can't accept to maintain every single thing that shows up).</p>
+</li>
+</ul>
+<p>Nonetheless, it would be super cool to have a way to bootstrap the process of
+accessing these public databases on the decentralized web.</p>
+<h2>Finding allies</h2>
+<p>Back in March I sent this email to <a href="https://github.com/rffrancon">Robyn Ffrancon</a>, after seeing a thread
+he posted last year in the <a href="https://discuss.ipfs.io/t/addressing-petabytes-of-genetic-data-with-ipfs/1471">IPFS forums</a>:</p>
+<p></p><hr>
+Hello Robyn!<p></p>
+<p>You were faster than me and sent the DM, but I totally missed <a href="https://discuss.ipfs.io/t/addressing-petabytes-of-genetic-data-with-ipfs/1471">this thread</a>
+in the IPFS discourse when it showed up but finally saw it Thursday, and I may
+have some plans =]</p>
+<p>I presented <a href="https://github.com/luizirber/2017-recomb/blob/master/poster/poster.pdf">a poster</a> last year at RECOMB (and no one was interested in
+the <a href="https://github.com/luizirber/2017-recomb/blob/master/poster/poster.pdf">SRA in IPFS</a> part =/ ), but for my use cases there is a lot of value
+in having these big public databases available on IPFS (but I'm sure you know
+this =] ).</p>
+<p>While the people that replied were skeptical, I was thinking along the lines
+of <a href="https://discuss.ipfs.io/t/addressing-petabytes-of-genetic-data-with-ipfs/1471/3">your solution</a>, with a few extra things:</p>
+<ul>
+<li>
+<p>metadata-only nodes. One thing I would love to have is a good directory
+structure -&gt; multihash mapping for the ENA/SRA (preferably with IPFS semantics),
+but right now something like this is hard (impossible?) to maintain, since the
+data need to be republished in the DHT periodically. It would be great to have
+some kind of support from IPFS to do this, but I can see why the main project
+wouldn't see this as useful for their goals. This would be similar to your step 5.</p>
+</li>
+<li>
+<p>HTTP proxies/HTTP filestore: I checked the implementation of the Filestore
+some time ago, and it is pretty much a mapping to a file + offset covered by
+the each block. Seems like it would be ~easy to convert to an URL + content range.
+This would be similar to step 6.</p>
+</li>
+</ul>
+<p>With these two things, I think it would be possible to start a node locally
+and be able to download data from the ENA/SRA without having another proxy.
+It would be slower than a direct download, but:
+- would work as a nice PoC
+- doesn't depend on the ENA/SRA maintainers having to deploy anything on their side
+- still benefits from IPFS peers if they have the data too, because we are
+following the IPFS semantics</p>
+<p>And, given that there are people (like us) that have better connections,
+another possibility is for us to deploy a 'backbone' to keep this data
+accessible on IPFS, or even making partial caches of the ENA/SRA data.</p>
+<p>I would love to work together on a PoC for this, or help with any efforts you
+already have in this front. And super happy to see more people thinking about
+these solutions =]</p>
+<p>Cheers,
+Luiz
+</p><hr><p></p>
+<h2>Better than sliced bread: <code>urlstore</code></h2>
+<p><a href="https://github.com/ipfs/go-ipfs/releases/tag/v0.4.17"><code>go-ipfs 0.4.17</code></a> was released this week, and when I saw the release notes
+I was ecstatic: an <a href="https://github.com/ipfs/go-ipfs/blob/master/docs/experimental-features.md#ipfs-urlstore">urlstore</a> experimental feature was added! It extends
+the <code>filestore</code> to contain an URL pointing to some remote data (the HTTP
+proxy/HTTP filestore part of what I described) and it doesn't cache blocks
+locally after calculating the IPFS hash (which is an implementation limitation
+for now, but it ends up being pretty much the metadata-only node I described).</p>
+<h2>The demo</h2>
+<p>For this demo I'm reusing the <a href="https://github.com/ipfs/js-ipfs/blob/master/examples/exchange-files-in-browser/README.md">exchange files in browser</a> example code from
+JS-IPFS<sup id=sf-science-dweb-ipfs-2-back><a href=#sf-science-dweb-ipfs-2 class=simple-footnote title="which already gives me a way prettier UI than what I had before!">2</a></sup>, but instead of uploading the file to IPFS I'll be calculating a
+sourmash signature instead. Just as the example code, you can drag and drop a
+file from your computer, or also paste a multihash (an IPFS address) to download
+it from IPFS and calculate the signature locally.</p>
+<p>For extra awesomeness, I also added a few GenBank datasets to an IPFS node running
+somewhere else with the <code>urlstore</code> feature enabled.</p><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-science-dweb-ipfs-1><p>
+ <a href=#sf-science-dweb-ipfs-1-back class=simple-footnote-back>↩</a></p></li><li id=sf-science-dweb-ipfs-2><p>which already gives me a way prettier UI than what I had
+before! <a href=#sf-science-dweb-ipfs-2-back class=simple-footnote-back>↩</a></p></li></ol></section>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/dweb.html">dweb</a>
+    <a href="https://blog.luizirber.org/tag/ipfs.html">ipfs</a>
+    <a href="https://blog.luizirber.org/tag/dat.html">dat</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - Curioso</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="/feeds/curioso.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2006-11-07T23:25:00-02:00</updated><entry><title>Orkut + GTalk?</title><link href="https://blog.luizirber.org/2006/11/07/orkut-gtalk/" rel="alternate"></link><published>2006-11-07T23:25:00-02:00</published><updated>2006-11-07T23:25:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-07:/2006/11/07/orkut-gtalk/</id><summary type="html">&lt;p&gt;Tava navegando no orkut hoje e percebi, graças ao flashblock, que tinha
-algum flash sendo carregado. Peraí, flash no orkut? Essa é nova.&lt;/p&gt;
-&lt;p&gt;Aí fui dar uma olhada no código da página, e achei isso:&lt;br&gt;
-&lt;a href="http://www.orkut.com/GoogleTalkSignup.aspx"&gt;http://www.orkut.com/GoogleTalkSignup.aspx&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Pra quem não quiser acessar, taí o screenshot:&lt;/p&gt;
-&lt;p&gt;&lt;img class="center" src="/images/screenshot-orkut-google-talk-firefox.png"&gt;&lt;/p&gt;
-&lt;p&gt;Agora sim as coisas começam a ficar interessantes...&lt;/p&gt;</summary><content type="html">&lt;p&gt;Tava navegando no orkut hoje e percebi, graças ao flashblock, que tinha
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - Curioso</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/feeds/curioso.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2006-11-07T23:25:00-02:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Orkut + GTalk?</title><link href="https://blog.luizirber.org/2006/11/07/orkut-gtalk/" rel="alternate"></link><published>2006-11-07T23:25:00-02:00</published><updated>2006-11-07T23:25:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-07:/2006/11/07/orkut-gtalk/</id><content type="html">&lt;p&gt;Tava navegando no orkut hoje e percebi, graças ao flashblock, que tinha
 algum flash sendo carregado. Peraí, flash no orkut? Essa é nova.&lt;/p&gt;
 &lt;p&gt;Aí fui dar uma olhada no código da página, e achei isso:&lt;br&gt;
 &lt;a href="http://www.orkut.com/GoogleTalkSignup.aspx"&gt;http://www.orkut.com/GoogleTalkSignup.aspx&lt;/a&gt;&lt;/p&gt;
