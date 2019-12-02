@@ -28,12 +28,11 @@ and sometime Google Scholar alerts).
 It would be great to start bringing this info together,
 which leads to...&lt;/p&gt;
 &lt;h4&gt;"A place to find other scientists?"&lt;/h4&gt;
-&lt;p&gt;Hey, this one happened! &lt;a href="https://twitter.com/algo_luca/status/1081966759048028162"&gt;Luca Palmieri&lt;/a&gt; started a conversation on &lt;a href=""&gt;reddit&lt;/a&gt; and
+&lt;p&gt;Hey, this one happened! &lt;a href="https://twitter.com/algo_luca/status/1081966759048028162"&gt;Luca Palmieri&lt;/a&gt; started a conversation on &lt;a href="https://www.reddit.com/r/rust/comments/ae77gt/scientific_computingmachine_learning_do_we_want_a/"&gt;reddit&lt;/a&gt; and
 the &lt;a href="https://discord.gg/EXTSq4v"&gt;#science-and-ai&lt;/a&gt; Discord channel on the Rust community server was born!
 I think it works pretty well,
 and Luca also has being doing a great job running &lt;a href="https://github.com/LukeMathWalker/ndarray-koans"&gt;workshops&lt;/a&gt;
 and guiding the conversation around &lt;a href="https://github.com/rust-ml/discussion"&gt;rust-ml&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;https://www.reddit.com/r/rust/comments/ae77gt/scientific_computingmachine_learning_do_we_want_a/&lt;/p&gt;
 &lt;h2&gt;Rust 2021: Interoperability&lt;/h2&gt;
 &lt;p&gt;Rust is amazing because it is very good at bringing many concepts and ideas that
 seem contradictory at first,
@@ -85,8 +84,8 @@ Creating &lt;code&gt;RustOpenSci&lt;/code&gt;,
 mirroring the communities of practice of &lt;a href="https://ropensci.org/about/"&gt;rOpenSci&lt;/a&gt; and &lt;a href="https://www.pyopensci.org/"&gt;pyOpenSci&lt;/a&gt;?&lt;/p&gt;
 &lt;h2&gt;Comments?&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/103236549475802733"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1201373423592562690"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>Scientific Rust #rust2019</title><link href="https://blog.luizirber.org/2019/01/05/rust-2019/" rel="alternate"></link><published>2019-01-05T17:00:00-02:00</published><updated>2019-01-05T17:00:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-01-05:/2019/01/05/rust-2019/</id><content type="html">&lt;p&gt;The Rust community requested feedback last year for where the language should go
 in 2018, and now they are running it again for 2019.
 Last year I was too new in Rust to organize a blog post,
