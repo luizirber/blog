@@ -87,57 +87,7 @@ mirroring the communities of practice of &lt;a href="https://ropensci.org/about/
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>on PhDware</title><link href="https://blog.luizirber.org/2019/04/01/phdware/" rel="alternate"></link><published>2019-04-01T12:00:00-03:00</published><updated>2019-04-01T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-04-01:/2019/04/01/phdware/</id><content type="html">&lt;p&gt;https://twitter.com/psteinb_/status/1200429807940571140&lt;/p&gt;
-&lt;p&gt;"The previous PhD student used a self-developed code. I have managed to get
-the code(s), however, it is not working and gives multiple errors when I try."&lt;/p&gt;
-&lt;h1&gt;StopPhDWare Students and scientists need training in coding etc to mitigate&lt;/h1&gt;
-&lt;p&gt;time sinks like the above. #reproducibility&lt;/p&gt;</content><category term="bioinformatics"></category><category term="sourmash"></category></entry><entry><title>Every PR as a release</title><link href="https://blog.luizirber.org/2019/04/01/releases/" rel="alternate"></link><published>2019-04-01T12:00:00-03:00</published><updated>2019-04-01T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-04-01:/2019/04/01/releases/</id><content type="html">&lt;p&gt;Last month we finally released sourmash 2.0 (yay!),
-after more than an year of &lt;a href="https://twitter.com/ctitusbrown/status/1009495554974289920"&gt;alpha releases&lt;/a&gt;.
-Not committing to a final release was starting to get problematic,
-especially on tracking in which version something was added.
-Also, it was quite confusing to install from PyPI because pre-releases are not detected by default,
-forcing the users to run &lt;code&gt;pip install --pre sourmash&lt;/code&gt; for the latest version.&lt;/p&gt;
-&lt;!--
-A big part of the problem comes from attaching special meaning to versions.
-In the scientific context this shows up on having a new article describing the
-new version of the tool,
---&gt;
-
-&lt;p&gt;Titus tweet:
-https://twitter.com/ctitusbrown/status/1108880702437646338&lt;/p&gt;
-&lt;p&gt;sourmash release: https://twitter.com/luizirber/status/1108846466502520832
-postmodernism https://twitter.com/luizirber/status/1108851897593556992
-technical debt: https://twitter.com/luizirber/status/1108850604175060992&lt;/p&gt;
-&lt;p&gt;conventional commits: https://www.conventionalcommits.org/en/v1.0.0-beta.2/
-https://www.conventionalcommits.org/en/v1.0.0-beta.2/#how-does-this-relate-to-semver&lt;/p&gt;
-&lt;p&gt;request process:
-https://github.com/request/request/issues/3142
-https://github.com/mikeal/merge-release&lt;/p&gt;
-&lt;p&gt;Notes on versioning and PRs
-https://github.com/dib-lab/sourmash/issues/655&lt;/p&gt;
-&lt;h2&gt;Comments?&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/101367104235280253"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1081729107170193408"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;!--
-Heng Li on maintaining bioinformatics software
-http://lh3.github.io/2019/03/11/on-maintaining-bioinformatics-software
---&gt;</content><category term="bioinformatics"></category><category term="sourmash"></category></entry><entry><title>Oxidizing sourmash: incremental refactoring</title><link href="https://blog.luizirber.org/2019/03/27/sourmash-refactoring/" rel="alternate"></link><published>2019-03-27T17:00:00-03:00</published><updated>2019-03-27T17:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-03-27:/2019/03/27/sourmash-refactoring/</id><content type="html">&lt;p&gt;refactoring
-https://www.youtube.com/c/JonGjengset&lt;/p&gt;
-&lt;p&gt;Preparatory refactoring:
-http://www.cs.uni.edu/~wallingf/blog/archives/monthly/2019-04.html#e2019-04-04T16_40_30.htm&lt;/p&gt;
-&lt;p&gt;Enum vs box trait
-https://users.rust-lang.org/t/performance-implications-of-box-trait-vs-enum-delegation/11957&lt;/p&gt;
-&lt;p&gt;serde is black magic
-https://serde.rs/enum-representations.html#untagged&lt;/p&gt;
-&lt;p&gt;tech debt and refactoring X runway
-https://twitter.com/lpolovets/status/1110612794339004416&lt;/p&gt;
-&lt;h2&gt;Comments?&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="rust"></category><category term="sourmash"></category><category term="python"></category></entry><entry><title>Scientific Rust #rust2019</title><link href="https://blog.luizirber.org/2019/01/05/rust-2019/" rel="alternate"></link><published>2019-01-05T17:00:00-02:00</published><updated>2019-01-05T17:00:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-01-05:/2019/01/05/rust-2019/</id><content type="html">&lt;p&gt;The Rust community requested feedback last year for where the language should go
+&lt;/ul&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>Scientific Rust #rust2019</title><link href="https://blog.luizirber.org/2019/01/05/rust-2019/" rel="alternate"></link><published>2019-01-05T17:00:00-02:00</published><updated>2019-01-05T17:00:00-02:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-01-05:/2019/01/05/rust-2019/</id><content type="html">&lt;p&gt;The Rust community requested feedback last year for where the language should go
 in 2018, and now they are running it again for 2019.
 Last year I was too new in Rust to organize a blog post,
 but after an year using it I feel more comfortable writing this!&lt;/p&gt;
