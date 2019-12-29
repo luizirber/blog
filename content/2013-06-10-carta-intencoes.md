@@ -28,7 +28,7 @@ time jogando (e acredite, para uma criança não tem nada melhor que ver
 seu time papando todos os campeonatos), a epifania só veio mesmo na copa
 de 98.
 
-28 de junho de 2008. Domingão, e meus pais foram em algum almoço no
+28 de junho de 1998. Domingão, e meus pais foram em algum almoço no
 interior. Eu ainda morava em São Martinho, e estava com muita preguiça
 para sair de casa. E, além disso, eu queria ver uma partida da Copa do
 Mundo, Paraguai X França. Eu acompanhava o Paraguai por causa do Arce e
