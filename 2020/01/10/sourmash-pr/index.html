@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Oxidizing sourmash: PR walkthrough</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Oxidizing sourmash: PR walkthrough</h1>
+
+    <time class="single" datetime="2020-01-10T12:00:00-03:00">10 Jan 2020</time>
+
+    <p>sourmash 3 was released last week,
+finally landing the Rust backend.
+But, what changes when developing new features in sourmash?
+I was thinking about how to best document this process,
+and since <a href="https://github.com/dib-lab/sourmash/pull/826/files">PR #826</a> is a short example touching all the layers I decided to do a
+small walkthrough.</p>
+<p>Shall we?</p>
+<h2>The problem</h2>
+<p>The first step is describing the problem,
+and trying to convince reviewers (and yourself) that the changes bring enough benefits to justify a merge.
+This is the description I put in the PR:</p>
+<blockquote>
+<p>Calling <code>.add_hash()</code> on a MinHash sketch is fine,
+but if you're calling it all the time it's better to pass a list of hashes and call <code>.add_many()</code> instead.
+Before this PR <code>add_many</code> just called <code>add_hash</code> for each hash it was passed,
+but now it will pass the full list to Rust (and that's way faster).</p>
+<p>No changes for public APIs,
+and I changed the <code>_signatures</code> method in LCA to accumulate hashes for each sig first,
+and then set them all at once.
+This is way faster,
+but might use more intermediate memory (I'll evaluate this now).</p>
+</blockquote>
+<p>There are many details that sound like jargon for someone not familiar with the codebase,
+but if I write something too long I'll probably be wasting the reviewers time too.
+The benefit of a very detailed description is extending the knowledge for other people
+(not necessarily the maintainers),
+but that also takes effort that might be better allocated to solve other problems.
+Or, more realistically, putting out other fires =P</p>
+<p>Nonetheless,
+some points I like to add in PR descriptions:
+- why is there a problem with the current approach?
+- is this the minimal viable change, or is it trying to change too many things
+  at once? The former is way better, in general.
+- what are the trade-offs? This PR is using more memory to lower the runtime,
+  but I hadn't measure it yet when I opened it.
+- Not changing public APIs is always good to convince reviewers.
+  If the project follows a <a href="https://semver.org/">semantic versioning</a> scheme,
+  changes to the public APIs are major version bumps,
+  and that can brings other consequences for users.</p>
+<h2>Setting up for changing code</h2>
+<p>If this was a bug fix PR,
+the first thing I would do is write a new test triggering the bug,
+and then proceed to fix it in the code
+(Hmm, maybe that would be another good walkthrough?).
+But this PR is making performance claims ("it's going to be faster"),
+and that's a bit hard to codify in tests.
+<sup id=sf-sourmash-pr-1-back><a href=#sf-sourmash-pr-1 class=simple-footnote title="We do have https://asv.readthedocs.io/ set up for micro-benchmarks, and now that I think about it... I could have started by writing a benchmark for add_many, and then showing that it is faster. I will add this approach to the sourmash PR checklist =]">1</a></sup>
+Since it's also proposing to change a method (<code>_signatures</code> in LCA indices) that is better to benchmark with a real index (and not a toy example),
+I used the same data and command I run in <a href="https://github.com/luizirber/sourmash_resources">sourmash_resources</a> to check how memory consumption and runtime changed.
+For reference, this is the command: </p>
+<div class=highlight><pre><span></span>sourmash search -o out.csv --scaled <span class=m>2000</span> -k <span class=m>51</span> HSMA33OT.fastq.gz.sig genbank-k51.lca.json.gz
+</pre></div>
+
+
+<p>I'm using the <code>benchmark</code> feature from <a href="https://snakemake.readthedocs.io/">snakemake</a> in <a href="https://github.com/luizirber/sourmash_resources/blob/83ea237397d242e48c9d95eb0d9f50ceb4ad95c7/Snakefile#L99L114">sourmash_resources</a> to
+track how much memory, runtime and I/O is used for each command (and version) of sourmash,
+and generate the plots in the README in that repo.
+That is fine for a high-level view ("what's the maximum memory used?"),
+but not so useful for digging into details ("what method is consuming most memory?").</p>
+<p>Another additional problem is the dual<sup id=sf-sourmash-pr-2-back><a href=#sf-sourmash-pr-2 class=simple-footnote title="or triple, if you count C">2</a></sup> language nature of sourmash,
+where we have Python calling into Rust code (via CFFI).
+There are great tools for measuring and profiling Python code,
+but they tend to not work with extension code...</p>
+<p>So, let's bring two of my favorite tools to help!</p>
+<h3>Memory profiling: heaptrack</h3>
+<p><a href="https://github.com/KDE/heaptrack">heaptrack</a> is a heap profiler, and I first heard about it from <a href="https://www.vincentprouillet.com/">Vincent Prouillet</a>.
+It's main advantage over other solutions (like valgrind's massif) is the low
+overhead and... how easy it is to use:
+just stick <code>heaptrack</code> in front of your command,
+and you're good to go!</p>
+<p>Example output:</p>
+<div class=highlight><pre><span></span>$ heaptrack sourmash search -o out.csv --scaled <span class=m>2000</span> -k <span class=m>51</span> HSMA33OT.fastq.gz.sig genbank-k51.lca.json.gz
+
+heaptrack stats:
+        allocations:            <span class=m>1379353</span>
+        leaked allocations:     <span class=m>1660</span>
+        temporary allocations:  <span class=m>168984</span>
+Heaptrack finished! Now run the following to investigate the data:
+
+  heaptrack --analyze heaptrack.sourmash.66565.gz
+</pre></div>
+
+
+<p><code>heaptrack --analyze</code> is a very nice graphical interface for analyzing the results,
+but for this PR I'm mostly focusing on the Summary page (and overall memory consumption).
+Tracking allocations in Python doesn't give many details,
+because it shows the CPython functions being called,
+but the ability to track into the extension code (Rust) allocations is amazing
+for finding bottlenecks (and memory leaks =P).
+<sup id=sf-sourmash-pr-3-back><a href=#sf-sourmash-pr-3 class=simple-footnote title="It would be super cool to have the unwinding code from py-spy in heaptrack, and be able to see exactly what Python methods/lines of code were calling the Rust parts...">3</a></sup></p>
+<h3>CPU profiling: py-spy</h3>
+<p>Just as other solutions exist for profiling memory,
+there are many for profiling CPU usage in Python,
+including <code>profile</code> and <code>cProfile</code> in the standard library.
+Again, the issue is being able to analyze extension code,
+and bringing the cannon (the <code>perf</code> command in Linux, for example) looses the
+benefit of tracking Python code properly (because we get back the CPython
+functions, not what you defined in your Python code).</p>
+<p>Enters <a href="https://github.com/benfred/py-spy">py-spy</a> by <a href="https://www.benfrederickson.com">Ben Frederickson</a>,
+based on the <a href="https://github.com/rbspy/rbspy">rbspy</a> project by <a href="https://jvns.ca">Julia Evans</a>.
+Both use a great idea:
+read the process maps for the interpreters and resolve the full stack trace information,
+with low overhead (because it uses sampling).
+<a href="https://github.com/benfred/py-spy">py-spy</a> also goes further and resolves [native Python extensions] stack traces,
+meaning we can get the complete picture all the way from the Python CLI to the
+Rust core library!<sup id=sf-sourmash-pr-4-back><a href=#sf-sourmash-pr-4 class=simple-footnote title="Even if py-spy doesn't talk explicitly about Rust, it works very very well, woohoo!">4</a></sup></p>
+<p><code>py-spy</code> is also easy to use:
+stick <code>py-spy record --output search.svg -n --</code> in front of the command, 
+and it will generate a flamegraph in <code>search.svg</code>.
+The full command for this PR is</p>
+<div class=highlight><pre><span></span>py-spy record --output search.svg -n -- sourmash search -o out.csv --scaled <span class=m>2000</span> -k <span class=m>51</span> HSMA.fastq.sig genbank-k51.lca.json.gz
+</pre></div>
+
+
+<h2>Show me the code!</h2>
+<p>OK, OK, sheesh. But it's worth repeating: the code is important, but there are
+many other aspects that are just as important =]</p>
+<h3>Replacing <code>add_hash</code> calls with one <code>add_many</code></h3>
+<p>Let's start at the <a href="https://github.com/dib-lab/sourmash/pull/826/files#diff-adf06d14c535d5b22da9fb3862e4a487"><code>_signatures()</code></a> method on LCA indices.
+This is the original method:</p>
+<div class=highlight><pre><span></span><span class=nd>@cached_property</span>
+<span class=k>def</span> <span class=nf>_signatures</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+    <span class=s2>"Create a _signatures member dictionary that contains {idx: minhash}."</span>
+    <span class=kn>from</span> <span class=nn>..</span> <span class=kn>import</span> <span class=n>MinHash</span>
+
+    <span class=n>minhash</span> <span class=o>=</span> <span class=n>MinHash</span><span class=p>(</span><span class=n>n</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span> <span class=n>ksize</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>ksize</span><span class=p>,</span> <span class=n>scaled</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>scaled</span><span class=p>)</span>
+
+    <span class=n>debug</span><span class=p>(</span><span class=s1>'creating signatures for LCA DB...'</span><span class=p>)</span>
+    <span class=n>sigd</span> <span class=o>=</span> <span class=n>defaultdict</span><span class=p>(</span><span class=n>minhash</span><span class=o>.</span><span class=n>copy_and_clear</span><span class=p>)</span>
+
+    <span class=k>for</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>hashval_to_idx</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+        <span class=k>for</span> <span class=n>vv</span> <span class=ow>in</span> <span class=n>v</span><span class=p>:</span>
+            <span class=n>sigd</span><span class=p>[</span><span class=n>vv</span><span class=p>]</span><span class=o>.</span><span class=n>add_hash</span><span class=p>(</span><span class=n>k</span><span class=p>)</span>
+
+    <span class=n>debug</span><span class=p>(</span><span class=s1>'=&gt; {} signatures!'</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>sigd</span><span class=p>))</span>
+    <span class=k>return</span> <span class=n>sigd</span>
+</pre></div>
+
+
+<p><code>sigd[vv].add_hash(k)</code> is the culprit.
+Each call to <code>.add_hash</code> has to go thru CFFI to reach the extension code,
+and the overhead is significant.
+It's similar situation to accessing array elements in NumPy:
+it works,
+but it is way slower than using operations that avoid crossing from Python to
+the extension code.
+What we want to do instead is call <code>.add_many(hashes)</code>,
+which takes a list of hashes and process it entirely in Rust
+(ideally. We will get there).</p>
+<p>But, to have a list of hashes, there is another issue with this code.</p>
+<div class=highlight><pre><span></span><span class=k>for</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>hashval_to_idx</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+    <span class=k>for</span> <span class=n>vv</span> <span class=ow>in</span> <span class=n>v</span><span class=p>:</span>
+        <span class=n>sigd</span><span class=p>[</span><span class=n>vv</span><span class=p>]</span><span class=o>.</span><span class=n>add_hash</span><span class=p>(</span><span class=n>k</span><span class=p>)</span>
+</pre></div>
+
+
+<p>There are two nested for loops,
+and <code>add_hash</code> is being called with values from the inner loop.
+So... we don't have the list of hashes beforehand.</p>
+<p>But we can change the code a bit to save the hashes for each signature
+in a temporary list,
+and then call <code>add_many</code> on the temporary list.
+Like this:</p>
+<div class=highlight><pre><span></span><span class=n>temp_vals</span> <span class=o>=</span> <span class=n>defaultdict</span><span class=p>(</span><span class=nb>list</span><span class=p>)</span>
+
+<span class=k>for</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>hashval_to_idx</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+    <span class=k>for</span> <span class=n>vv</span> <span class=ow>in</span> <span class=n>v</span><span class=p>:</span>
+        <span class=n>temp_vals</span><span class=p>[</span><span class=n>vv</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>k</span><span class=p>)</span>
+
+<span class=k>for</span> <span class=n>sig</span><span class=p>,</span> <span class=n>vals</span> <span class=ow>in</span> <span class=n>temp_vals</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+    <span class=n>sigd</span><span class=p>[</span><span class=n>sig</span><span class=p>]</span><span class=o>.</span><span class=n>add_many</span><span class=p>(</span><span class=n>vals</span><span class=p>)</span>
+</pre></div>
+
+
+<p>There is a trade-off here:
+if we save the hashes in temporary lists,
+will the memory consumption be so high that the runtime gains of calling
+<code>add_many</code> in these temporary lists be cancelled?</p>
+<p>Time to measure it =]</p>
+<table>
+<thead>
+<tr>
+<th align=left>version</th>
+<th align=left>mem</th>
+<th align=left>time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align=left>original</td>
+<td align=left>1.5 GB</td>
+<td align=left>160s</td>
+</tr>
+<tr>
+<td align=left><code>list</code></td>
+<td align=left>1.7GB</td>
+<td align=left>173s</td>
+</tr>
+</tbody>
+</table>
+<p>Wait, it got worse?!?! Building temporary lists only takes time and memory,
+and bring no benefits!</p>
+<p>This mystery goes away when you look at the <a href="https://github.com/dib-lab/sourmash/pull/826/files#diff-2f53b2a5be4083c39a0275847c87f88fR190">add_many method</a>:</p>
+<div class=highlight><pre><span></span><span class=k>def</span> <span class=nf>add_many</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>hashes</span><span class=p>):</span>
+    <span class=s2>"Add many hashes in at once."</span>
+    <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>hashes</span><span class=p>,</span> <span class=n>MinHash</span><span class=p>):</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_methodcall</span><span class=p>(</span><span class=n>lib</span><span class=o>.</span><span class=n>kmerminhash_add_from</span><span class=p>,</span> <span class=n>hashes</span><span class=o>.</span><span class=n>_objptr</span><span class=p>)</span>
+    <span class=k>else</span><span class=p>:</span>
+        <span class=k>for</span> <span class=nb>hash</span> <span class=ow>in</span> <span class=n>hashes</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_methodcall</span><span class=p>(</span><span class=n>lib</span><span class=o>.</span><span class=n>kmerminhash_add_hash</span><span class=p>,</span> <span class=nb>hash</span><span class=p>)</span>
+</pre></div>
+
+
+<p>The first check in the <code>if</code> statement is a shortcut for adding hashes from
+another <code>MinHash</code>, so let's focus on <code>else</code> part...
+And turns out that <code>add_many</code> is lying!
+It doesn't process the <code>hashes</code> in the Rust extension,
+but just loops and call <code>add_hash</code> for each <code>hash</code> in the list.
+That's not going to be any faster than what we were doing in <code>_signatures</code>.</p>
+<p>Time to fix <code>add_many</code>!</p>
+<h3>Oxidizing <code>add_many</code></h3>
+<p>The idea is to change this loop in <code>add_many</code>:</p>
+<div class=highlight><pre><span></span><span class=k>for</span> <span class=nb>hash</span> <span class=ow>in</span> <span class=n>hashes</span><span class=p>:</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>_methodcall</span><span class=p>(</span><span class=n>lib</span><span class=o>.</span><span class=n>kmerminhash_add_hash</span><span class=p>,</span> <span class=nb>hash</span><span class=p>)</span>
+</pre></div>
+
+
+<p>with a call to a Rust extension function:</p>
+<div class=highlight><pre><span></span><span class=bp>self</span><span class=o>.</span><span class=n>_methodcall</span><span class=p>(</span><span class=n>lib</span><span class=o>.</span><span class=n>kmerminhash_add_many</span><span class=p>,</span> <span class=nb>list</span><span class=p>(</span><span class=n>hashes</span><span class=p>),</span> <span class=nb>len</span><span class=p>(</span><span class=n>hashes</span><span class=p>))</span>
+</pre></div>
+
+
+<p><code>self._methodcall</code> is a convenience method defined in [<code>RustObject</code>]
+which translates a method-like call into a function call,
+since our C layer only has functions.
+This is the C prototype for this function:</p>
+<div class=highlight><pre><span></span><span class=kt>void</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span>
+    <span class=n>KmerMinHash</span> <span class=o>*</span><span class=n>ptr</span><span class=p>,</span>
+    <span class=k>const</span> <span class=kt>uint64_t</span> <span class=o>*</span><span class=n>hashes_ptr</span><span class=p>,</span>
+    <span class=kt>uintptr_t</span> <span class=n>insize</span>
+  <span class=p>);</span>
+</pre></div>
+
+
+<p>You can almost read it as a Python method declaration,
+where <code>KmerMinHash *ptr</code> means the same as the <code>self</code> in Python methods.
+The other two arguments are a common idiom when passing pointers to data in C,
+with <code>insize</code> being how many elements we have in the list.
+<sup id=sf-sourmash-pr-5-back><a href=#sf-sourmash-pr-5 class=simple-footnote title="Let's not talk about lack of array bounds checks in C...">5</a></sup>.
+<code>CFFI</code> is very good at converting Python lists into pointers of a specific type,
+as long as the type is of a primitive type
+(<code>uint64_t</code> in our case, since each hash is a 64-bit unsigned integer number).</p>
+<p>And the Rust code with the implementation of the function:</p>
+<div class=highlight><pre><span></span><span class=n>ffi_fn</span><span class=o>!</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=k>unsafe</span><span class=w> </span><span class=k>fn</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span><span class=w></span>
+<span class=w>    </span><span class=n>ptr</span>: <span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=n>KmerMinHash</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=n>hashes_ptr</span>: <span class=o>*</span><span class=k>const</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=n>insize</span>: <span class=kt>usize</span><span class=p>,</span><span class=w></span>
+<span class=w>  </span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>mh</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>        </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>        </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=o>*</span><span class=n>ptr</span><span class=w></span>
+<span class=w>    </span><span class=p>};</span><span class=w></span>
+
+<span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>hashes</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>        </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>hashes_ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>        </span><span class=n>slice</span>::<span class=n>from_raw_parts</span><span class=p>(</span><span class=n>hashes_ptr</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w> </span><span class=n>insize</span><span class=p>)</span><span class=w></span>
+<span class=w>    </span><span class=p>};</span><span class=w></span>
+
+<span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>hash</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>hashes</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>      </span><span class=n>mh</span><span class=p>.</span><span class=n>add_hash</span><span class=p>(</span><span class=o>*</span><span class=n>hash</span><span class=p>);</span><span class=w></span>
+<span class=w>    </span><span class=p>}</span><span class=w></span>
+
+<span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w></span>
+<span class=p>}</span><span class=w></span>
+<span class=p>}</span><span class=w></span>
+</pre></div>
+
+
+<p>Let's break what's happening here into smaller pieces.
+Starting with the function signature:</p>
+<div class=highlight><pre><span></span><span class=n>ffi_fn</span><span class=o>!</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=k>unsafe</span><span class=w> </span><span class=k>fn</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span><span class=w></span>
+<span class=w>    </span><span class=n>ptr</span>: <span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=n>KmerMinHash</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=n>hashes_ptr</span>: <span class=o>*</span><span class=k>const</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=n>insize</span>: <span class=kt>usize</span><span class=p>,</span><span class=w></span>
+<span class=w>  </span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w></span>
+</pre></div>
+
+
+<p>The weird <code>ffi_fn! {}</code> syntax around the function is a macro in Rust:
+it changes the final generated code to convert the return value (<code>Result&lt;()&gt;</code>) into something that is valid C code (in this case, <code>void</code>).
+What happens if there is an error, then?
+The Rust extension has code for passing back an error code and message to Python,
+as well as capturing panics (when things go horrible bad and the program can't recover)
+in a way that Python can then deal with (raising exceptions and cleaning up).
+It also sets the <code>#[no_mangle]</code> attribute in the function,
+meaning that the final name of the function will follow C semantics (instead of Rust semantics),
+and can be called more easily from C and other languages.
+This <code>ffi_fn!</code> macro comes from <a href="https://github.com/getsentry/symbolic">symbolic</a>,
+a big influence on the design of the Python/Rust bridge in sourmash.</p>
+<p><code>unsafe</code> is the keyword in Rust to disable some checks in the code to allow
+potentially dangerous things (like dereferencing a pointer),
+and it is required to interact with C code.
+<code>unsafe</code> doesn't mean that the code is always unsafe to use:
+it's up to whoever is calling this to verify that valid data is being passed and invariants are being preserved.</p>
+<p>If we remove the <code>ffi_fn!</code> macro and the <code>unsafe</code> keyword,
+we have</p>
+<div class=highlight><pre><span></span><span class=k>fn</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span><span class=w></span>
+<span class=w>    </span><span class=n>ptr</span>: <span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=n>KmerMinHash</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=n>hashes_ptr</span>: <span class=o>*</span><span class=k>const</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=n>insize</span>: <span class=kt>usize</span>
+  <span class=p>);</span><span class=w></span>
+</pre></div>
+
+
+<p>At this point we can pretty much map between Rust and the C function prototype:</p>
+<div class=highlight><pre><span></span><span class=kt>void</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span>
+    <span class=n>KmerMinHash</span> <span class=o>*</span><span class=n>ptr</span><span class=p>,</span>
+    <span class=k>const</span> <span class=kt>uint64_t</span> <span class=o>*</span><span class=n>hashes_ptr</span><span class=p>,</span>
+    <span class=kt>uintptr_t</span> <span class=n>insize</span>
+  <span class=p>);</span>
+</pre></div>
+
+
+<p>Some interesting points:
+- We use <code>fn</code> to declare a function in Rust.
+- The type of an argument comes after the name of the argument in Rust,
+  while it's the other way around in C.
+  Same for the return type (it is omitted in the Rust function, which means it
+  is <code>-&gt; ()</code>, equivalent to a <code>void</code> return type in C).
+- In Rust everything is <strong>immutable</strong> by default, so we need to say that we want
+  a mutable pointer to a <code>KmerMinHash</code> item: <code>*mut KmerMinHash</code>).
+  In C everything is mutable by default.
+- <code>u64</code> in Rust -&gt; <code>uint64_t</code> in C
+- <code>usize</code> in Rust -&gt; <code>uintptr_t</code> in C</p>
+<p>Let's check the implementation of the function now.
+We start by converting the <code>ptr</code> argument (a raw pointer to a <code>KmerMinHash</code> struct)
+into a regular Rust struct:</p>
+<div class=highlight><pre><span></span><span class=kd>let</span><span class=w> </span><span class=n>mh</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>    </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>    </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=o>*</span><span class=n>ptr</span><span class=w></span>
+<span class=p>};</span><span class=w></span>
+</pre></div>
+
+
+<p>This block is asserting that <code>ptr</code> is not a null pointer,
+and if so it dereferences it and store in a mutable reference.
+If it was a null pointer the <code>assert!</code> would panic (which might sound extreme,
+but is way better than continue running because dereferencing a null pointer is
+BAD).
+Note that functions always need all the types in arguments and return values,
+but for variables in the body of the function
+Rust can figure out types most of the time,
+so no need to specify them.</p>
+<p>The next block prepares our list of hashes for use:</p>
+<div class=highlight><pre><span></span><span class=kd>let</span><span class=w> </span><span class=n>hashes</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>    </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>hashes_ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>    </span><span class=n>slice</span>::<span class=n>from_raw_parts</span><span class=p>(</span><span class=n>hashes_ptr</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w> </span><span class=n>insize</span><span class=p>)</span><span class=w></span>
+<span class=p>};</span><span class=w></span>
+</pre></div>
+
+
+<p>We are again asserting that the <code>hashes_ptr</code> is not a null pointer,
+but instead of dereferencing the pointer like before we use it to create a <code>slice</code>,
+a dynamically-sized view into a contiguous sequence.
+The list we got from Python is a contiguous sequence of size <code>insize</code>,
+and the <code>slice::from_raw_parts</code> function creates a slice from a pointer to data and a size.</p>
+<p>Oh, and can you spot the bug?
+I created the slice using <code>*mut u64</code>,
+but the data is declared as <code>*const u64</code>.
+Because we are in an <code>unsafe</code> block Rust let me change the mutability,
+but I shouldn't be doing that,
+since we don't need to mutate the slice.
+Oops.</p>
+<p>Finally, let's add hashes to our MinHash!
+We need a <code>for</code> loop, and call <code>add_hash</code> for each <code>hash</code>:</p>
+<div class=highlight><pre><span></span><span class=k>for</span><span class=w> </span><span class=n>hash</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>hashes</span><span class=w> </span><span class=p>{</span><span class=w></span>
+<span class=w>  </span><span class=n>mh</span><span class=p>.</span><span class=n>add_hash</span><span class=p>(</span><span class=o>*</span><span class=n>hash</span><span class=p>);</span><span class=w></span>
+<span class=p>}</span><span class=w></span>
+
+<span class=nb>Ok</span><span class=p>(())</span><span class=w></span>
+</pre></div>
+
+
+<p>We finish the function with <code>Ok(())</code> to indicate no errors occurred.</p>
+<p>Why is calling <code>add_hash</code> here faster than what we were doing before in Python?
+Rust can optimize these calls and generate very efficient native code,
+while Python is an interpreted language and most of the time don't have the same
+guarantees that Rust can leverage to generate the code.
+And, again,
+calling <code>add_hash</code> here doesn't need to cross FFI boundaries or,
+in fact,
+do any dynamic evaluation during runtime,
+because it is all statically analyzed during compilation.</p>
+<h2>Putting it all together</h2>
+<p>And... that's the PR code.
+There are some other unrelated changes that should have been in new PRs,
+but since they were so small it would be more work than necessary.
+OK, that's a lame excuse:
+it's confusing for reviewers to see these changes here,
+so avoid doing that if possible!</p>
+<p>But, did it work?</p>
+<table>
+<thead>
+<tr>
+<th align=left>version</th>
+<th align=left>mem</th>
+<th align=left>time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align=left>original</td>
+<td align=left>1.5 GB</td>
+<td align=left>160s</td>
+</tr>
+<tr>
+<td align=left><code>list</code></td>
+<td align=left>1.7GB</td>
+<td align=left>73s</td>
+</tr>
+</tbody>
+</table>
+<p>We are using 200 MB of extra memory,
+but taking less than half the time it was taking before.
+I think this is a good trade-off,
+and so did the <a href="https://github.com/dib-lab/sourmash/pull/826#pullrequestreview-339020803">reviewer</a> and the PR was approved.</p>
+<p>Hopefully this was useful, 'til next time!</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="">Thread on Mastodon</a></li>
+<li><a href="">Thread on Twitter</a></li>
+</ul>
+<h2>Bonus: <code>list</code> or <code>set</code>?</h2>
+<p>The first version of the PR used a <code>set</code> instead of a <code>list</code> to accumulate hashes.
+Since a <code>set</code> doesn't have repeated elements,
+this could potentially use less memory.
+The code:</p>
+<div class=highlight><pre><span></span><span class=n>temp_vals</span> <span class=o>=</span> <span class=n>defaultdict</span><span class=p>(</span><span class=nb>set</span><span class=p>)</span>
+
+<span class=k>for</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>hashval_to_idx</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+    <span class=k>for</span> <span class=n>vv</span> <span class=ow>in</span> <span class=n>v</span><span class=p>:</span>
+        <span class=n>temp_vals</span><span class=p>[</span><span class=n>vv</span><span class=p>]</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=n>k</span><span class=p>)</span>
+
+<span class=k>for</span> <span class=n>sig</span><span class=p>,</span> <span class=n>vals</span> <span class=ow>in</span> <span class=n>temp_vals</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+    <span class=n>sigd</span><span class=p>[</span><span class=n>sig</span><span class=p>]</span><span class=o>.</span><span class=n>add_many</span><span class=p>(</span><span class=n>vals</span><span class=p>)</span>
+</pre></div>
+
+
+<p>The runtime was again half of the original,
+but...
+| version | mem | time |
+| :-- | :-- | :-- |
+|original|1.5 GB|160s|
+|<code>set</code>|3.8GB|80s|
+|<code>list</code>|1.7GB|73s|
+... memory consumption was almost 2.5 times the original! WAT</p>
+<p>The culprit this time? The new <code>kmerminhash_add_many</code> call in the <code>add_many</code>
+method.
+This one:</p>
+<div class=highlight><pre><span></span><span class=bp>self</span><span class=o>.</span><span class=n>_methodcall</span><span class=p>(</span><span class=n>lib</span><span class=o>.</span><span class=n>kmerminhash_add_many</span><span class=p>,</span> <span class=nb>list</span><span class=p>(</span><span class=n>hashes</span><span class=p>),</span> <span class=nb>len</span><span class=p>(</span><span class=n>hashes</span><span class=p>))</span>
+</pre></div>
+
+
+<p><code>CFFI</code> doesn't know how to convert a <code>set</code> into something that C understands,
+so we need to call <code>list(hashes)</code> to convert it into a list.
+Since Python (and <code>CFFI</code>) can't know if the data is going to be used later
+<sup id=sf-sourmash-pr-6-back><a href=#sf-sourmash-pr-6 class=simple-footnote title="something that the memory ownership model in Rust does, BTW">6</a></sup>
+it needs to keep it around
+(and be eventually deallocated by the garbage collector).
+And that's how we get at least double the memory being allocated...</p>
+<p>There is another lesson here.
+If we look at the <code>for</code> loop again:</p>
+<div class=highlight><pre><span></span><span class=k>for</span> <span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>)</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>hashval_to_idx</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+    <span class=k>for</span> <span class=n>vv</span> <span class=ow>in</span> <span class=n>v</span><span class=p>:</span>
+        <span class=n>temp_vals</span><span class=p>[</span><span class=n>vv</span><span class=p>]</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=n>k</span><span class=p>)</span>
+</pre></div>
+
+
+<p>each <code>k</code> is already unique because they are keys in the <code>hashval_to_idx</code> dictionary,
+so the initial assumption
+(that a <code>set</code> might save memory because it doesn't have repeated elements)
+is... irrelevant for the problem =]</p><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-sourmash-pr-1><p>We do have https://asv.readthedocs.io/ set up for micro-benchmarks,
+and now that I think about it...
+I could have started by writing a benchmark for <code>add_many</code>,
+and then showing that it is faster.
+I will add this approach to the sourmash PR checklist =] <a href=#sf-sourmash-pr-1-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-pr-2><p>or triple, if you count C <a href=#sf-sourmash-pr-2-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-pr-3><p>It would be super cool to have the unwinding code from py-spy in heaptrack,
+and be able to see exactly what Python methods/lines of code were calling the
+Rust parts... <a href=#sf-sourmash-pr-3-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-pr-4><p>Even if py-spy doesn't talk explicitly about Rust,
+it works very very well, woohoo! <a href=#sf-sourmash-pr-4-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-pr-5><p>Let's not talk about lack of array bounds checks in C... <a href=#sf-sourmash-pr-5-back class=simple-footnote-back>↩</a></p></li><li id=sf-sourmash-pr-6><p>something that the memory ownership model in Rust does, BTW <a href=#sf-sourmash-pr-6-back class=simple-footnote-back>↩</a></p></li></ol></section>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/bioinformatics.html">bioinformatics</a>
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>

@@ -1,5 +1,495 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2019-12-01T12:00:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Interoperability #rust2020</title><link href="https://blog.luizirber.org/2019/12/01/rust-2020/" rel="alternate"></link><published>2019-12-01T12:00:00-03:00</published><updated>2019-12-01T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-12-01:/2019/12/01/rust-2020/</id><content type="html">&lt;p&gt;In January I wrote a &lt;a href="https://blog.luizirber.org/2019/01/05/rust-2019/"&gt;post&lt;/a&gt; for the Rust 2019 call for blogs.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2020-01-10T12:00:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Oxidizing sourmash: PR walkthrough</title><link href="https://blog.luizirber.org/2020/01/10/sourmash-pr/" rel="alternate"></link><published>2020-01-10T12:00:00-03:00</published><updated>2020-01-10T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-01-10:/2020/01/10/sourmash-pr/</id><content type="html">&lt;p&gt;sourmash 3 was released last week,
+finally landing the Rust backend.
+But, what changes when developing new features in sourmash?
+I was thinking about how to best document this process,
+and since &lt;a href="https://github.com/dib-lab/sourmash/pull/826/files"&gt;PR #826&lt;/a&gt; is a short example touching all the layers I decided to do a
+small walkthrough.&lt;/p&gt;
+&lt;p&gt;Shall we?&lt;/p&gt;
+&lt;h2&gt;The problem&lt;/h2&gt;
+&lt;p&gt;The first step is describing the problem,
+and trying to convince reviewers (and yourself) that the changes bring enough benefits to justify a merge.
+This is the description I put in the PR:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Calling &lt;code&gt;.add_hash()&lt;/code&gt; on a MinHash sketch is fine,
+but if you're calling it all the time it's better to pass a list of hashes and call &lt;code&gt;.add_many()&lt;/code&gt; instead.
+Before this PR &lt;code&gt;add_many&lt;/code&gt; just called &lt;code&gt;add_hash&lt;/code&gt; for each hash it was passed,
+but now it will pass the full list to Rust (and that's way faster).&lt;/p&gt;
+&lt;p&gt;No changes for public APIs,
+and I changed the &lt;code&gt;_signatures&lt;/code&gt; method in LCA to accumulate hashes for each sig first,
+and then set them all at once.
+This is way faster,
+but might use more intermediate memory (I'll evaluate this now).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;There are many details that sound like jargon for someone not familiar with the codebase,
+but if I write something too long I'll probably be wasting the reviewers time too.
+The benefit of a very detailed description is extending the knowledge for other people
+(not necessarily the maintainers),
+but that also takes effort that might be better allocated to solve other problems.
+Or, more realistically, putting out other fires =P&lt;/p&gt;
+&lt;p&gt;Nonetheless,
+some points I like to add in PR descriptions:
+- why is there a problem with the current approach?
+- is this the minimal viable change, or is it trying to change too many things
+  at once? The former is way better, in general.
+- what are the trade-offs? This PR is using more memory to lower the runtime,
+  but I hadn't measure it yet when I opened it.
+- Not changing public APIs is always good to convince reviewers.
+  If the project follows a &lt;a href="https://semver.org/"&gt;semantic versioning&lt;/a&gt; scheme,
+  changes to the public APIs are major version bumps,
+  and that can brings other consequences for users.&lt;/p&gt;
+&lt;h2&gt;Setting up for changing code&lt;/h2&gt;
+&lt;p&gt;If this was a bug fix PR,
+the first thing I would do is write a new test triggering the bug,
+and then proceed to fix it in the code
+(Hmm, maybe that would be another good walkthrough?).
+But this PR is making performance claims ("it's going to be faster"),
+and that's a bit hard to codify in tests.
+&lt;sup id=sf-sourmash-pr-1-back&gt;&lt;a href=#sf-sourmash-pr-1 class=simple-footnote title="We do have https://asv.readthedocs.io/ set up for micro-benchmarks, and now that I think about it... I could have started by writing a benchmark for add_many, and then showing that it is faster. I will add this approach to the sourmash PR checklist =]"&gt;1&lt;/a&gt;&lt;/sup&gt;
+Since it's also proposing to change a method (&lt;code&gt;_signatures&lt;/code&gt; in LCA indices) that is better to benchmark with a real index (and not a toy example),
+I used the same data and command I run in &lt;a href="https://github.com/luizirber/sourmash_resources"&gt;sourmash_resources&lt;/a&gt; to check how memory consumption and runtime changed.
+For reference, this is the command: &lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sourmash search -o out.csv --scaled &lt;span class=m&gt;2000&lt;/span&gt; -k &lt;span class=m&gt;51&lt;/span&gt; HSMA33OT.fastq.gz.sig genbank-k51.lca.json.gz
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I'm using the &lt;code&gt;benchmark&lt;/code&gt; feature from &lt;a href="https://snakemake.readthedocs.io/"&gt;snakemake&lt;/a&gt; in &lt;a href="https://github.com/luizirber/sourmash_resources/blob/83ea237397d242e48c9d95eb0d9f50ceb4ad95c7/Snakefile#L99L114"&gt;sourmash_resources&lt;/a&gt; to
+track how much memory, runtime and I/O is used for each command (and version) of sourmash,
+and generate the plots in the README in that repo.
+That is fine for a high-level view ("what's the maximum memory used?"),
+but not so useful for digging into details ("what method is consuming most memory?").&lt;/p&gt;
+&lt;p&gt;Another additional problem is the dual&lt;sup id=sf-sourmash-pr-2-back&gt;&lt;a href=#sf-sourmash-pr-2 class=simple-footnote title="or triple, if you count C"&gt;2&lt;/a&gt;&lt;/sup&gt; language nature of sourmash,
+where we have Python calling into Rust code (via CFFI).
+There are great tools for measuring and profiling Python code,
+but they tend to not work with extension code...&lt;/p&gt;
+&lt;p&gt;So, let's bring two of my favorite tools to help!&lt;/p&gt;
+&lt;h3&gt;Memory profiling: heaptrack&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://github.com/KDE/heaptrack"&gt;heaptrack&lt;/a&gt; is a heap profiler, and I first heard about it from &lt;a href="https://www.vincentprouillet.com/"&gt;Vincent Prouillet&lt;/a&gt;.
+It's main advantage over other solutions (like valgrind's massif) is the low
+overhead and... how easy it is to use:
+just stick &lt;code&gt;heaptrack&lt;/code&gt; in front of your command,
+and you're good to go!&lt;/p&gt;
+&lt;p&gt;Example output:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ heaptrack sourmash search -o out.csv --scaled &lt;span class=m&gt;2000&lt;/span&gt; -k &lt;span class=m&gt;51&lt;/span&gt; HSMA33OT.fastq.gz.sig genbank-k51.lca.json.gz
+
+heaptrack stats:
+        allocations:            &lt;span class=m&gt;1379353&lt;/span&gt;
+        leaked allocations:     &lt;span class=m&gt;1660&lt;/span&gt;
+        temporary allocations:  &lt;span class=m&gt;168984&lt;/span&gt;
+Heaptrack finished! Now run the following to investigate the data:
+
+  heaptrack --analyze heaptrack.sourmash.66565.gz
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;heaptrack --analyze&lt;/code&gt; is a very nice graphical interface for analyzing the results,
+but for this PR I'm mostly focusing on the Summary page (and overall memory consumption).
+Tracking allocations in Python doesn't give many details,
+because it shows the CPython functions being called,
+but the ability to track into the extension code (Rust) allocations is amazing
+for finding bottlenecks (and memory leaks =P).
+&lt;sup id=sf-sourmash-pr-3-back&gt;&lt;a href=#sf-sourmash-pr-3 class=simple-footnote title="It would be super cool to have the unwinding code from py-spy in heaptrack, and be able to see exactly what Python methods/lines of code were calling the Rust parts..."&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;h3&gt;CPU profiling: py-spy&lt;/h3&gt;
+&lt;p&gt;Just as other solutions exist for profiling memory,
+there are many for profiling CPU usage in Python,
+including &lt;code&gt;profile&lt;/code&gt; and &lt;code&gt;cProfile&lt;/code&gt; in the standard library.
+Again, the issue is being able to analyze extension code,
+and bringing the cannon (the &lt;code&gt;perf&lt;/code&gt; command in Linux, for example) looses the
+benefit of tracking Python code properly (because we get back the CPython
+functions, not what you defined in your Python code).&lt;/p&gt;
+&lt;p&gt;Enters &lt;a href="https://github.com/benfred/py-spy"&gt;py-spy&lt;/a&gt; by &lt;a href="https://www.benfrederickson.com"&gt;Ben Frederickson&lt;/a&gt;,
+based on the &lt;a href="https://github.com/rbspy/rbspy"&gt;rbspy&lt;/a&gt; project by &lt;a href="https://jvns.ca"&gt;Julia Evans&lt;/a&gt;.
+Both use a great idea:
+read the process maps for the interpreters and resolve the full stack trace information,
+with low overhead (because it uses sampling).
+&lt;a href="https://github.com/benfred/py-spy"&gt;py-spy&lt;/a&gt; also goes further and resolves [native Python extensions] stack traces,
+meaning we can get the complete picture all the way from the Python CLI to the
+Rust core library!&lt;sup id=sf-sourmash-pr-4-back&gt;&lt;a href=#sf-sourmash-pr-4 class=simple-footnote title="Even if py-spy doesn't talk explicitly about Rust, it works very very well, woohoo!"&gt;4&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;py-spy&lt;/code&gt; is also easy to use:
+stick &lt;code&gt;py-spy record --output search.svg -n --&lt;/code&gt; in front of the command, 
+and it will generate a flamegraph in &lt;code&gt;search.svg&lt;/code&gt;.
+The full command for this PR is&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;py-spy record --output search.svg -n -- sourmash search -o out.csv --scaled &lt;span class=m&gt;2000&lt;/span&gt; -k &lt;span class=m&gt;51&lt;/span&gt; HSMA.fastq.sig genbank-k51.lca.json.gz
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Show me the code!&lt;/h2&gt;
+&lt;p&gt;OK, OK, sheesh. But it's worth repeating: the code is important, but there are
+many other aspects that are just as important =]&lt;/p&gt;
+&lt;h3&gt;Replacing &lt;code&gt;add_hash&lt;/code&gt; calls with one &lt;code&gt;add_many&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;Let's start at the &lt;a href="https://github.com/dib-lab/sourmash/pull/826/files#diff-adf06d14c535d5b22da9fb3862e4a487"&gt;&lt;code&gt;_signatures()&lt;/code&gt;&lt;/a&gt; method on LCA indices.
+This is the original method:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=nd&gt;@cached_property&lt;/span&gt;
+&lt;span class=k&gt;def&lt;/span&gt; &lt;span class=nf&gt;_signatures&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=p&gt;):&lt;/span&gt;
+    &lt;span class=s2&gt;"Create a _signatures member dictionary that contains {idx: minhash}."&lt;/span&gt;
+    &lt;span class=kn&gt;from&lt;/span&gt; &lt;span class=nn&gt;..&lt;/span&gt; &lt;span class=kn&gt;import&lt;/span&gt; &lt;span class=n&gt;MinHash&lt;/span&gt;
+
+    &lt;span class=n&gt;minhash&lt;/span&gt; &lt;span class=o&gt;=&lt;/span&gt; &lt;span class=n&gt;MinHash&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;n&lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=mi&gt;0&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;ksize&lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;ksize&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;scaled&lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;scaled&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+    &lt;span class=n&gt;debug&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=s1&gt;'creating signatures for LCA DB...'&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+    &lt;span class=n&gt;sigd&lt;/span&gt; &lt;span class=o&gt;=&lt;/span&gt; &lt;span class=n&gt;defaultdict&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;minhash&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;copy_and_clear&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+    &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;hashval_to_idx&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+        &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;vv&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+            &lt;span class=n&gt;sigd&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;vv&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;add_hash&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+    &lt;span class=n&gt;debug&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=s1&gt;'=&amp;gt; {} signatures!'&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=nb&gt;len&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;sigd&lt;/span&gt;&lt;span class=p&gt;))&lt;/span&gt;
+    &lt;span class=k&gt;return&lt;/span&gt; &lt;span class=n&gt;sigd&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;sigd[vv].add_hash(k)&lt;/code&gt; is the culprit.
+Each call to &lt;code&gt;.add_hash&lt;/code&gt; has to go thru CFFI to reach the extension code,
+and the overhead is significant.
+It's similar situation to accessing array elements in NumPy:
+it works,
+but it is way slower than using operations that avoid crossing from Python to
+the extension code.
+What we want to do instead is call &lt;code&gt;.add_many(hashes)&lt;/code&gt;,
+which takes a list of hashes and process it entirely in Rust
+(ideally. We will get there).&lt;/p&gt;
+&lt;p&gt;But, to have a list of hashes, there is another issue with this code.&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;hashval_to_idx&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+    &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;vv&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+        &lt;span class=n&gt;sigd&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;vv&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;add_hash&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are two nested for loops,
+and &lt;code&gt;add_hash&lt;/code&gt; is being called with values from the inner loop.
+So... we don't have the list of hashes beforehand.&lt;/p&gt;
+&lt;p&gt;But we can change the code a bit to save the hashes for each signature
+in a temporary list,
+and then call &lt;code&gt;add_many&lt;/code&gt; on the temporary list.
+Like this:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=n&gt;temp_vals&lt;/span&gt; &lt;span class=o&gt;=&lt;/span&gt; &lt;span class=n&gt;defaultdict&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=nb&gt;list&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;hashval_to_idx&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+    &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;vv&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+        &lt;span class=n&gt;temp_vals&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;vv&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;append&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;sig&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;vals&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;temp_vals&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+    &lt;span class=n&gt;sigd&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;sig&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;vals&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There is a trade-off here:
+if we save the hashes in temporary lists,
+will the memory consumption be so high that the runtime gains of calling
+&lt;code&gt;add_many&lt;/code&gt; in these temporary lists be cancelled?&lt;/p&gt;
+&lt;p&gt;Time to measure it =]&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=left&gt;version&lt;/th&gt;
+&lt;th align=left&gt;mem&lt;/th&gt;
+&lt;th align=left&gt;time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;original&lt;/td&gt;
+&lt;td align=left&gt;1.5 GB&lt;/td&gt;
+&lt;td align=left&gt;160s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;&lt;code&gt;list&lt;/code&gt;&lt;/td&gt;
+&lt;td align=left&gt;1.7GB&lt;/td&gt;
+&lt;td align=left&gt;173s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Wait, it got worse?!?! Building temporary lists only takes time and memory,
+and bring no benefits!&lt;/p&gt;
+&lt;p&gt;This mystery goes away when you look at the &lt;a href="https://github.com/dib-lab/sourmash/pull/826/files#diff-2f53b2a5be4083c39a0275847c87f88fR190"&gt;add_many method&lt;/a&gt;:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=k&gt;def&lt;/span&gt; &lt;span class=nf&gt;add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;):&lt;/span&gt;
+    &lt;span class=s2&gt;"Add many hashes in at once."&lt;/span&gt;
+    &lt;span class=k&gt;if&lt;/span&gt; &lt;span class=nb&gt;isinstance&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;MinHash&lt;/span&gt;&lt;span class=p&gt;):&lt;/span&gt;
+        &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;_methodcall&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;lib&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;kmerminhash_add_from&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;_objptr&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+    &lt;span class=k&gt;else&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+        &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nb&gt;hash&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+            &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;_methodcall&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;lib&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;kmerminhash_add_hash&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=nb&gt;hash&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The first check in the &lt;code&gt;if&lt;/code&gt; statement is a shortcut for adding hashes from
+another &lt;code&gt;MinHash&lt;/code&gt;, so let's focus on &lt;code&gt;else&lt;/code&gt; part...
+And turns out that &lt;code&gt;add_many&lt;/code&gt; is lying!
+It doesn't process the &lt;code&gt;hashes&lt;/code&gt; in the Rust extension,
+but just loops and call &lt;code&gt;add_hash&lt;/code&gt; for each &lt;code&gt;hash&lt;/code&gt; in the list.
+That's not going to be any faster than what we were doing in &lt;code&gt;_signatures&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Time to fix &lt;code&gt;add_many&lt;/code&gt;!&lt;/p&gt;
+&lt;h3&gt;Oxidizing &lt;code&gt;add_many&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;The idea is to change this loop in &lt;code&gt;add_many&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nb&gt;hash&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+    &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;_methodcall&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;lib&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;kmerminhash_add_hash&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=nb&gt;hash&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;with a call to a Rust extension function:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;_methodcall&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;lib&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=nb&gt;list&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;),&lt;/span&gt; &lt;span class=nb&gt;len&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;self._methodcall&lt;/code&gt; is a convenience method defined in [&lt;code&gt;RustObject&lt;/code&gt;]
+which translates a method-like call into a function call,
+since our C layer only has functions.
+This is the C prototype for this function:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kt&gt;void&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;
+    &lt;span class=n&gt;KmerMinHash&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
+    &lt;span class=k&gt;const&lt;/span&gt; &lt;span class=kt&gt;uint64_t&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
+    &lt;span class=kt&gt;uintptr_t&lt;/span&gt; &lt;span class=n&gt;insize&lt;/span&gt;
+  &lt;span class=p&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can almost read it as a Python method declaration,
+where &lt;code&gt;KmerMinHash *ptr&lt;/code&gt; means the same as the &lt;code&gt;self&lt;/code&gt; in Python methods.
+The other two arguments are a common idiom when passing pointers to data in C,
+with &lt;code&gt;insize&lt;/code&gt; being how many elements we have in the list.
+&lt;sup id=sf-sourmash-pr-5-back&gt;&lt;a href=#sf-sourmash-pr-5 class=simple-footnote title="Let's not talk about lack of array bounds checks in C..."&gt;5&lt;/a&gt;&lt;/sup&gt;.
+&lt;code&gt;CFFI&lt;/code&gt; is very good at converting Python lists into pointers of a specific type,
+as long as the type is of a primitive type
+(&lt;code&gt;uint64_t&lt;/code&gt; in our case, since each hash is a 64-bit unsigned integer number).&lt;/p&gt;
+&lt;p&gt;And the Rust code with the implementation of the function:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=n&gt;ffi_fn&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=k&gt;unsafe&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;fn&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;: &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;KmerMinHash&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;: &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;const&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;: &lt;span class=kt&gt;usize&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;  &lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;-&amp;gt; &lt;span class=nb&gt;Result&lt;/span&gt;&lt;span class=o&gt;&amp;lt;&lt;/span&gt;&lt;span class=p&gt;()&lt;/span&gt;&lt;span class=o&gt;&amp;gt;&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;mh&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=o&gt;&amp;amp;&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=n&gt;slice&lt;/span&gt;::&lt;span class=n&gt;from_raw_parts&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;as&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=k&gt;for&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hash&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;in&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;      &lt;/span&gt;&lt;span class=n&gt;mh&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;add_hash&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hash&lt;/span&gt;&lt;span class=p&gt;);&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=p&gt;}&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=nb&gt;Ok&lt;/span&gt;&lt;span class=p&gt;(())&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=p&gt;}&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=p&gt;}&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Let's break what's happening here into smaller pieces.
+Starting with the function signature:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=n&gt;ffi_fn&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=k&gt;unsafe&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;fn&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;: &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;KmerMinHash&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;: &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;const&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;: &lt;span class=kt&gt;usize&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;  &lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;-&amp;gt; &lt;span class=nb&gt;Result&lt;/span&gt;&lt;span class=o&gt;&amp;lt;&lt;/span&gt;&lt;span class=p&gt;()&lt;/span&gt;&lt;span class=o&gt;&amp;gt;&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The weird &lt;code&gt;ffi_fn! {}&lt;/code&gt; syntax around the function is a macro in Rust:
+it changes the final generated code to convert the return value (&lt;code&gt;Result&amp;lt;()&amp;gt;&lt;/code&gt;) into something that is valid C code (in this case, &lt;code&gt;void&lt;/code&gt;).
+What happens if there is an error, then?
+The Rust extension has code for passing back an error code and message to Python,
+as well as capturing panics (when things go horrible bad and the program can't recover)
+in a way that Python can then deal with (raising exceptions and cleaning up).
+It also sets the &lt;code&gt;#[no_mangle]&lt;/code&gt; attribute in the function,
+meaning that the final name of the function will follow C semantics (instead of Rust semantics),
+and can be called more easily from C and other languages.
+This &lt;code&gt;ffi_fn!&lt;/code&gt; macro comes from &lt;a href="https://github.com/getsentry/symbolic"&gt;symbolic&lt;/a&gt;,
+a big influence on the design of the Python/Rust bridge in sourmash.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;unsafe&lt;/code&gt; is the keyword in Rust to disable some checks in the code to allow
+potentially dangerous things (like dereferencing a pointer),
+and it is required to interact with C code.
+&lt;code&gt;unsafe&lt;/code&gt; doesn't mean that the code is always unsafe to use:
+it's up to whoever is calling this to verify that valid data is being passed and invariants are being preserved.&lt;/p&gt;
+&lt;p&gt;If we remove the &lt;code&gt;ffi_fn!&lt;/code&gt; macro and the &lt;code&gt;unsafe&lt;/code&gt; keyword,
+we have&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=k&gt;fn&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;: &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;KmerMinHash&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;: &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;const&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;: &lt;span class=kt&gt;usize&lt;/span&gt;
+  &lt;span class=p&gt;);&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;At this point we can pretty much map between Rust and the C function prototype:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kt&gt;void&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;
+    &lt;span class=n&gt;KmerMinHash&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
+    &lt;span class=k&gt;const&lt;/span&gt; &lt;span class=kt&gt;uint64_t&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
+    &lt;span class=kt&gt;uintptr_t&lt;/span&gt; &lt;span class=n&gt;insize&lt;/span&gt;
+  &lt;span class=p&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Some interesting points:
+- We use &lt;code&gt;fn&lt;/code&gt; to declare a function in Rust.
+- The type of an argument comes after the name of the argument in Rust,
+  while it's the other way around in C.
+  Same for the return type (it is omitted in the Rust function, which means it
+  is &lt;code&gt;-&amp;gt; ()&lt;/code&gt;, equivalent to a &lt;code&gt;void&lt;/code&gt; return type in C).
+- In Rust everything is &lt;strong&gt;immutable&lt;/strong&gt; by default, so we need to say that we want
+  a mutable pointer to a &lt;code&gt;KmerMinHash&lt;/code&gt; item: &lt;code&gt;*mut KmerMinHash&lt;/code&gt;).
+  In C everything is mutable by default.
+- &lt;code&gt;u64&lt;/code&gt; in Rust -&amp;gt; &lt;code&gt;uint64_t&lt;/code&gt; in C
+- &lt;code&gt;usize&lt;/code&gt; in Rust -&amp;gt; &lt;code&gt;uintptr_t&lt;/code&gt; in C&lt;/p&gt;
+&lt;p&gt;Let's check the implementation of the function now.
+We start by converting the &lt;code&gt;ptr&lt;/code&gt; argument (a raw pointer to a &lt;code&gt;KmerMinHash&lt;/code&gt; struct)
+into a regular Rust struct:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;mh&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=o&gt;&amp;amp;&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This block is asserting that &lt;code&gt;ptr&lt;/code&gt; is not a null pointer,
+and if so it dereferences it and store in a mutable reference.
+If it was a null pointer the &lt;code&gt;assert!&lt;/code&gt; would panic (which might sound extreme,
+but is way better than continue running because dereferencing a null pointer is
+BAD).
+Note that functions always need all the types in arguments and return values,
+but for variables in the body of the function
+Rust can figure out types most of the time,
+so no need to specify them.&lt;/p&gt;
+&lt;p&gt;The next block prepares our list of hashes for use:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;slice&lt;/span&gt;::&lt;span class=n&gt;from_raw_parts&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;as&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We are again asserting that the &lt;code&gt;hashes_ptr&lt;/code&gt; is not a null pointer,
+but instead of dereferencing the pointer like before we use it to create a &lt;code&gt;slice&lt;/code&gt;,
+a dynamically-sized view into a contiguous sequence.
+The list we got from Python is a contiguous sequence of size &lt;code&gt;insize&lt;/code&gt;,
+and the &lt;code&gt;slice::from_raw_parts&lt;/code&gt; function creates a slice from a pointer to data and a size.&lt;/p&gt;
+&lt;p&gt;Oh, and can you spot the bug?
+I created the slice using &lt;code&gt;*mut u64&lt;/code&gt;,
+but the data is declared as &lt;code&gt;*const u64&lt;/code&gt;.
+Because we are in an &lt;code&gt;unsafe&lt;/code&gt; block Rust let me change the mutability,
+but I shouldn't be doing that,
+since we don't need to mutate the slice.
+Oops.&lt;/p&gt;
+&lt;p&gt;Finally, let's add hashes to our MinHash!
+We need a &lt;code&gt;for&lt;/code&gt; loop, and call &lt;code&gt;add_hash&lt;/code&gt; for each &lt;code&gt;hash&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=k&gt;for&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hash&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;in&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;  &lt;/span&gt;&lt;span class=n&gt;mh&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;add_hash&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hash&lt;/span&gt;&lt;span class=p&gt;);&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=p&gt;}&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+
+&lt;span class=nb&gt;Ok&lt;/span&gt;&lt;span class=p&gt;(())&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We finish the function with &lt;code&gt;Ok(())&lt;/code&gt; to indicate no errors occurred.&lt;/p&gt;
+&lt;p&gt;Why is calling &lt;code&gt;add_hash&lt;/code&gt; here faster than what we were doing before in Python?
+Rust can optimize these calls and generate very efficient native code,
+while Python is an interpreted language and most of the time don't have the same
+guarantees that Rust can leverage to generate the code.
+And, again,
+calling &lt;code&gt;add_hash&lt;/code&gt; here doesn't need to cross FFI boundaries or,
+in fact,
+do any dynamic evaluation during runtime,
+because it is all statically analyzed during compilation.&lt;/p&gt;
+&lt;h2&gt;Putting it all together&lt;/h2&gt;
+&lt;p&gt;And... that's the PR code.
+There are some other unrelated changes that should have been in new PRs,
+but since they were so small it would be more work than necessary.
+OK, that's a lame excuse:
+it's confusing for reviewers to see these changes here,
+so avoid doing that if possible!&lt;/p&gt;
+&lt;p&gt;But, did it work?&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=left&gt;version&lt;/th&gt;
+&lt;th align=left&gt;mem&lt;/th&gt;
+&lt;th align=left&gt;time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;original&lt;/td&gt;
+&lt;td align=left&gt;1.5 GB&lt;/td&gt;
+&lt;td align=left&gt;160s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;&lt;code&gt;list&lt;/code&gt;&lt;/td&gt;
+&lt;td align=left&gt;1.7GB&lt;/td&gt;
+&lt;td align=left&gt;73s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;We are using 200 MB of extra memory,
+but taking less than half the time it was taking before.
+I think this is a good trade-off,
+and so did the &lt;a href="https://github.com/dib-lab/sourmash/pull/826#pullrequestreview-339020803"&gt;reviewer&lt;/a&gt; and the PR was approved.&lt;/p&gt;
+&lt;p&gt;Hopefully this was useful, 'til next time!&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=""&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=""&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Bonus: &lt;code&gt;list&lt;/code&gt; or &lt;code&gt;set&lt;/code&gt;?&lt;/h2&gt;
+&lt;p&gt;The first version of the PR used a &lt;code&gt;set&lt;/code&gt; instead of a &lt;code&gt;list&lt;/code&gt; to accumulate hashes.
+Since a &lt;code&gt;set&lt;/code&gt; doesn't have repeated elements,
+this could potentially use less memory.
+The code:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=n&gt;temp_vals&lt;/span&gt; &lt;span class=o&gt;=&lt;/span&gt; &lt;span class=n&gt;defaultdict&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=nb&gt;set&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;hashval_to_idx&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+    &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;vv&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+        &lt;span class=n&gt;temp_vals&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;vv&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;add&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+
+&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;sig&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;vals&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;temp_vals&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+    &lt;span class=n&gt;sigd&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;sig&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;vals&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The runtime was again half of the original,
+but...
+| version | mem | time |
+| :-- | :-- | :-- |
+|original|1.5 GB|160s|
+|&lt;code&gt;set&lt;/code&gt;|3.8GB|80s|
+|&lt;code&gt;list&lt;/code&gt;|1.7GB|73s|
+... memory consumption was almost 2.5 times the original! WAT&lt;/p&gt;
+&lt;p&gt;The culprit this time? The new &lt;code&gt;kmerminhash_add_many&lt;/code&gt; call in the &lt;code&gt;add_many&lt;/code&gt;
+method.
+This one:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;_methodcall&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;lib&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=nb&gt;list&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;),&lt;/span&gt; &lt;span class=nb&gt;len&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=p&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;CFFI&lt;/code&gt; doesn't know how to convert a &lt;code&gt;set&lt;/code&gt; into something that C understands,
+so we need to call &lt;code&gt;list(hashes)&lt;/code&gt; to convert it into a list.
+Since Python (and &lt;code&gt;CFFI&lt;/code&gt;) can't know if the data is going to be used later
+&lt;sup id=sf-sourmash-pr-6-back&gt;&lt;a href=#sf-sourmash-pr-6 class=simple-footnote title="something that the memory ownership model in Rust does, BTW"&gt;6&lt;/a&gt;&lt;/sup&gt;
+it needs to keep it around
+(and be eventually deallocated by the garbage collector).
+And that's how we get at least double the memory being allocated...&lt;/p&gt;
+&lt;p&gt;There is another lesson here.
+If we look at the &lt;code&gt;for&lt;/code&gt; loop again:&lt;/p&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=k&gt;for&lt;/span&gt; &lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=bp&gt;self&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;hashval_to_idx&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;items&lt;/span&gt;&lt;span class=p&gt;():&lt;/span&gt;
+    &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=n&gt;vv&lt;/span&gt; &lt;span class=ow&gt;in&lt;/span&gt; &lt;span class=n&gt;v&lt;/span&gt;&lt;span class=p&gt;:&lt;/span&gt;
+        &lt;span class=n&gt;temp_vals&lt;/span&gt;&lt;span class=p&gt;[&lt;/span&gt;&lt;span class=n&gt;vv&lt;/span&gt;&lt;span class=p&gt;]&lt;/span&gt;&lt;span class=o&gt;.&lt;/span&gt;&lt;span class=n&gt;add&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;k&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;each &lt;code&gt;k&lt;/code&gt; is already unique because they are keys in the &lt;code&gt;hashval_to_idx&lt;/code&gt; dictionary,
+so the initial assumption
+(that a &lt;code&gt;set&lt;/code&gt; might save memory because it doesn't have repeated elements)
+is... irrelevant for the problem =]&lt;/p&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sourmash-pr-1&gt;&lt;p&gt;We do have https://asv.readthedocs.io/ set up for micro-benchmarks,
+and now that I think about it...
+I could have started by writing a benchmark for &lt;code&gt;add_many&lt;/code&gt;,
+and then showing that it is faster.
+I will add this approach to the sourmash PR checklist =] &lt;a href=#sf-sourmash-pr-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-pr-2&gt;&lt;p&gt;or triple, if you count C &lt;a href=#sf-sourmash-pr-2-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-pr-3&gt;&lt;p&gt;It would be super cool to have the unwinding code from py-spy in heaptrack,
+and be able to see exactly what Python methods/lines of code were calling the
+Rust parts... &lt;a href=#sf-sourmash-pr-3-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-pr-4&gt;&lt;p&gt;Even if py-spy doesn't talk explicitly about Rust,
+it works very very well, woohoo! &lt;a href=#sf-sourmash-pr-4-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-pr-5&gt;&lt;p&gt;Let's not talk about lack of array bounds checks in C... &lt;a href=#sf-sourmash-pr-5-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li id=sf-sourmash-pr-6&gt;&lt;p&gt;something that the memory ownership model in Rust does, BTW &lt;a href=#sf-sourmash-pr-6-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>Interoperability #rust2020</title><link href="https://blog.luizirber.org/2019/12/01/rust-2020/" rel="alternate"></link><published>2019-12-01T12:00:00-03:00</published><updated>2019-12-01T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2019-12-01:/2019/12/01/rust-2020/</id><content type="html">&lt;p&gt;In January I wrote a &lt;a href="https://blog.luizirber.org/2019/01/05/rust-2019/"&gt;post&lt;/a&gt; for the Rust 2019 call for blogs.
 The &lt;a href="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html"&gt;2020 call&lt;/a&gt; is aiming for an RFC and roadmap earlier this time,
 so here is my 2020 post =]&lt;/p&gt;
 &lt;h3&gt;Last call review: what happened?&lt;/h3&gt;
@@ -268,15 +758,11 @@ and now that it was working I started looking into how to use the WebAssembly
 target in Rust.&lt;/p&gt;
 &lt;h2&gt;WebAssembly?&lt;/h2&gt;
 &lt;p&gt;From the &lt;a href="https://webassembly.org/"&gt;official site&lt;/a&gt;,&lt;/p&gt;
-&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=nv&gt;WebAssembly&lt;/span&gt; &lt;span class=ss&gt;(&lt;/span&gt;&lt;span class=nv&gt;abbreviated&lt;/span&gt; &lt;span class=nv&gt;Wasm&lt;/span&gt;&lt;span class=ss&gt;)&lt;/span&gt; &lt;span class=nv&gt;is&lt;/span&gt; &lt;span class=nv&gt;a&lt;/span&gt; &lt;span class=nv&gt;binary&lt;/span&gt;
-&lt;span class=nv&gt;instruction&lt;/span&gt; &lt;span class=nv&gt;format&lt;/span&gt; &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nv&gt;a&lt;/span&gt; &lt;span class=nv&gt;stack&lt;/span&gt;&lt;span class=o&gt;-&lt;/span&gt;&lt;span class=nv&gt;based&lt;/span&gt;
-&lt;span class=nv&gt;virtual&lt;/span&gt; &lt;span class=nv&gt;machine&lt;/span&gt;. &lt;span class=nv&gt;Wasm&lt;/span&gt; &lt;span class=nv&gt;is&lt;/span&gt; &lt;span class=nv&gt;designed&lt;/span&gt; &lt;span class=nv&gt;as&lt;/span&gt; &lt;span class=nv&gt;a&lt;/span&gt;
-&lt;span class=nv&gt;portable&lt;/span&gt; &lt;span class=nv&gt;target&lt;/span&gt; &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nv&gt;compilation&lt;/span&gt; &lt;span class=nv&gt;of&lt;/span&gt; &lt;span class=nv&gt;high&lt;/span&gt;&lt;span class=o&gt;-&lt;/span&gt;&lt;span class=nv&gt;level&lt;/span&gt;
-&lt;span class=nv&gt;languages&lt;/span&gt; &lt;span class=nv&gt;like&lt;/span&gt; &lt;span class=nv&gt;C&lt;/span&gt;&lt;span class=o&gt;/&lt;/span&gt;&lt;span class=nv&gt;C&lt;/span&gt;&lt;span class=o&gt;++/&lt;/span&gt;&lt;span class=nv&gt;Rust&lt;/span&gt;, &lt;span class=nv&gt;enabling&lt;/span&gt; &lt;span class=nv&gt;deployment&lt;/span&gt;
-&lt;span class=nv&gt;on&lt;/span&gt; &lt;span class=nv&gt;the&lt;/span&gt; &lt;span class=nv&gt;web&lt;/span&gt; &lt;span class=k&gt;for&lt;/span&gt; &lt;span class=nv&gt;client&lt;/span&gt; &lt;span class=nv&gt;and&lt;/span&gt; &lt;span class=nv&gt;server&lt;/span&gt; &lt;span class=nv&gt;applications&lt;/span&gt;.
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;blockquote&gt;
+&lt;p&gt;WebAssembly (abbreviated Wasm) is a binary instruction format for a stack-based virtual machine.
+Wasm is designed as a portable target for compilation of high-level languages like C/C++/Rust,
+enabling deployment on the web for client and server applications.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;You can write WebAssembly by hand, but the goal is to have it as lower level
 target for other languages. For me the obvious benefit is being able to use
 something that is not JavaScript in the browser, even though the goal is not to replace
