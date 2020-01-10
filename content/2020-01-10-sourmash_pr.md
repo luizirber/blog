@@ -471,8 +471,8 @@ Hopefully this was useful, 'til next time!
 - [Thread on Mastodon][100]
 - [Thread on Twitter][101]
 
-[100]: 
-[101]: 
+[100]: https://social.lasanha.org/@luizirber/103461534713587975
+[101]: https://twitter.com/luizirber/status/1215772245928235008
 
 ## Bonus: `list` or `set`?
 
