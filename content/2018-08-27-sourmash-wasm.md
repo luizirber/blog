@@ -53,12 +53,9 @@ target in Rust.
 
 From the [official site][22],
 
-    WebAssembly (abbreviated Wasm) is a binary
-    instruction format for a stack-based
-    virtual machine. Wasm is designed as a
-    portable target for compilation of high-level
-    languages like C/C++/Rust, enabling deployment
-    on the web for client and server applications.
+> WebAssembly (abbreviated Wasm) is a binary instruction format for a stack-based virtual machine.
+> Wasm is designed as a portable target for compilation of high-level languages like C/C++/Rust,
+> enabling deployment on the web for client and server applications.
 
 You can write WebAssembly by hand, but the goal is to have it as lower level
 target for other languages. For me the obvious benefit is being able to use

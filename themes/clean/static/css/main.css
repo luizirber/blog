@@ -6,7 +6,6 @@ html {
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   background-color: white;
   text-align: justify;
-  text-indent: 2em;
 }
 
 html, body {
@@ -165,9 +164,11 @@ blockquote a {
 /* Code */
 
 pre {
-  background-color: lightpink;
+  background-color: #f0f0f0;
   border-radius: 1rem;
-  overflow: scroll;
+  overflow: auto;
+  line-height: 1.5rem;
+  padding: .5rem;
 }
 
 .chroma {
