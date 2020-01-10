@@ -430,8 +430,8 @@ and so did the &lt;a href="https://github.com/dib-lab/sourmash/pull/826#pullrequ
 &lt;p&gt;Hopefully this was useful, 'til next time!&lt;/p&gt;
 &lt;h2&gt;Comments?&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=""&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=""&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/103461534713587975"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1215772245928235008"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Bonus: &lt;code&gt;list&lt;/code&gt; or &lt;code&gt;set&lt;/code&gt;?&lt;/h2&gt;
 &lt;p&gt;The first version of the PR used a &lt;code&gt;set&lt;/code&gt; instead of a &lt;code&gt;list&lt;/code&gt; to accumulate hashes.
