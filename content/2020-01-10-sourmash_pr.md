@@ -369,6 +369,7 @@ void kmerminhash_add_many(
   );
 ```
 Some interesting points:
+
 - We use `fn` to declare a function in Rust.
 - The type of an argument comes after the name of the argument in Rust,
   while it's the other way around in C.
@@ -470,9 +471,11 @@ Hopefully this was useful, 'til next time!
 
 - [Thread on Mastodon][100]
 - [Thread on Twitter][101]
+- [Lobste.rs submission][102]
 
 [100]: https://social.lasanha.org/@luizirber/103461534713587975
 [101]: https://twitter.com/luizirber/status/1215772245928235008
+[102]: https://lobste.rs/s/xnaugq/oxidizing_sourmash_pr_walkthrough
 
 ## Bonus: `list` or `set`?
 
