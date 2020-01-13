@@ -324,17 +324,19 @@ we have&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Some interesting points:
-- We use &lt;code&gt;fn&lt;/code&gt; to declare a function in Rust.
-- The type of an argument comes after the name of the argument in Rust,
+&lt;p&gt;Some interesting points:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We use &lt;code&gt;fn&lt;/code&gt; to declare a function in Rust.&lt;/li&gt;
+&lt;li&gt;The type of an argument comes after the name of the argument in Rust,
   while it's the other way around in C.
   Same for the return type (it is omitted in the Rust function, which means it
-  is &lt;code&gt;-&amp;gt; ()&lt;/code&gt;, equivalent to a &lt;code&gt;void&lt;/code&gt; return type in C).
-- In Rust everything is &lt;strong&gt;immutable&lt;/strong&gt; by default, so we need to say that we want
+  is &lt;code&gt;-&amp;gt; ()&lt;/code&gt;, equivalent to a &lt;code&gt;void&lt;/code&gt; return type in C).&lt;/li&gt;
+&lt;li&gt;In Rust everything is &lt;strong&gt;immutable&lt;/strong&gt; by default, so we need to say that we want
   a mutable pointer to a &lt;code&gt;KmerMinHash&lt;/code&gt; item: &lt;code&gt;*mut KmerMinHash&lt;/code&gt;).
-  In C everything is mutable by default.
-- &lt;code&gt;u64&lt;/code&gt; in Rust -&amp;gt; &lt;code&gt;uint64_t&lt;/code&gt; in C
-- &lt;code&gt;usize&lt;/code&gt; in Rust -&amp;gt; &lt;code&gt;uintptr_t&lt;/code&gt; in C&lt;/p&gt;
+  In C everything is mutable by default.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;u64&lt;/code&gt; in Rust -&amp;gt; &lt;code&gt;uint64_t&lt;/code&gt; in C&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;usize&lt;/code&gt; in Rust -&amp;gt; &lt;code&gt;uintptr_t&lt;/code&gt; in C&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Let's check the implementation of the function now.
 We start by converting the &lt;code&gt;ptr&lt;/code&gt; argument (a raw pointer to a &lt;code&gt;KmerMinHash&lt;/code&gt; struct)
 into a regular Rust struct:&lt;/p&gt;
@@ -432,6 +434,7 @@ and so did the &lt;a href="https://github.com/dib-lab/sourmash/pull/826#pullrequ
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://social.lasanha.org/@luizirber/103461534713587975"&gt;Thread on Mastodon&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1215772245928235008"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://lobste.rs/s/xnaugq/oxidizing_sourmash_pr_walkthrough"&gt;Lobste.rs submission&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Bonus: &lt;code&gt;list&lt;/code&gt; or &lt;code&gt;set&lt;/code&gt;?&lt;/h2&gt;
 &lt;p&gt;The first version of the PR used a &lt;code&gt;set&lt;/code&gt; instead of a &lt;code&gt;list&lt;/code&gt; to accumulate hashes.

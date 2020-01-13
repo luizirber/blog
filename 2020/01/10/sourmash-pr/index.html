@@ -384,17 +384,19 @@ we have</p>
 </pre></div>
 
 
-<p>Some interesting points:
-- We use <code>fn</code> to declare a function in Rust.
-- The type of an argument comes after the name of the argument in Rust,
+<p>Some interesting points:</p>
+<ul>
+<li>We use <code>fn</code> to declare a function in Rust.</li>
+<li>The type of an argument comes after the name of the argument in Rust,
   while it's the other way around in C.
   Same for the return type (it is omitted in the Rust function, which means it
-  is <code>-&gt; ()</code>, equivalent to a <code>void</code> return type in C).
-- In Rust everything is <strong>immutable</strong> by default, so we need to say that we want
+  is <code>-&gt; ()</code>, equivalent to a <code>void</code> return type in C).</li>
+<li>In Rust everything is <strong>immutable</strong> by default, so we need to say that we want
   a mutable pointer to a <code>KmerMinHash</code> item: <code>*mut KmerMinHash</code>).
-  In C everything is mutable by default.
-- <code>u64</code> in Rust -&gt; <code>uint64_t</code> in C
-- <code>usize</code> in Rust -&gt; <code>uintptr_t</code> in C</p>
+  In C everything is mutable by default.</li>
+<li><code>u64</code> in Rust -&gt; <code>uint64_t</code> in C</li>
+<li><code>usize</code> in Rust -&gt; <code>uintptr_t</code> in C</li>
+</ul>
 <p>Let's check the implementation of the function now.
 We start by converting the <code>ptr</code> argument (a raw pointer to a <code>KmerMinHash</code> struct)
 into a regular Rust struct:</p>
@@ -492,6 +494,7 @@ and so did the <a href="https://github.com/dib-lab/sourmash/pull/826#pullrequest
 <ul>
 <li><a href="https://social.lasanha.org/@luizirber/103461534713587975">Thread on Mastodon</a></li>
 <li><a href="https://twitter.com/luizirber/status/1215772245928235008">Thread on Twitter</a></li>
+<li><a href="https://lobste.rs/s/xnaugq/oxidizing_sourmash_pr_walkthrough">Lobste.rs submission</a></li>
 </ul>
 <h2>Bonus: <code>list</code> or <code>set</code>?</h2>
 <p>The first version of the PR used a <code>set</code> instead of a <code>list</code> to accumulate hashes.
