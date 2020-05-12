@@ -176,7 +176,7 @@ check this <a href="https://twitter.com/luizirber/status/1253445504622424064">Tw
 but mostly because converting compression levels could use some refactoring).</p>
 <h2>Putting it all together: zipped SBT indices</h2>
 <p>With all these other pieces in places,
-it's time to go back to <a href="https://github.com/dib-lab/sourmash/issues/490">dib-lab/sourmash#490</a>.
+it's time to go back to <a href="https://github.com/dib-lab/sourmash/pull/648">dib-lab/sourmash#648</a>.
 Compressing and decompressing with the Python <code>zipfile</code> module is slow,
 but Zip files can also be used just for storage,
 handing back the data without extracting it.
@@ -224,7 +224,7 @@ which doesn't compress perfectly but also doesn't take much longer to run:</p>
 while <code>9</code> is the best compression.
 The size difference from <code>1</code> to <code>9</code> is only 6 MB (~2% difference)
 but runs 5x faster,
-and it's only 30% slower than using uncompressed data.</p>
+and it's only 30% slower than saving the uncompressed data.</p>
 <p>The last challenge was updating an existing Zip file.
 It's easy to support appending new data,
 but if any of the already existing data in the file changes
