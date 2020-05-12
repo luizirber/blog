@@ -88,7 +88,7 @@ do botão, ela chama uma URL...</p>
 </figure>
 
 <p>Opa. E se eu tentar acessar essa URL direto?</p>
-<div class="highlight"><pre><span></span><span class="n">voto_v</span><span class="p">.</span><span class="n">php</span><span class="o">?</span><span class="n">votoStatus</span><span class="o">=</span><span class="mi">1</span><span class="o">&amp;</span><span class="n">cadastroId</span><span class="o">=</span><span class="mi">98374</span><span class="o">&amp;</span><span class="n">captcha</span><span class="o">=</span><span class="n">adb356</span>
+<div class="highlight"><pre><span></span><span class="err">voto_v.php?votoStatus=1&amp;cadastroId=98374&amp;captcha=adb356</span>
 </pre></div>
 
 
@@ -113,8 +113,8 @@ cinza, e aplicar um limiar.</p>
     <span class="k">return</span> <span class="n">captcha</span>
 
 <span class="k">def</span> <span class="nf">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
                 <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
     <span class="k">return</span> <span class="n">pixels</span>
@@ -163,8 +163,8 @@ rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.</p>
 
 <span class="k">def</span> <span class="nf">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">pixels</span><span class="p">):</span>
     <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">pixels</span><span class="o">.</span><span class="n">size</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
                 <span class="n">pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
     <span class="k">return</span> <span class="n">pixels</span>
@@ -181,20 +181,20 @@ rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.</p>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">br</span> <span class="o">=</span> <span class="n">mechanize</span><span class="o">.</span><span class="n">Browser</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
-        <span class="k">print</span> <span class="s1">&#39;voto&#39;</span><span class="p">,</span> <span class="n">i</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="nb">print</span> <span class="s1">&#39;voto&#39;</span><span class="p">,</span> <span class="n">i</span>
 
         <span class="n">page</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;*****/captcha/captcha.php&#39;</span><span class="p">)</span>
         <span class="n">img_str</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
         <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;original.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_str</span><span class="p">)</span>
-        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;tiff&#39;</span><span class="p">)</span>
+        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;tiff&#39;</span><span class="p">)</span>
 
         <span class="n">output</span> <span class="o">=</span> <span class="n">clean_captcha</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 
         <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;tmp.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;tiff&#39;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;tiff&#39;</span><span class="p">)</span>
         <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="n">getoutput</span><span class="p">(</span><span class="s1">&#39;tesseract tmp.tif output -l brand&#39;</span><span class="p">)</span>

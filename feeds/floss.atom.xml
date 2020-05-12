@@ -50,7 +50,7 @@ no final, abro para perguntas. Nada. OK, acabou. Não foi tão difícil.  &lt;/p
 Luto oficial.  &lt;/p&gt;
 &lt;p&gt;Fim da tarde. Vamos embora. Passamos no cinema e assisitimos As Férias
 de Mr. Bean. Seria tolo, se não fosse tão engraçado.  &lt;/p&gt;
-&lt;p&gt;Noite. Torradas de janta. Um pouco de enrolação. Cama.&lt;/p&gt;</content></entry><entry><title>Algo não cheira bem…</title><link href="https://blog.luizirber.org/2006/11/03/algo-nao-cheira-bem/" rel="alternate"></link><published>2006-11-03T15:05:00-03:00</published><updated>2006-11-03T15:05:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-03:/2006/11/03/algo-nao-cheira-bem/</id><content type="html">&lt;blockquote&gt;
+&lt;p&gt;Noite. Torradas de janta. Um pouco de enrolação. Cama.&lt;/p&gt;</content><category term="FLOSS"></category></entry><entry><title>Algo não cheira bem…</title><link href="https://blog.luizirber.org/2006/11/03/algo-nao-cheira-bem/" rel="alternate"></link><published>2006-11-03T15:05:00-03:00</published><updated>2006-11-03T15:05:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-03:/2006/11/03/algo-nao-cheira-bem/</id><content type="html">&lt;blockquote&gt;
 &lt;p&gt;“Novell is actually just a proxy for its customers, and it's only for
 its customers. This does not apply to any forms of Linux other than
 Novell's SUSE Linux. And if people want to have patent peace and
@@ -61,7 +61,7 @@ Ballmer.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;a href="http://www.businessreviewonline.com/os/archives/2006/11/novell_and_micr.html"&gt;Fonte&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Será que a Microsoft abraçou a Novell (abraço de urso, diga-se) por
-causa do anúncio da Oracle na semana passada?&lt;/p&gt;</content></entry><entry><title>Ubuntu Feisty Fawn</title><link href="https://blog.luizirber.org/2006/11/03/ubuntu-feisty-fawn/" rel="alternate"></link><published>2006-11-03T13:04:00-03:00</published><updated>2006-11-03T13:04:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-03:/2006/11/03/ubuntu-feisty-fawn/</id><content type="html">&lt;p&gt;Você, como eu, sente aflição quando uma distribuição baseada em Debian é
+causa do anúncio da Oracle na semana passada?&lt;/p&gt;</content><category term="FLOSS"></category></entry><entry><title>Ubuntu Feisty Fawn</title><link href="https://blog.luizirber.org/2006/11/03/ubuntu-feisty-fawn/" rel="alternate"></link><published>2006-11-03T13:04:00-03:00</published><updated>2006-11-03T13:04:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-11-03:/2006/11/03/ubuntu-feisty-fawn/</id><content type="html">&lt;p&gt;Você, como eu, sente aflição quando uma distribuição baseada em Debian é
 estabilizada e pára de atualizar a maior parte dos pacotes? Não se
 importa de possivelmente deixar sua máquina imprestável?&lt;/p&gt;
 &lt;p&gt;Desde ontem estão funcionando os repositórios do Feisty, a próxima
@@ -69,7 +69,7 @@ versão do Ubuntu. Basta trocar o "edgy" do sources.list por "feisty".&lt;/p&gt;
 &lt;p&gt;A melhor justificativa que eu achei é: Já que muitos reclamam que o
 upgrade de versões estáveis estraga algumas configurações, por que não
 fazer o upgrade agora, que os repositórios do Feisty são praticamente
-idênticos ao do Edgy, e ir fazendo o upgrade aos poucos? =D&lt;/p&gt;</content></entry><entry><title>GStreamer</title><link href="https://blog.luizirber.org/2006/10/25/gstreamer/" rel="alternate"></link><published>2006-10-25T02:11:00-03:00</published><updated>2006-10-25T02:11:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-10-25:/2006/10/25/gstreamer/</id><content type="html">&lt;p&gt;No ano passado eu descobri um dos melhores livros que eu li na minha
+idênticos ao do Edgy, e ir fazendo o upgrade aos poucos? =D&lt;/p&gt;</content><category term="FLOSS"></category></entry><entry><title>GStreamer</title><link href="https://blog.luizirber.org/2006/10/25/gstreamer/" rel="alternate"></link><published>2006-10-25T02:11:00-03:00</published><updated>2006-10-25T02:11:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2006-10-25:/2006/10/25/gstreamer/</id><content type="html">&lt;p&gt;No ano passado eu descobri um dos melhores livros que eu li na minha
 vida, &lt;a href="http://fcpn.multiply.com/reviews/item/1"&gt;O Guia do Mochileiro das Galáxias&lt;/a&gt;, de Douglas Adams. Pouco
 depois de terminar de ler (duas vezes) eu fiz uma busca por Douglas
 Adams no Google. E um dos links retornados foi uma sessão de perguntas e
@@ -96,4 +96,4 @@ isso. Com essas partes simples, todas juntas, coisas muito complexas
 podem ser feitas, como o &lt;a href="http://www.flumotion.net/"&gt;Flumotion&lt;/a&gt;, um servidor de streaming, e o
 &lt;a href="http://pitivi.sourceforge.net/"&gt;PITIVI&lt;/a&gt;, um editor não-linear de vídeo.E, claro, o grande
 &lt;a href="http://sourceforge.net/projects/bugbrother/"&gt;BugBrother&lt;/a&gt;, o protótipo do programa que eu estou fazendo lá na
-Embrapa. Mais sobre esse em outro post.&lt;/p&gt;</content></entry></feed>
+Embrapa. Mais sobre esse em outro post.&lt;/p&gt;</content><category term="FLOSS"></category></entry></feed>
