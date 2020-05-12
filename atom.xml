@@ -211,7 +211,7 @@ also &lt;code&gt;search&lt;/code&gt; and &lt;code&gt;gather&lt;/code&gt; in the 
 since now we have all the pieces to build it.&lt;/p&gt;
 &lt;h2&gt;Comments?&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=""&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1260031886744621059"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sbt-zip-1&gt;&lt;p&gt;The &lt;code&gt;zipfile&lt;/code&gt; module does throw a &lt;code&gt;UserWarning&lt;/code&gt; pointing that duplicated files were inserted,
 which is useful during development but generally doesn't show during regular usage... &lt;a href=#sf-sbt-zip-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>Oxidizing sourmash: PR walkthrough</title><link href="https://blog.luizirber.org/2020/01/10/sourmash-pr/" rel="alternate"></link><published>2020-01-10T12:00:00-03:00</published><updated>2020-01-10T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-01-10:/2020/01/10/sourmash-pr/</id><content type="html">&lt;p&gt;sourmash 3 was released last week,
 finally landing the Rust backend.
