@@ -1,5 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/feeds/all.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2020-01-10T12:00:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Oxidizing sourmash: PR walkthrough</title><link href="https://blog.luizirber.org/2020/01/10/sourmash-pr/" rel="alternate"></link><published>2020-01-10T12:00:00-03:00</published><updated>2020-01-10T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-01-10:/2020/01/10/sourmash-pr/</id><content type="html">&lt;p&gt;sourmash 3 was released last week,
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/feeds/all.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2020-05-11T12:00:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Putting it all together</title><link href="https://blog.luizirber.org/2020/05/11/sbt-zip/" rel="alternate"></link><published>2020-05-11T12:00:00-03:00</published><updated>2020-05-11T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-05-11:/2020/05/11/sbt-zip/</id><content type="html">&lt;p&gt;sourmash &lt;a href="https://twitter.com/ctitusbrown/status/1257418140729868291"&gt;3.3&lt;/a&gt; was released last week,
+and it is the first version supporting &lt;a href="http://ivory.idyll.org/blog/2020-sourmash-databases-as-zip-files.html"&gt;zipped databases&lt;/a&gt;.
+Here is my personal account of how that came to be =]&lt;/p&gt;
+&lt;h2&gt;What is a sourmash database?&lt;/h2&gt;
+&lt;p&gt;A sourmash database contains signatures (typically Scaled MinHash sketches built from genomic datasets) and
+an index for allowing efficient similarity and containment queries over these signatures.
+The two types of index are SBT,
+a hierarchical index that uses less memory by keeping data on disk,
+and LCA,
+an inverted index that uses more memory but is potentially faster.
+Indices are described as JSON files,
+with LCA storing all the data in one JSON file and SBT opting for saving a description of the index structure in JSON,
+and all the data into a hidden directory with many files.&lt;/p&gt;
+&lt;p&gt;We distribute some &lt;a href="https://sourmash.readthedocs.io/en/v3.3.0/databases.html"&gt;prepared databases&lt;/a&gt; (with SBT indices) for Genbank and RefSeq as compressed TAR files.
+The compressed file is ~8GB,
+but after decompressing it turns into almost 200k files in a hidden directory,
+using about 40 GB of disk space.&lt;/p&gt;
+&lt;h2&gt;Can we avoid generating so many hidden files?&lt;/h2&gt;
+&lt;p&gt;The initial issue in this saga is &lt;a href="https://github.com/dib-lab/sourmash/issues/490"&gt;dib-lab/sourmash#490&lt;/a&gt;,
+and the idea was to take the existing support for multiple data storages
+(hidden dir,
+TAR files,
+IPFS and Redis) and save the index description in the storage,
+allowing loading everything from the storage.
+Since we already had the databases as TAR files,
+the first test tried to use them but it didn't take long to see it was a doomed approach:
+TAR files are terrible from random access
+(or at least the &lt;code&gt;tarfile&lt;/code&gt; module in Python is).&lt;/p&gt;
+&lt;p&gt;Zip files showed up as a better alternative,
+and it helps that Python has the &lt;code&gt;zipfile&lt;/code&gt; module already available in the
+standard library.
+Initial tests were promising,
+and led to &lt;a href="https://github.com/dib-lab/sourmash/pull/648"&gt;dib-lab/sourmash#648&lt;/a&gt;.
+The main issue was performance:
+compressing and decompressing was slow,
+but there was also another limitation...&lt;/p&gt;
+&lt;h2&gt;Loading Nodegraphs from a memory buffer&lt;/h2&gt;
+&lt;p&gt;Another challenge was efficiently loading the data from a storage.
+The two core methods in a storage are &lt;code&gt;save(location, content)&lt;/code&gt;,
+where &lt;code&gt;content&lt;/code&gt; is a bytes buffer,
+and &lt;code&gt;load(location)&lt;/code&gt;,
+which returns a bytes buffer that was previously saved.
+This didn't interact well with the &lt;code&gt;khmer&lt;/code&gt; &lt;code&gt;Nodegraph&lt;/code&gt;s (the Bloom Filter we use for SBTs),
+since &lt;code&gt;khmer&lt;/code&gt; only loads data from files,
+not from memory buffers.
+We ended up doing a temporary file dance,
+which made things slower for the default storage (hidden dir),
+where it could have been optimized to work directly with files,
+and involved interacting with the filesystem for the other storages
+(IPFS and Redis could be pulling data directly from the network,
+for example).&lt;/p&gt;
+&lt;p&gt;This one could be fixed in &lt;code&gt;khmer&lt;/code&gt; by exposing C++ stream methods,
+and I did a &lt;a href="https://github.com/luizirber/2018-cython-streams"&gt;small PoC&lt;/a&gt; to test the idea.
+While doable,
+this is something that was happening while the sourmash conversion to Rust was underway,
+and depending on &lt;code&gt;khmer&lt;/code&gt; was a problem for my Webassembly aspirations...
+so,
+having the Nodegraph &lt;a href="https://github.com/luizirber/sourmash-rust/pull/15"&gt;implemented in Rust&lt;/a&gt; seemed like a better direction,
+That has actually been quietly living in the sourmash codebase for quite some time,
+but it was never exposed to the Python (and it was also lacking more extensive
+tests).&lt;/p&gt;
+&lt;p&gt;After the release of sourmash 3 and the replacement of the C++ for the Rust implementation,
+all the pieces for exposing the Nodegraph where in place,
+so &lt;a href="https://github.com/dib-lab/sourmash/pull/799"&gt;dib-lab/sourmash#799&lt;/a&gt; was the next step.
+It wasn't a priority at first because other optimizations
+(that were released in 3.1 and 3.2)
+were more important,
+but then it was time to check how this would perform.
+And...&lt;/p&gt;
+&lt;h2&gt;Your Rust code is not so fast, huh?&lt;/h2&gt;
+&lt;p&gt;Turns out that my Nodegraph loading code was way slower than &lt;code&gt;khmer&lt;/code&gt;.
+The Nodegraph binary format &lt;a href="https://khmer.readthedocs.io/en/latest/dev/binary-file-formats.html#nodegrap://khmer.readthedocs.io/en/latest/dev/binary-file-formats.html#nodegraph"&gt;is well documented&lt;/a&gt;,
+and doing an initial implementation wasn't so hard by using the &lt;code&gt;byteorder&lt;/code&gt; crate
+to read binary data with the right endianess,
+and then setting the appropriate bits in the internal &lt;code&gt;fixedbitset&lt;/code&gt; in memory.
+But the khmer code doesn't parse bit by bit:
+it &lt;a href="https://github.com/dib-lab/khmer/blob/fe0ce116456b296c522ba24294a0cabce3b2648b/src/oxli/storage.cc#L233"&gt;reads&lt;/a&gt; a long &lt;code&gt;char&lt;/code&gt; buffer directly,
+and that is many orders of magnitude faster than setting bit by bit.&lt;/p&gt;
+&lt;p&gt;And there was no way to replicate this behavior directly with &lt;code&gt;fixedbitset&lt;/code&gt;.
+At this point I could either bit-indexing into a large buffer
+and lose all the useful methods that &lt;code&gt;fixedbitset&lt;/code&gt; provides,
+or try to find a way to support loading the data directly into &lt;code&gt;fixedbitset&lt;/code&gt; and
+open a PR.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/petgraph/fixedbitset/pull/42"&gt;I chose the PR&lt;/a&gt; (and even got #42! =]).&lt;/p&gt;
+&lt;p&gt;It was more straightforward than I expected,
+but it did expose the internal representation of &lt;code&gt;fixedbitset&lt;/code&gt;,
+so I was a bit nervous it wasn't going to be merged.
+But &lt;a href="https://github.com/bluss"&gt;bluss&lt;/a&gt; was super nice,
+and his suggestions made the PR way better!
+This &lt;a href="https://github.com/dib-lab/sourmash/blob/9a695fb03b99c060bb8d1384ab78bb3797c5eb65/src/core/src/sketch/nodegraph.rs#L235L261"&gt;simplified&lt;/a&gt; the final &lt;code&gt;Nodegraph&lt;/code&gt; code,
+and actually was more correct
+(because I was messing a few corner cases when doing the bit-by-bit parsing before).
+Win-win!&lt;/p&gt;
+&lt;h2&gt;Nodegraphs are kind of large, can we compress them?&lt;/h2&gt;
+&lt;p&gt;Being able to save and load &lt;code&gt;Nodegraph&lt;/code&gt;s in Rust allowed using memory buffers,
+but also opened the way to support other operations not supported in khmer &lt;code&gt;Nodegraph&lt;/code&gt;s.
+One example is loading/saving compressed files,
+which is supported for &lt;code&gt;Countgraph&lt;/code&gt;
+(another khmer data structure,
+based on Count-Min Sketch)
+but not in &lt;code&gt;Nodegraph&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;If only there was an easy way to support working with compressed files...&lt;/p&gt;
+&lt;p&gt;Oh wait, there is! &lt;a href="https://github.com/luizirber/niffler"&gt;niffler&lt;/a&gt; is a crate that I made with &lt;a href="https://twitter.com/pierre_marijon"&gt;Pierre Marijon&lt;/a&gt; based
+on some functionality I saw in one of his projects,
+and we iterated a bit on the API and documented everything to make it more
+useful for a larger audience.
+&lt;code&gt;niffler&lt;/code&gt; tries to be as transparent as possible,
+with very little boilerplate when using it but with useful features nonetheless
+(like auto detection of the compression format).
+If you want more about the motivation and how it happened,
+check this &lt;a href="https://twitter.com/luizirber/status/1253445504622424064"&gt;Twitter thread&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The cool thing is that adding compressed files support in &lt;code&gt;sourmash&lt;/code&gt; was mostly
+&lt;a href="https://github.com/dib-lab/sourmash/pull/799/files#diff-313a7ff0fdb14f408a64b3f010f46f65R220"&gt;one-line changes&lt;/a&gt; for loading
+(and &lt;a href="https://github.com/dib-lab/sourmash/pull/648/files#diff-d80ae1dd777d07300d7b6066b3318397L249-R273"&gt;a bit more&lt;/a&gt; for saving,
+but mostly because converting compression levels could use some refactoring).&lt;/p&gt;
+&lt;h2&gt;Putting it all together: zipped SBT indices&lt;/h2&gt;
+&lt;p&gt;With all these other pieces in places,
+it's time to go back to &lt;a href="https://github.com/dib-lab/sourmash/issues/490"&gt;dib-lab/sourmash#490&lt;/a&gt;.
+Compressing and decompressing with the Python &lt;code&gt;zipfile&lt;/code&gt; module is slow,
+but Zip files can also be used just for storage,
+handing back the data without extracting it.
+And since we have compression/decompression implemented in Rust with &lt;code&gt;niffler&lt;/code&gt;,
+that's what the zipped sourmash databases are:
+data is loaded and saved into the Zip file without using the Python module
+compression/decompression,
+and all the work is done before (or after) in the Rust side.&lt;/p&gt;
+&lt;p&gt;This allows keeping the Zip file with similar sizes to the original TAR files we started with,
+but with very low overhead for decompression.
+For compression we opted for using Gzip level 1,
+which doesn't compress perfectly but also doesn't take much longer to run:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Level&lt;/th&gt;
+&lt;th&gt;Size&lt;/th&gt;
+&lt;th&gt;Time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;407 MB&lt;/td&gt;
+&lt;td&gt;16s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;252 MB&lt;/td&gt;
+&lt;td&gt;21s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;250 MB&lt;/td&gt;
+&lt;td&gt;39s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;246 MB&lt;/td&gt;
+&lt;td&gt;1m48s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;In this table, &lt;code&gt;0&lt;/code&gt; is without compression,
+while &lt;code&gt;9&lt;/code&gt; is the best compression.
+The size difference from &lt;code&gt;1&lt;/code&gt; to &lt;code&gt;9&lt;/code&gt; is only 6 MB (~2% difference)
+but runs 5x faster,
+and it's only 30% slower than using uncompressed data.&lt;/p&gt;
+&lt;p&gt;The last challenge was updating an existing Zip file.
+It's easy to support appending new data,
+but if any of the already existing data in the file changes
+(which happens when internal nodes change in the SBT,
+after a new dataset is inserted) then there is no easy way to replace the data in the Zip file.
+Worse,
+the Python &lt;code&gt;zipfile&lt;/code&gt; will add the new data while keeping the old one around,
+leading to ginormous files over time&lt;sup id=sf-sbt-zip-1-back&gt;&lt;a href=#sf-sbt-zip-1 class=simple-footnote title="The zipfile module does throw a UserWarning pointing that duplicated files were inserted, which is useful during development but generally doesn't show during regular usage..."&gt;1&lt;/a&gt;&lt;/sup&gt;
+So, what to do?&lt;/p&gt;
+&lt;p&gt;I ended up opting for dealing with the complexity and &lt;a href="https://github.com/dib-lab/sourmash/pull/648/files#diff-a99b088adcc872e1b408fbdcca20ebebR110-R248"&gt;complicating the ZipStorage&lt;/a&gt; implementation a bit,
+by keeping a buffer for new data.
+If it's a new file or it already exists but there are no insertions
+the buffer is ignored and all works as before.&lt;/p&gt;
+&lt;p&gt;If the file exists and new data is inserted,
+then it is first stored in the buffer
+(where it might also replace a previous entry with the same name).
+In this case we also need to check the buffer when trying to load some data
+(because it might exist only in the buffer,
+and not in the original file).&lt;/p&gt;
+&lt;p&gt;Finally,
+when the &lt;code&gt;ZipStorage&lt;/code&gt; is closed it needs to verify if there are new items in the buffer.
+If not,
+it is safe just to close the original file.
+If there are new items but they were not present in the original file,
+then we can append the new data to the original file.
+The final case is if there are new items that were also in the original file,
+and in this case a new Zip file is created and all the content from buffer and
+original file are copied to it,
+prioritizing items from the buffer.
+The original file is replaced by the new Zip file.&lt;/p&gt;
+&lt;p&gt;Turns out this worked quite well! And so the PR was merged =]&lt;/p&gt;
+&lt;h2&gt;The future&lt;/h2&gt;
+&lt;p&gt;Zipped databases open the possibility of distributing extra data that might be
+useful for some kinds of analysis.
+One thing we are already considering is adding &lt;a href="https://github.com/dib-lab/sourmash/issues/969"&gt;taxonomy information&lt;/a&gt;,
+let's see what else shows up.&lt;/p&gt;
+&lt;p&gt;Having &lt;code&gt;Nodegraph&lt;/code&gt; in Rust is also pretty exciting,
+because now we can change the internal representation for something that uses
+less memory (maybe using &lt;a href="https://alexbowe.com/rrr/"&gt;RRR encoding&lt;/a&gt;?),
+but more importantly:
+now they can also be used with Webassembly,
+which opens many possibilities for running not only &lt;a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/"&gt;signature computation&lt;/a&gt; but
+also &lt;code&gt;search&lt;/code&gt; and &lt;code&gt;gather&lt;/code&gt; in the browser,
+since now we have all the pieces to build it.&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=""&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-sbt-zip-1&gt;&lt;p&gt;The &lt;code&gt;zipfile&lt;/code&gt; module does throw a &lt;code&gt;UserWarning&lt;/code&gt; pointing that duplicated files were inserted,
+which is useful during development but generally doesn't show during regular usage... &lt;a href=#sf-sbt-zip-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</content><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>Oxidizing sourmash: PR walkthrough</title><link href="https://blog.luizirber.org/2020/01/10/sourmash-pr/" rel="alternate"></link><published>2020-01-10T12:00:00-03:00</published><updated>2020-01-10T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-01-10:/2020/01/10/sourmash-pr/</id><content type="html">&lt;p&gt;sourmash 3 was released last week,
 finally landing the Rust backend.
 But, what changes when developing new features in sourmash?
 I was thinking about how to best document this process,

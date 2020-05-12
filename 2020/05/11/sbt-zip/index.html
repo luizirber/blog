@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Putting it all together</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>Putting it all together</h1>
+
+    <time class="single" datetime="2020-05-11T12:00:00-03:00">11 May 2020</time>
+
+    <p>sourmash <a href="https://twitter.com/ctitusbrown/status/1257418140729868291">3.3</a> was released last week,
+and it is the first version supporting <a href="http://ivory.idyll.org/blog/2020-sourmash-databases-as-zip-files.html">zipped databases</a>.
+Here is my personal account of how that came to be =]</p>
+<h2>What is a sourmash database?</h2>
+<p>A sourmash database contains signatures (typically Scaled MinHash sketches built from genomic datasets) and
+an index for allowing efficient similarity and containment queries over these signatures.
+The two types of index are SBT,
+a hierarchical index that uses less memory by keeping data on disk,
+and LCA,
+an inverted index that uses more memory but is potentially faster.
+Indices are described as JSON files,
+with LCA storing all the data in one JSON file and SBT opting for saving a description of the index structure in JSON,
+and all the data into a hidden directory with many files.</p>
+<p>We distribute some <a href="https://sourmash.readthedocs.io/en/v3.3.0/databases.html">prepared databases</a> (with SBT indices) for Genbank and RefSeq as compressed TAR files.
+The compressed file is ~8GB,
+but after decompressing it turns into almost 200k files in a hidden directory,
+using about 40 GB of disk space.</p>
+<h2>Can we avoid generating so many hidden files?</h2>
+<p>The initial issue in this saga is <a href="https://github.com/dib-lab/sourmash/issues/490">dib-lab/sourmash#490</a>,
+and the idea was to take the existing support for multiple data storages
+(hidden dir,
+TAR files,
+IPFS and Redis) and save the index description in the storage,
+allowing loading everything from the storage.
+Since we already had the databases as TAR files,
+the first test tried to use them but it didn't take long to see it was a doomed approach:
+TAR files are terrible from random access
+(or at least the <code>tarfile</code> module in Python is).</p>
+<p>Zip files showed up as a better alternative,
+and it helps that Python has the <code>zipfile</code> module already available in the
+standard library.
+Initial tests were promising,
+and led to <a href="https://github.com/dib-lab/sourmash/pull/648">dib-lab/sourmash#648</a>.
+The main issue was performance:
+compressing and decompressing was slow,
+but there was also another limitation...</p>
+<h2>Loading Nodegraphs from a memory buffer</h2>
+<p>Another challenge was efficiently loading the data from a storage.
+The two core methods in a storage are <code>save(location, content)</code>,
+where <code>content</code> is a bytes buffer,
+and <code>load(location)</code>,
+which returns a bytes buffer that was previously saved.
+This didn't interact well with the <code>khmer</code> <code>Nodegraph</code>s (the Bloom Filter we use for SBTs),
+since <code>khmer</code> only loads data from files,
+not from memory buffers.
+We ended up doing a temporary file dance,
+which made things slower for the default storage (hidden dir),
+where it could have been optimized to work directly with files,
+and involved interacting with the filesystem for the other storages
+(IPFS and Redis could be pulling data directly from the network,
+for example).</p>
+<p>This one could be fixed in <code>khmer</code> by exposing C++ stream methods,
+and I did a <a href="https://github.com/luizirber/2018-cython-streams">small PoC</a> to test the idea.
+While doable,
+this is something that was happening while the sourmash conversion to Rust was underway,
+and depending on <code>khmer</code> was a problem for my Webassembly aspirations...
+so,
+having the Nodegraph <a href="https://github.com/luizirber/sourmash-rust/pull/15">implemented in Rust</a> seemed like a better direction,
+That has actually been quietly living in the sourmash codebase for quite some time,
+but it was never exposed to the Python (and it was also lacking more extensive
+tests).</p>
+<p>After the release of sourmash 3 and the replacement of the C++ for the Rust implementation,
+all the pieces for exposing the Nodegraph where in place,
+so <a href="https://github.com/dib-lab/sourmash/pull/799">dib-lab/sourmash#799</a> was the next step.
+It wasn't a priority at first because other optimizations
+(that were released in 3.1 and 3.2)
+were more important,
+but then it was time to check how this would perform.
+And...</p>
+<h2>Your Rust code is not so fast, huh?</h2>
+<p>Turns out that my Nodegraph loading code was way slower than <code>khmer</code>.
+The Nodegraph binary format <a href="https://khmer.readthedocs.io/en/latest/dev/binary-file-formats.html#nodegrap://khmer.readthedocs.io/en/latest/dev/binary-file-formats.html#nodegraph">is well documented</a>,
+and doing an initial implementation wasn't so hard by using the <code>byteorder</code> crate
+to read binary data with the right endianess,
+and then setting the appropriate bits in the internal <code>fixedbitset</code> in memory.
+But the khmer code doesn't parse bit by bit:
+it <a href="https://github.com/dib-lab/khmer/blob/fe0ce116456b296c522ba24294a0cabce3b2648b/src/oxli/storage.cc#L233">reads</a> a long <code>char</code> buffer directly,
+and that is many orders of magnitude faster than setting bit by bit.</p>
+<p>And there was no way to replicate this behavior directly with <code>fixedbitset</code>.
+At this point I could either bit-indexing into a large buffer
+and lose all the useful methods that <code>fixedbitset</code> provides,
+or try to find a way to support loading the data directly into <code>fixedbitset</code> and
+open a PR.</p>
+<p><a href="https://github.com/petgraph/fixedbitset/pull/42">I chose the PR</a> (and even got #42! =]).</p>
+<p>It was more straightforward than I expected,
+but it did expose the internal representation of <code>fixedbitset</code>,
+so I was a bit nervous it wasn't going to be merged.
+But <a href="https://github.com/bluss">bluss</a> was super nice,
+and his suggestions made the PR way better!
+This <a href="https://github.com/dib-lab/sourmash/blob/9a695fb03b99c060bb8d1384ab78bb3797c5eb65/src/core/src/sketch/nodegraph.rs#L235L261">simplified</a> the final <code>Nodegraph</code> code,
+and actually was more correct
+(because I was messing a few corner cases when doing the bit-by-bit parsing before).
+Win-win!</p>
+<h2>Nodegraphs are kind of large, can we compress them?</h2>
+<p>Being able to save and load <code>Nodegraph</code>s in Rust allowed using memory buffers,
+but also opened the way to support other operations not supported in khmer <code>Nodegraph</code>s.
+One example is loading/saving compressed files,
+which is supported for <code>Countgraph</code>
+(another khmer data structure,
+based on Count-Min Sketch)
+but not in <code>Nodegraph</code>.</p>
+<p>If only there was an easy way to support working with compressed files...</p>
+<p>Oh wait, there is! <a href="https://github.com/luizirber/niffler">niffler</a> is a crate that I made with <a href="https://twitter.com/pierre_marijon">Pierre Marijon</a> based
+on some functionality I saw in one of his projects,
+and we iterated a bit on the API and documented everything to make it more
+useful for a larger audience.
+<code>niffler</code> tries to be as transparent as possible,
+with very little boilerplate when using it but with useful features nonetheless
+(like auto detection of the compression format).
+If you want more about the motivation and how it happened,
+check this <a href="https://twitter.com/luizirber/status/1253445504622424064">Twitter thread</a>.</p>
+<p>The cool thing is that adding compressed files support in <code>sourmash</code> was mostly
+<a href="https://github.com/dib-lab/sourmash/pull/799/files#diff-313a7ff0fdb14f408a64b3f010f46f65R220">one-line changes</a> for loading
+(and <a href="https://github.com/dib-lab/sourmash/pull/648/files#diff-d80ae1dd777d07300d7b6066b3318397L249-R273">a bit more</a> for saving,
+but mostly because converting compression levels could use some refactoring).</p>
+<h2>Putting it all together: zipped SBT indices</h2>
+<p>With all these other pieces in places,
+it's time to go back to <a href="https://github.com/dib-lab/sourmash/issues/490">dib-lab/sourmash#490</a>.
+Compressing and decompressing with the Python <code>zipfile</code> module is slow,
+but Zip files can also be used just for storage,
+handing back the data without extracting it.
+And since we have compression/decompression implemented in Rust with <code>niffler</code>,
+that's what the zipped sourmash databases are:
+data is loaded and saved into the Zip file without using the Python module
+compression/decompression,
+and all the work is done before (or after) in the Rust side.</p>
+<p>This allows keeping the Zip file with similar sizes to the original TAR files we started with,
+but with very low overhead for decompression.
+For compression we opted for using Gzip level 1,
+which doesn't compress perfectly but also doesn't take much longer to run:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Size</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>407 MB</td>
+<td>16s</td>
+</tr>
+<tr>
+<td>1</td>
+<td>252 MB</td>
+<td>21s</td>
+</tr>
+<tr>
+<td>5</td>
+<td>250 MB</td>
+<td>39s</td>
+</tr>
+<tr>
+<td>9</td>
+<td>246 MB</td>
+<td>1m48s</td>
+</tr>
+</tbody>
+</table>
+<p>In this table, <code>0</code> is without compression,
+while <code>9</code> is the best compression.
+The size difference from <code>1</code> to <code>9</code> is only 6 MB (~2% difference)
+but runs 5x faster,
+and it's only 30% slower than using uncompressed data.</p>
+<p>The last challenge was updating an existing Zip file.
+It's easy to support appending new data,
+but if any of the already existing data in the file changes
+(which happens when internal nodes change in the SBT,
+after a new dataset is inserted) then there is no easy way to replace the data in the Zip file.
+Worse,
+the Python <code>zipfile</code> will add the new data while keeping the old one around,
+leading to ginormous files over time<sup id=sf-sbt-zip-1-back><a href=#sf-sbt-zip-1 class=simple-footnote title="The zipfile module does throw a UserWarning pointing that duplicated files were inserted, which is useful during development but generally doesn't show during regular usage...">1</a></sup>
+So, what to do?</p>
+<p>I ended up opting for dealing with the complexity and <a href="https://github.com/dib-lab/sourmash/pull/648/files#diff-a99b088adcc872e1b408fbdcca20ebebR110-R248">complicating the ZipStorage</a> implementation a bit,
+by keeping a buffer for new data.
+If it's a new file or it already exists but there are no insertions
+the buffer is ignored and all works as before.</p>
+<p>If the file exists and new data is inserted,
+then it is first stored in the buffer
+(where it might also replace a previous entry with the same name).
+In this case we also need to check the buffer when trying to load some data
+(because it might exist only in the buffer,
+and not in the original file).</p>
+<p>Finally,
+when the <code>ZipStorage</code> is closed it needs to verify if there are new items in the buffer.
+If not,
+it is safe just to close the original file.
+If there are new items but they were not present in the original file,
+then we can append the new data to the original file.
+The final case is if there are new items that were also in the original file,
+and in this case a new Zip file is created and all the content from buffer and
+original file are copied to it,
+prioritizing items from the buffer.
+The original file is replaced by the new Zip file.</p>
+<p>Turns out this worked quite well! And so the PR was merged =]</p>
+<h2>The future</h2>
+<p>Zipped databases open the possibility of distributing extra data that might be
+useful for some kinds of analysis.
+One thing we are already considering is adding <a href="https://github.com/dib-lab/sourmash/issues/969">taxonomy information</a>,
+let's see what else shows up.</p>
+<p>Having <code>Nodegraph</code> in Rust is also pretty exciting,
+because now we can change the internal representation for something that uses
+less memory (maybe using <a href="https://alexbowe.com/rrr/">RRR encoding</a>?),
+but more importantly:
+now they can also be used with Webassembly,
+which opens many possibilities for running not only <a href="https://blog.luizirber.org/2018/08/27/sourmash-wasm/">signature computation</a> but
+also <code>search</code> and <code>gather</code> in the browser,
+since now we have all the pieces to build it.</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="">Thread on Twitter</a></li>
+</ul><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-sbt-zip-1><p>The <code>zipfile</code> module does throw a <code>UserWarning</code> pointing that duplicated files were inserted,
+which is useful during development but generally doesn't show during regular usage... <a href=#sf-sbt-zip-1-back class=simple-footnote-back>↩</a></p></li></ol></section>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/bioinformatics.html">bioinformatics</a>
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>
