@@ -291,7 +291,7 @@ That's not going to be any faster than what we were doing in <code>_signatures</
 </pre></div>
 
 
-<p><code>self._methodcall</code> is a convenience method defined in [<code>RustObject</code>]
+<p><code>self._methodcall</code> is a convenience method defined in <a href="https://github.com/dib-lab/sourmash/blob/c6cbdf0398ef836797492e13371a38373c544ae1/sourmash/utils.py#L24">RustObject</a>
 which translates a method-like call into a function call,
 since our C layer only has functions.
 This is the C prototype for this function:</p>
@@ -513,13 +513,34 @@ The code:</p>
 
 
 <p>The runtime was again half of the original,
-but...
-| version | mem | time |
-| :-- | :-- | :-- |
-|original|1.5 GB|160s|
-|<code>set</code>|3.8GB|80s|
-|<code>list</code>|1.7GB|73s|
-... memory consumption was almost 2.5 times the original! WAT</p>
+but...</p>
+<table>
+<thead>
+<tr>
+<th align=left>version</th>
+<th align=left>mem</th>
+<th align=left>time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align=left>original</td>
+<td align=left>1.5 GB</td>
+<td align=left>160s</td>
+</tr>
+<tr>
+<td align=left><code>set</code></td>
+<td align=left>3.8GB</td>
+<td align=left>80s</td>
+</tr>
+<tr>
+<td align=left><code>list</code></td>
+<td align=left>1.7GB</td>
+<td align=left>73s</td>
+</tr>
+</tbody>
+</table>
+<p>... memory consumption was almost 2.5 times the original! WAT</p>
 <p>The culprit this time? The new <code>kmerminhash_add_many</code> call in the <code>add_many</code>
 method.
 This one:</p>

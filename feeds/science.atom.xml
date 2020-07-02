@@ -445,7 +445,7 @@ That's not going to be any faster than what we were doing in &lt;code&gt;_signat
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;code&gt;self._methodcall&lt;/code&gt; is a convenience method defined in [&lt;code&gt;RustObject&lt;/code&gt;]
+&lt;p&gt;&lt;code&gt;self._methodcall&lt;/code&gt; is a convenience method defined in &lt;a href="https://github.com/dib-lab/sourmash/blob/c6cbdf0398ef836797492e13371a38373c544ae1/sourmash/utils.py#L24"&gt;RustObject&lt;/a&gt;
 which translates a method-like call into a function call,
 since our C layer only has functions.
 This is the C prototype for this function:&lt;/p&gt;
@@ -667,13 +667,34 @@ The code:&lt;/p&gt;
 
 
 &lt;p&gt;The runtime was again half of the original,
-but...
-| version | mem | time |
-| :-- | :-- | :-- |
-|original|1.5 GB|160s|
-|&lt;code&gt;set&lt;/code&gt;|3.8GB|80s|
-|&lt;code&gt;list&lt;/code&gt;|1.7GB|73s|
-... memory consumption was almost 2.5 times the original! WAT&lt;/p&gt;
+but...&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=left&gt;version&lt;/th&gt;
+&lt;th align=left&gt;mem&lt;/th&gt;
+&lt;th align=left&gt;time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;original&lt;/td&gt;
+&lt;td align=left&gt;1.5 GB&lt;/td&gt;
+&lt;td align=left&gt;160s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;&lt;code&gt;set&lt;/code&gt;&lt;/td&gt;
+&lt;td align=left&gt;3.8GB&lt;/td&gt;
+&lt;td align=left&gt;80s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=left&gt;&lt;code&gt;list&lt;/code&gt;&lt;/td&gt;
+&lt;td align=left&gt;1.7GB&lt;/td&gt;
+&lt;td align=left&gt;73s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;... memory consumption was almost 2.5 times the original! WAT&lt;/p&gt;
 &lt;p&gt;The culprit this time? The new &lt;code&gt;kmerminhash_add_many&lt;/code&gt; call in the &lt;code&gt;add_many&lt;/code&gt;
 method.
 This one:&lt;/p&gt;
