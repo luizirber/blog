@@ -273,7 +273,7 @@ with a call to a Rust extension function:
 self._methodcall(lib.kmerminhash_add_many, list(hashes), len(hashes))
 ```
 
-`self._methodcall` is a convenience method defined in [`RustObject`]
+`self._methodcall` is a convenience method defined in [RustObject]
 which translates a method-like call into a function call,
 since our C layer only has functions.
 This is the C prototype for this function:
@@ -293,7 +293,7 @@ with `insize` being how many elements we have in the list.
 as long as the type is of a primitive type
 (`uint64_t` in our case, since each hash is a 64-bit unsigned integer number).
 
-[`RustObject`]: https://github.com/dib-lab/sourmash/blob/c6cbdf0398ef836797492e13371a38373c544ae1/sourmash/utils.py#L24
+[RustObject]: https://github.com/dib-lab/sourmash/blob/c6cbdf0398ef836797492e13371a38373c544ae1/sourmash/utils.py#L24
 
 And the Rust code with the implementation of the function:
 ```rust
@@ -495,11 +495,13 @@ for sig, vals in temp_vals.items():
 ```
 The runtime was again half of the original,
 but...
+
 | version | mem | time |
 | :-- | :-- | :-- |
 |original|1.5 GB|160s|
 |`set`|3.8GB|80s|
 |`list`|1.7GB|73s|
+
 ... memory consumption was almost 2.5 times the original! WAT
 
 The culprit this time? The new `kmerminhash_add_many` call in the `add_many`
