@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>Minhashing all the things: searching for MAGs in the SRA</title>
+        <title>MinHashing all the things: searching for MAGs in the SRA</title>
         <link rel="shortcut icon" href="/images/favicon.ico">
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -55,7 +55,7 @@
 </nav>
 
 <main>
-    <h1>Minhashing all the things: searching for MAGs in the SRA</h1>
+    <h1>MinHashing all the things: searching for MAGs in the SRA</h1>
 
     <time class="single" datetime="2020-07-22T12:00:00-03:00">22 Jul 2020</time>
 
@@ -127,7 +127,7 @@ each task was running one query MAG against one metagenome,
 and so each task needed to do all the overhead of starting the Python interpreter and parsing the query signature,
 which is exactly the same for all tasks.
 Extending it to support multiple queries to the same metagenome would involve duplicating tasks,
-and 402k metagenomes times 2,316 MAGs is...
+and 402k metagenomes times 2,631 MAGs is...
 a very large number of jobs.</p>
 <p>I also wanted to avoid clogging the job queues,
 which is not very nice to the other researchers using the cluster.
@@ -186,7 +186,7 @@ Get in contact if you're interested in helping =]</p>
 any tips on pulling data faster from the SRA are greatly appreciated!</p>
 <h2>Comments?</h2>
 <ul>
-<li><a href="https://twitter.com/luizirber/status/TODO">Thread on Twitter</a></li>
+<li><a href="https://twitter.com/luizirber/status/1285782732790849537">Thread on Twitter</a></li>
 </ul><section class=footnotes><hr><h2>Footnotes</h2><ol><li id=sf-mag-search-1><p>pulling about a 100 TB in 3 days, which was pretty fun to see because I
 ended up DDoS myself because I couldn't download the generated sigs fast enough
 from the S3 bucket where they are temporarily stored =P <a href=#sf-mag-search-1-back class=simple-footnote-back>↩</a></p></li></ol></section>
