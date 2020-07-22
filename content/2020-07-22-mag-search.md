@@ -1,4 +1,4 @@
-Title: Minhashing all the things: searching for MAGs in the SRA
+Title: MinHashing all the things: searching for MAGs in the SRA
 Date: 2020-07-22 12:00
 Author: luizirber
 Category: science
@@ -99,7 +99,7 @@ each task was running one query MAG against one metagenome,
 and so each task needed to do all the overhead of starting the Python interpreter and parsing the query signature,
 which is exactly the same for all tasks.
 Extending it to support multiple queries to the same metagenome would involve duplicating tasks,
-and 402k metagenomes times 2,316 MAGs is...
+and 402k metagenomes times 2,631 MAGs is...
 a very large number of jobs.
 
 I also wanted to avoid clogging the job queues,
@@ -180,4 +180,4 @@ any tips on pulling data faster from the SRA are greatly appreciated!
 
 - [Thread on Twitter][101]
 
-[101]: https://twitter.com/luizirber/status/TODO
+[101]: https://twitter.com/luizirber/status/1285782732790849537
