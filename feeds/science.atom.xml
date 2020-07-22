@@ -1,5 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - science</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/feeds/science.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2020-05-11T12:00:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Putting it all together</title><link href="https://blog.luizirber.org/2020/05/11/sbt-zip/" rel="alternate"></link><published>2020-05-11T12:00:00-03:00</published><updated>2020-05-11T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-05-11:/2020/05/11/sbt-zip/</id><content type="html">&lt;p&gt;sourmash &lt;a href="https://twitter.com/ctitusbrown/status/1257418140729868291"&gt;3.3&lt;/a&gt; was released last week,
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Gabbleblotchits - science</title><link href="https://blog.luizirber.org/" rel="alternate"></link><link href="https://blog.luizirber.org/feeds/science.atom.xml" rel="self"></link><id>https://blog.luizirber.org/</id><updated>2020-07-22T12:00:00-03:00</updated><subtitle>Vogon Poetry, Computers and (some) biology</subtitle><entry><title>Minhashing all the things: searching for MAGs in the SRA</title><link href="https://blog.luizirber.org/2020/07/22/mag-search/" rel="alternate"></link><published>2020-07-22T12:00:00-03:00</published><updated>2020-07-22T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-07-22:/2020/07/22/mag-search/</id><content type="html">&lt;p&gt;(or: Top-down and bottom-up approaches for working around sourmash limitations)&lt;/p&gt;
+&lt;p&gt;In the last month I updated &lt;a href="https://wort.oxli.org"&gt;wort&lt;/a&gt;,
+the system I developed for computing sourmash signature for public genomic databases,
+and started calculating signatures
+for the &lt;a href="https://www.ncbi.nlm.nih.gov/sra/?term=%22METAGENOMIC%22%5Bsource%5D+NOT+amplicon%5BAll+Fields%5D)"&gt;metagenomes&lt;/a&gt; in the &lt;a href="https://www.ncbi.nlm.nih.gov/sra/"&gt;Sequence Read Archive&lt;/a&gt;.
+This is a more challenging subset than the &lt;a href="https://blog.luizirber.org/2016/12/28/soursigs-arch-1/"&gt;microbial datasets&lt;/a&gt; I was doing previously, 
+since there are around 534k datasets from metagenomic sources in the SRA,
+totalling 447 TB of data.
+Another problem is the size of the datasets,
+ranging from a couple of MB to 170 GB.
+Turns out that the workers I have in &lt;code&gt;wort&lt;/code&gt; are very good for small-ish datasets,
+but I still need to figure out how to pull large datasets faster from the SRA,
+because the large ones take forever to process...&lt;/p&gt;
+&lt;p&gt;The good news is that I managed to calculate signatures for almost 402k of them
+&lt;sup id=sf-mag-search-1-back&gt;&lt;a href=#sf-mag-search-1 class=simple-footnote title="pulling about a 100 TB in 3 days, which was pretty fun to see because I ended up DDoS myself because I couldn't download the generated sigs fast enough from the S3 bucket where they are temporarily stored =P"&gt;1&lt;/a&gt;&lt;/sup&gt;,
+which already let us work on some pretty exciting problems =]&lt;/p&gt;
+&lt;h2&gt;Looking for MAGs in the SRA&lt;/h2&gt;
+&lt;p&gt;Metagenome-assembled genomes are essential for studying organisms that are hard to isolate and culture in lab,
+especially for environmental metagenomes.
+&lt;a href="https://www.nature.com/articles/sdata2017203"&gt;Tully et al&lt;/a&gt; published 2,631 draft MAGs from 234 samples collected during the Tara Oceans expedition,
+and I wanted to check if they can also be found in other metagenomes besides the Tara Oceans ones.
+The idea is to extract the reads from these other matches and evaluate how the MAG can be improved,
+or at least evaluate what is missing in them.
+I choose to use environmental samples under the assumption they are easier to deposit on the SRA and have public access,
+but there are many human gut microbiomes in the SRA and this MAG search would work just fine with those too.&lt;/p&gt;
+&lt;p&gt;Moreover,
+I want to search for containment,
+and not similarity.
+The distinction is subtle,
+but similarity takes into account both datasets sizes
+(well, the size of the union of all elements in both datasets),
+while containment only considers the size of the query.
+This is relevant because the similarity of a MAG and a metagenome is going to be very small (and is symmetrical),
+but the containment of the MAG in the metagenome might be large
+(and is asymmetrical, since the containment of the metagenome in the MAG is likely very small because the metagenome is so much larger than the MAG).&lt;/p&gt;
+&lt;h2&gt;The computational challenge: indexing and searching&lt;/h2&gt;
+&lt;p&gt;sourmash signatures are a small fraction of the original size of the datasets,
+but when you have hundreds of thousands of them the collection ends up being pretty large too.
+More precisely, 825 GB large.
+That is way bigger than any index I ever built for sourmash,
+and it would also have pretty distinct characteristics than what we usually do: 
+we tend to index genomes and run &lt;code&gt;search&lt;/code&gt; (to find similar genomes) or &lt;code&gt;gather&lt;/code&gt;
+(to decompose metagenomes into their constituent genomes),
+but for this MAG search I want to find which metagenomes have my MAG query above a certain containment threshold.
+Sort of a &lt;code&gt;sourmash search --containment&lt;/code&gt;,
+but over thousands of metagenome signatures.
+The main benefit of an SBT index in this context is to avoid checking all signatures because we can prune the search early,
+but currently SBT indices need to be totally loaded in memory during &lt;code&gt;sourmash index&lt;/code&gt;.
+I will have to do this in the medium term,
+but I want a solution NOW! =]&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/dib-lab/sourmash/releases/tag/v3.4.0"&gt;sourmash 3.4.0&lt;/a&gt; introduced &lt;code&gt;--from-file&lt;/code&gt; in many commands,
+and since I can't build an index I decided to use it to load signatures for the metagenomes.
+But... &lt;code&gt;sourmash search&lt;/code&gt; tries to load all signatures in memory,
+and while I might be able to find a cluster machine with hundreds of GBs of RAM available, 
+that's not very practical.&lt;/p&gt;
+&lt;p&gt;So, what to do?&lt;/p&gt;
+&lt;h2&gt;The top-down solution: a snakemake workflow&lt;/h2&gt;
+&lt;p&gt;I don't want to modify sourmash now,
+so why not make a workflow and use snakemake to run one &lt;code&gt;sourmash search --containment&lt;/code&gt; for each metagenome?
+That means 402k tasks,
+but at least I can use &lt;a href="https://snakemake.readthedocs.io/en/stable/executing/cli.html#dealing-with-very-large-workflows"&gt;batches&lt;/a&gt; and &lt;a href="https://slurm.schedmd.com/job_array.html"&gt;SLURM job arrays&lt;/a&gt; to submit reasonably-sized jobs to our HPC queue.
+After running all batches I summarized results for each task,
+and it worked well for a proof of concept.&lt;/p&gt;
+&lt;p&gt;But... it was still pretty resource intensive:
+each task was running one query MAG against one metagenome,
+and so each task needed to do all the overhead of starting the Python interpreter and parsing the query signature,
+which is exactly the same for all tasks.
+Extending it to support multiple queries to the same metagenome would involve duplicating tasks,
+and 402k metagenomes times 2,316 MAGs is...
+a very large number of jobs.&lt;/p&gt;
+&lt;p&gt;I also wanted to avoid clogging the job queues,
+which is not very nice to the other researchers using the cluster.
+This limited how many batches I could run in parallel...&lt;/p&gt;
+&lt;h2&gt;The bottom-up solution: Rust to the rescue!&lt;/h2&gt;
+&lt;p&gt;Thinking a bit more about the problem,
+here is another solution:
+what if we load all the MAGs in memory
+(as they will be queried frequently and are not that large),
+and then for each metagenome signature load it,
+perform all MAG queries,
+and then unload the metagenome signature from memory?
+This way we can control memory consumption
+(it's going to be proportional to all the MAG sizes plus the size of the largest metagenome)
+and can also efficiently parallelize the code because each task/metagenome is independent
+and the MAG signatures can be shared freely (since they are read-only).&lt;/p&gt;
+&lt;p&gt;This could be done with the sourmash Python API plus &lt;code&gt;multiprocessing&lt;/code&gt; or some
+other parallelization approach (maybe dask?),
+but turns out that everything we need comes from the Rust API.
+Why not enjoy a bit of the &lt;a href="https://doc.rust-lang.org/stable/book/ch16-00-concurrency.html"&gt;fearless concurrency&lt;/a&gt; that is one of the major Rust goals?&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/luizirber/phd/blob/aa1ed9eb33ba71fdf9b3f2c92931701be6df00cd/experiments/wort/sra_search/src/main.rs"&gt;The whole code&lt;/a&gt; ended up being 176 lines long,
+including command line parsing using &lt;a href="https://docs.rs/structopt/latest/structopt/"&gt;strucopt&lt;/a&gt; and parallelizing the search using &lt;a href="https://docs.rs/rayon/latest/rayon/"&gt;rayon&lt;/a&gt;
+and a &lt;a href="https://doc.rust-lang.org/std/sync/mpsc/fn.channel.html"&gt;multiple-producer, single-consumer channel&lt;/a&gt; to write results to an output
+(either the terminal or a file).
+This version took 11 hours to run,
+using less than 5GB of RAM and 32 processors,
+to search 2k MAGs against 402k metagenomes.
+And, bonus! It can also be parallelized again if you have multiple machines,
+so it potentially takes a bit more than an hour to run if you can allocate 10 batch jobs,
+with each batch 1/10 of the metagenome signatures.&lt;/p&gt;
+&lt;h2&gt;So, is bottom-up always the better choice?&lt;/h2&gt;
+&lt;p&gt;I would like to answer "Yes!",
+but bioinformatics software tends to be organized as command line interfaces,
+not as libraries.
+Libraries also tend to have even less documentation than CLIs,
+and this particular case is not a fair comparison because...
+Well, I wrote most of the library,
+and the Rust API is not that well documented for general use.&lt;/p&gt;
+&lt;p&gt;But I'm pretty happy with how the sourmash CLI is viable both for the top-down approach
+(and whatever workflow software you want to use) as well as how the Rust core worked for the bottom-up approach.
+I think the most important is having the option to choose which way to go,
+especially because now I can use the bottom-up approach to make the sourmash CLI
+and Python API better.
+The top-down approach is also way more accessible in general,
+because you can pick your favorite workflow software and use all the tricks you're comfortable with.&lt;/p&gt;
+&lt;h2&gt;But, what about the results?!?!?!&lt;/h2&gt;
+&lt;p&gt;Next time. But I did find MAGs with over 90% containment in very different locations,
+which is pretty exciting!&lt;/p&gt;
+&lt;p&gt;I also need to find a better way of distributing all these signature,
+because storing 4 TB of data in S3 is somewhat cheap,
+but transferring data is very expensive.
+All signatures are also available on IPFS,
+but I need more people to host them and share.
+Get in contact if you're interested in helping =]&lt;/p&gt;
+&lt;p&gt;And while I'm asking for help,
+any tips on pulling data faster from the SRA are greatly appreciated!&lt;/p&gt;
+&lt;h2&gt;Comments?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/TODO"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;section class=footnotes&gt;&lt;hr&gt;&lt;h2&gt;Footnotes&lt;/h2&gt;&lt;ol&gt;&lt;li id=sf-mag-search-1&gt;&lt;p&gt;pulling about a 100 TB in 3 days, which was pretty fun to see because I
+ended up DDoS myself because I couldn't download the generated sigs fast enough
+from the S3 bucket where they are temporarily stored =P &lt;a href=#sf-mag-search-1-back class=simple-footnote-back&gt;↩&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/section&gt;</content><category term="science"></category><category term="bioinformatics"></category><category term="rust"></category></entry><entry><title>Putting it all together</title><link href="https://blog.luizirber.org/2020/05/11/sbt-zip/" rel="alternate"></link><published>2020-05-11T12:00:00-03:00</published><updated>2020-05-11T12:00:00-03:00</updated><author><name>luizirber</name></author><id>tag:blog.luizirber.org,2020-05-11:/2020/05/11/sbt-zip/</id><content type="html">&lt;p&gt;sourmash &lt;a href="https://twitter.com/ctitusbrown/status/1257418140729868291"&gt;3.3&lt;/a&gt; was released last week,
 and it is the first version supporting &lt;a href="http://ivory.idyll.org/blog/2020-sourmash-databases-as-zip-files.html"&gt;zipped databases&lt;/a&gt;.
 Here is my personal account of how that came to be =]&lt;/p&gt;
 &lt;h2&gt;What is a sourmash database?&lt;/h2&gt;

@@ -5,29 +5,36 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/</loc>
-<lastmod>2020-07-02T01:31:41-00:00</lastmod>
+<lastmod>2020-07-22T03:40:41-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/archives.html</loc>
-<lastmod>2020-07-02T01:31:41-00:00</lastmod>
+<lastmod>2020-07-22T03:40:41-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/tags.html</loc>
-<lastmod>2020-07-02T01:31:41-00:00</lastmod>
+<lastmod>2020-07-22T03:40:41-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/categories.html</loc>
-<lastmod>2020-07-02T01:31:41-00:00</lastmod>
+<lastmod>2020-07-22T03:40:41-00:00</lastmod>
 <changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://blog.luizirber.org/2020/07/22/mag-search/</loc>
+<lastmod>2020-07-22T12:00:00-03:00</lastmod>
+<changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
@@ -509,7 +516,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/category/science.html</loc>
-<lastmod>2020-05-11T12:00:00-03:06</lastmod>
+<lastmod>2020-07-22T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -530,14 +537,14 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/tag/bioinformatics.html</loc>
-<lastmod>2020-05-11T12:00:00-03:06</lastmod>
+<lastmod>2020-07-22T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://blog.luizirber.org/tag/rust.html</loc>
-<lastmod>2020-05-11T12:00:00-03:06</lastmod>
+<lastmod>2020-07-22T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -782,7 +789,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.luizirber.org/author/luizirber.html</loc>
-<lastmod>2020-05-11T12:00:00-03:06</lastmod>
+<lastmod>2020-07-22T12:00:00-03:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
