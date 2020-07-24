@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>Gabbleblotchits</title><link>https://blog.luizirber.org/</link><description>Vogon Poetry, Computers and (some) biology</description><lastBuildDate>Fri, 24 Jul 2020 12:00:00 -0300</lastBuildDate><item><title>MinHashing all the things: a quick analysis of MAG search results</title><link>https://blog.luizirber.org/2020/07/24/mag-results/</link><description>&lt;p&gt;[Last time] I described a way to search MAGs in metagenomes, 
+<rss version="2.0"><channel><title>Gabbleblotchits</title><link>https://blog.luizirber.org/</link><description>Vogon Poetry, Computers and (some) biology</description><lastBuildDate>Fri, 24 Jul 2020 12:00:00 -0300</lastBuildDate><item><title>MinHashing all the things: a quick analysis of MAG search results</title><link>https://blog.luizirber.org/2020/07/24/mag-results/</link><description>&lt;p&gt;&lt;a href="https://blog.luizirber.org/2020/07/22/mag-search/"&gt;Last time&lt;/a&gt; I described a way to search MAGs in metagenomes, 
 and teased about interesting results.
 Let's dig in some of them!&lt;/p&gt;
-&lt;p&gt;I prepared a [repo] with the data and a notebook with the analysis I did in this
+&lt;p&gt;I prepared a &lt;a href="https://github.com/luizirber/2020-07-22-mag-search/"&gt;repo&lt;/a&gt; with the data and a notebook with the analysis I did in this
 post.
 You can also follow along in &lt;a href="https://mybinder.org"&gt;Binder&lt;/a&gt;,
 as well as do your own analysis =]&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master"&gt;&lt;img alt="Binder" src="https://mybinder.org/badge_logo.svg"&gt;&lt;/a&gt;,&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master"&gt;&lt;img alt="Binder" src="https://mybinder.org/badge_logo.svg"&gt;&lt;/a&gt; for the interactive notebook.&lt;/p&gt;
 &lt;h2&gt;Preparing some metadata&lt;/h2&gt;
 &lt;p&gt;The supplemental materials for &lt;a href="https://www.nature.com/articles/sdata2017203"&gt;Tully et al&lt;/a&gt; include more details about each MAG,
 so let's download them.
