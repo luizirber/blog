@@ -75,7 +75,7 @@ colonialism, capitalism, &amp;amp; policing &lt;/p&gt;
 sustainability first =]&lt;/p&gt;
 &lt;h2&gt;Comments?&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/TODO"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://twitter.com/luizirber/status/1286700888111738880"&gt;Thread on Twitter&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">luizirber</dc:creator><pubDate>Fri, 24 Jul 2020 12:00:00 -0300</pubDate><guid isPermaLink="false">tag:blog.luizirber.org,2020-07-24:/2020/07/24/mag-results/</guid><category>science</category><category>bioinformatics</category><category>rust</category></item><item><title>MinHashing all the things: searching for MAGs in the SRA</title><link>https://blog.luizirber.org/2020/07/22/mag-search/</link><description>&lt;p&gt;(or: Top-down and bottom-up approaches for working around sourmash limitations)&lt;/p&gt;
 &lt;p&gt;In the last month I updated &lt;a href="https://wort.oxli.org"&gt;wort&lt;/a&gt;,
 the system I developed for computing sourmash signature for public genomic databases,
