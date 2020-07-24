@@ -110,4 +110,4 @@ sustainability first =]
 
 - [Thread on Twitter][101]
 
-[101]: https://twitter.com/luizirber/status/TODO
+[101]: https://twitter.com/luizirber/status/1286700888111738880
