@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>MinHashing all the things: a quick analysis of MAG search results</title>
+        <link rel="shortcut icon" href="/images/favicon.ico">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/pygments.css" type="text/css" />
+        <link rel="stylesheet" href="https://blog.luizirber.org/theme/css/main.css" type="text/css" />
+        <link href="https://blog.luizirber.org/atom.xml" type="application/atom+xml" rel="alternate" title="Gabbleblotchits ATOM Feed" />
+        <link href="https://blog.luizirber.org/feed.xml" type="application/rss+xml" rel="alternate" title="Gabbleblotchits RSS Feed" />
+</head>
+
+<body>
+
+        <header>
+          <h1>Gabbleblotchits</h1>
+
+          <a href="mailto:contact@luizirber.org">
+            <img class='email'
+                 src='https://blog.luizirber.org/theme/icons/email.svg'
+                 alt='email me'
+                 title='email me'/>
+          </a>
+          <a href="https://social.lasanha.org/@luizirber">
+            <img class='mastodon'
+                 src='https://blog.luizirber.org/theme/icons/mastodon.svg'
+                 alt='Mastodon icon'
+                 title='Follow me on Mastodon'/>
+          </a>
+          <a href="https://github.com/luizirber">
+            <img class='github'
+                 src='https://blog.luizirber.org/theme/icons/github.svg'
+                 alt='github projects'
+                 title='github profile'/>
+          </a>
+          <a href="https://luizirber.newsblur.com">
+            <img class='newsblur'
+                 src='https://blog.luizirber.org/theme/icons/newsblur.svg'
+                 alt='my shared stories on newsblur'
+                 title='my shared stories on newsblur'/>
+          </a>
+          <a href="https://blog.luizirber.org/feed.xml" rel="alternative" type="application/rss+xml">
+            <img class='rss'
+                 src='https://blog.luizirber.org/theme/icons/feed.svg'
+                 alt='RSS feed icon'
+                 title='Subscribe to my RSS feed'/>
+          </a>
+
+<strong>Vogon Poetry, Computers and (some) biology</strong>        </header>
+
+
+<nav>
+    <a href="/">Home</a>
+</nav>
+
+<main>
+    <h1>MinHashing all the things: a quick analysis of MAG search results</h1>
+
+    <time class="single" datetime="2020-07-24T12:00:00-03:00">24 Jul 2020</time>
+
+    <p>[Last time] I described a way to search MAGs in metagenomes, 
+and teased about interesting results.
+Let's dig in some of them!</p>
+<p>I prepared a [repo] with the data and a notebook with the analysis I did in this
+post.
+You can also follow along in <a href="https://mybinder.org">Binder</a>,
+as well as do your own analysis =]</p>
+<p><a href="https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master"><img alt="Binder" src="https://mybinder.org/badge_logo.svg"></a>,</p>
+<h2>Preparing some metadata</h2>
+<p>The supplemental materials for <a href="https://www.nature.com/articles/sdata2017203">Tully et al</a> include more details about each MAG,
+so let's download them.
+I prepared a small snakemake workflow to do that,
+as well as downloading information about the SRA datasets from Tara Oceans
+(the dataset used to generate the MAGs),
+as well as from <a href="https://www.nature.com/articles/s41564-017-0012-7">Parks et al</a>,
+which also generated MAGs from Tara Oceans.
+Feel free to include them in your analysis,
+but I was curious to find matches in other metagenomes.</p>
+<h2>Loading the data</h2>
+<p>The results from the MAG search are in a CSV file,
+with a column for the MAG name,
+another for the SRA dataset ID for the metagenome and a third column for the
+containment of the MAG in the metagenome.
+I also fixed the names to make it easier to query,
+and finally removed the Tara and Parks metagenomes
+(because we already knew they contained these MAGs).</p>
+<p>This left us with 23,644 SRA metagenomes with matches,
+covering 2,291 of the 2,631 MAGs.
+These are results for a fairly low containment (10%),
+so if we limit to MAGs with more than 50% containment we still have 1,407 MAGs and 2,938 metagenomes left.</p>
+<h2>TOBG_NP-110, I choose you!</h2>
+<p>That's still a lot,
+so I decided to pick a candidate to check before doing any large scale analysis.
+I chose TOBG_NP-110 because there were many matches above 50% containment,
+and even some at 99%.
+Turns out it is also an Archaeal MAG that failed to be classified further than Phylum level (Euryarchaeota),
+with a 70.3% complete score in the original analysis.
+Oh, let me dissect the name a bit:
+TOBG is "Tara Ocean Binned Genome" and "NP" is North Pacific.</p>
+<p>And so I went checking where the other metagenome matches came from.
+5 of the 12 matches above 50% containment come from one study,
+<a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP044185">SRP044185</a>,
+with samples collected from a column of water in a station in Manzanillo, Mexico.
+Other 3 matches come from 
+<a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331">https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331</a>,
+in the South Pacific ocean (in northern Chile).
+Another match,
+<a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=ERR3256923">ERR3256923</a>,
+also comes from the South Pacific.</p>
+<h2>What else can I do?</h2>
+<p>I'm curious to follow <a href="http://merenlab.org/data/refining-mags/">the refining MAGs</a> tutorial from the Meren Lab and see where this goes,
+and especially in using <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-020-02066-4"><code>spacegraphcats</code></a>
+to extract neighborhoods from the MAG and better evaluate what is missing or if there are other interesting bits that
+the MAG generation methods ended up discarding.</p>
+<p>So, for now that's it.
+But more important,
+I didn't want to sit on these results until there is a publication in press,
+especially when there are people that can do so much more with these them,
+so I decided to make it all public.
+It is way more exciting to see this being used to know more about these
+organisms than me being the only one with access to this info.</p>
+<p>And yesterday I saw <a href="https://twitter.com/DrJonathanRosa/status/1286381346605027328">this tweet</a> by
+<a href="https://twitter.com/DrJonathanRosa/status/1286381346605027328">@DrJonathanRosa</a>,
+saying:</p>
+<blockquote>
+<p>I don’t know who told students that the goal of research is to find some
+previously undiscovered research topic, claim individual ownership over it,
+&amp; fiercely protect it from theft, but that almost sounds like, well,
+colonialism, capitalism, &amp; policing </p>
+</blockquote>
+<p>Amen.</p>
+<h2>I want to run this with my data!</h2>
+<p>Next time. But we will have a discussion about scientific infrastructure and
+sustainability first =]</p>
+<h2>Comments?</h2>
+<ul>
+<li><a href="https://twitter.com/luizirber/status/TODO">Thread on Twitter</a></li>
+</ul>
+
+    <div class="taglist"><p>Tags:
+    <a href="https://blog.luizirber.org/tag/bioinformatics.html">bioinformatics</a>
+    <a href="https://blog.luizirber.org/tag/rust.html">rust</a>
+</p>
+</div>
+</main>
+
+        <hr />
+        <footer class="footer-menu">
+            <a href="#top">Back to the top</a>
+            <hr />
+        </footer>
+
+</body>
+</html>
