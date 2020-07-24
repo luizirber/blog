@@ -5,8 +5,7 @@ Let's dig in some of them!&lt;/p&gt;
 &lt;p&gt;I prepared a &lt;a href="https://github.com/luizirber/2020-07-22-mag-search/"&gt;repo&lt;/a&gt; with the data and a notebook with the analysis I did in this
 post.
 You can also follow along in &lt;a href="https://mybinder.org"&gt;Binder&lt;/a&gt;,
-as well as do your own analysis =]&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master"&gt;&lt;img alt="Binder" src="https://mybinder.org/badge_logo.svg"&gt;&lt;/a&gt; for the interactive notebook.&lt;/p&gt;
+as well as do your own analysis!: &lt;a href="https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master"&gt;&lt;img alt="Binder" src="https://mybinder.org/badge_logo.svg"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h2&gt;Preparing some metadata&lt;/h2&gt;
 &lt;p&gt;The supplemental materials for &lt;a href="https://www.nature.com/articles/sdata2017203"&gt;Tully et al&lt;/a&gt; include more details about each MAG,
 so let's download them.
@@ -43,7 +42,7 @@ TOBG is "Tara Ocean Binned Genome" and "NP" is North Pacific.&lt;/p&gt;
 &lt;a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP044185"&gt;SRP044185&lt;/a&gt;,
 with samples collected from a column of water in a station in Manzanillo, Mexico.
 Other 3 matches come from 
-&lt;a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331"&gt;https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331&lt;/a&gt;,
+&lt;a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331"&gt;SRP003331&lt;/a&gt;,
 in the South Pacific ocean (in northern Chile).
 Another match,
 &lt;a href="https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=ERR3256923"&gt;ERR3256923&lt;/a&gt;,
