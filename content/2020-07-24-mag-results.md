@@ -14,10 +14,9 @@ Let's dig in some of them!
 I prepared a [repo] with the data and a notebook with the analysis I did in this
 post.
 You can also follow along in [Binder](https://mybinder.org),
-as well as do your own analysis =]
+as well as do your own analysis!: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master)
 
 [repo]: https://github.com/luizirber/2020-07-22-mag-search/
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master) for the interactive notebook.
 
 ## Preparing some metadata
 
@@ -65,7 +64,7 @@ And so I went checking where the other metagenome matches came from.
 [SRP044185](https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP044185),
 with samples collected from a column of water in a station in Manzanillo, Mexico.
 Other 3 matches come from 
-[https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331](https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331),
+[SRP003331](https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP003331),
 in the South Pacific ocean (in northern Chile).
 Another match,
 [ERR3256923](https://trace.ncbi.nlm.nih.gov/Traces/sra/?run=ERR3256923),
