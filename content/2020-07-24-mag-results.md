@@ -14,7 +14,7 @@ Let's dig in some of them!
 I prepared a [repo] with the data and a notebook with the analysis I did in this
 post.
 You can also follow along in [Binder](https://mybinder.org),
-as well as do your own analysis!: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master)
+as well as do your own analysis! [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master?filepath=index.ipynb)
 
 [repo]: https://github.com/luizirber/2020-07-22-mag-search/
 
