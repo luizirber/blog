@@ -29,7 +29,7 @@ which already let us work on some pretty exciting problems =]
 [wort]: https://wort.oxli.org
 [metagenomes]: https://www.ncbi.nlm.nih.gov/sra/?term=%22METAGENOMIC%22%5Bsource%5D+NOT+amplicon%5BAll+Fields%5D)
 [Sequence Read Archive]: https://www.ncbi.nlm.nih.gov/sra/
-[microbial datasets]: https://blog.luizirber.org/2016/12/28/soursigs-arch-1/
+[microbial datasets]: {filename}/2016-12-28-arch.md
 
 ## Looking for MAGs in the SRA
 
