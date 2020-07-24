@@ -9,14 +9,15 @@ Slug: mag-results
 and teased about interesting results.
 Let's dig in some of them!
 
-[Yesterday]: {filename}/2020-07-22-mag-search.md
+[Last time]: {filename}/2020-07-22-mag-search.md
 
 I prepared a [repo] with the data and a notebook with the analysis I did in this
 post.
 You can also follow along in [Binder](https://mybinder.org),
 as well as do your own analysis =]
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master),
+[repo]: https://github.com/luizirber/2020-07-22-mag-search/
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/luizirber/2020-07-22-mag-search/master) for the interactive notebook.
 
 ## Preparing some metadata
 
