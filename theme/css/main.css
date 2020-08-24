@@ -212,6 +212,10 @@ table {
   margin-right: -1rem;
 }
 
+code {
+  background-color: #e0e0e0;
+}
+
 th:first-of-type, td:first-of-type {
   padding-left: 1rem;
   padding-right: 1rem;
