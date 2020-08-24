@@ -95,7 +95,7 @@ So, let's bring two of my favorite tools to help!
 ### Memory profiling: heaptrack
 
 [heaptrack] is a heap profiler, and I first heard about it from [Vincent Prouillet].
-It's main advantage over other solutions (like valgrind's massif) is the low
+Its main advantage over other solutions (like valgrind's massif) is the low
 overhead and... how easy it is to use:
 just stick `heaptrack` in front of your command,
 and you're good to go!
@@ -158,7 +158,7 @@ py-spy record --output search.svg -n -- sourmash search -o out.csv --scaled 2000
 [Ben Frederickson]: https://www.benfrederickson.com
 [rbspy]: https://github.com/rbspy/rbspy
 [Julia Evans]: https://jvns.ca
-[native]: https://www.benfrederickson.com/profiling-native-python-extensions-with-py-spy/
+[native Python extensions]: https://www.benfrederickson.com/profiling-native-python-extensions-with-py-spy/
 
 ## Show me the code!
 
@@ -193,7 +193,7 @@ def _signatures(self):
 `sigd[vv].add_hash(k)` is the culprit.
 Each call to `.add_hash` has to go thru CFFI to reach the extension code,
 and the overhead is significant.
-It's similar situation to accessing array elements in NumPy:
+It is a similar situation to accessing array elements in NumPy:
 it works,
 but it is way slower than using operations that avoid crossing from Python to
 the extension code.
