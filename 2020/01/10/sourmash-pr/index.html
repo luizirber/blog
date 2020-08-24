@@ -125,7 +125,7 @@ but they tend to not work with extension code...</p>
 <p>So, let's bring two of my favorite tools to help!</p>
 <h3>Memory profiling: heaptrack</h3>
 <p><a href="https://github.com/KDE/heaptrack">heaptrack</a> is a heap profiler, and I first heard about it from <a href="https://www.vincentprouillet.com/">Vincent Prouillet</a>.
-It's main advantage over other solutions (like valgrind's massif) is the low
+Its main advantage over other solutions (like valgrind's massif) is the low
 overhead and... how easy it is to use:
 just stick <code>heaptrack</code> in front of your command,
 and you're good to go!</p>
@@ -162,7 +162,7 @@ based on the <a href="https://github.com/rbspy/rbspy">rbspy</a> project by <a hr
 Both use a great idea:
 read the process maps for the interpreters and resolve the full stack trace information,
 with low overhead (because it uses sampling).
-<a href="https://github.com/benfred/py-spy">py-spy</a> also goes further and resolves [native Python extensions] stack traces,
+<a href="https://github.com/benfred/py-spy">py-spy</a> also goes further and resolves <a href="https://www.benfrederickson.com/profiling-native-python-extensions-with-py-spy/">native Python extensions</a> stack traces,
 meaning we can get the complete picture all the way from the Python CLI to the
 Rust core library!<sup id=sf-sourmash-pr-4-back><a href=#sf-sourmash-pr-4 class=simple-footnote title="Even if py-spy doesn't talk explicitly about Rust, it works very very well, woohoo!">4</a></sup></p>
 <p><code>py-spy</code> is also easy to use:
@@ -201,7 +201,7 @@ This is the original method:</p>
 <p><code>sigd[vv].add_hash(k)</code> is the culprit.
 Each call to <code>.add_hash</code> has to go thru CFFI to reach the extension code,
 and the overhead is significant.
-It's similar situation to accessing array elements in NumPy:
+It is a similar situation to accessing array elements in NumPy:
 it works,
 but it is way slower than using operations that avoid crossing from Python to
 the extension code.
