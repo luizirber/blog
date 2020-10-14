@@ -4,15 +4,15 @@ let
   mach-nix = import (
     builtins.fetchGit {
       url = "https://github.com/DavHau/mach-nix/";
-      ref = "2.0.0";
-    }
-  );
+      ref = "3.0.0";
+    }) {
+      python = "python37";
+    };
 
   customPython = mach-nix.mkPython {
-    python = nixpkgs.python37;
     requirements = ''
-      ghp-import==0.5.5
-      jupyter==1.0.0
+      ipython==7.18.1
+      jupyter-core==4.6.3
       livereload==2.5.2
       nbconvert==5.3.1
       pandocfilters==1.4.2

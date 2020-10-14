@@ -7,14 +7,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
+      - name: Cache nix store
+        id: cache-nix
+        uses: actions/cache@v2
+        with:
+          path: /nix/store
+          key: nix-${{ hashFiles('shell.nix') }}
+
       - uses: cachix/install-nix-action@v11
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
+          nix_path: nixpkgs=channel:nixos-20.03
+
       # TODO: use this to check for broken links in docs/ ?
       #- name: Check for dead links in Markdown
       #  uses: gaurav-nelson/github-action-markdown-link-check@0.4.0
+
       - name: Build site
         run: nix-shell --pure --command 'make publish'
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3.7.0
         with:
