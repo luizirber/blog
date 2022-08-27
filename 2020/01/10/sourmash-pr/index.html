@@ -295,11 +295,11 @@ That's not going to be any faster than what we were doing in <code>_signatures</
 which translates a method-like call into a function call,
 since our C layer only has functions.
 This is the C prototype for this function:</p>
-<div class=highlight><pre><span></span><span class=kt>void</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span>
-    <span class=n>KmerMinHash</span> <span class=o>*</span><span class=n>ptr</span><span class=p>,</span>
-    <span class=k>const</span> <span class=kt>uint64_t</span> <span class=o>*</span><span class=n>hashes_ptr</span><span class=p>,</span>
-    <span class=kt>uintptr_t</span> <span class=n>insize</span>
-  <span class=p>);</span>
+<div class=highlight><pre><span></span><span class=kt>void</span><span class=w> </span><span class=nf>kmerminhash_add_many</span><span class=p>(</span><span class=w></span>
+<span class=w>    </span><span class=n>KmerMinHash</span><span class=w> </span><span class=o>*</span><span class=n>ptr</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=k>const</span><span class=w> </span><span class=kt>uint64_t</span><span class=w> </span><span class=o>*</span><span class=n>hashes_ptr</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=kt>uintptr_t</span><span class=w> </span><span class=n>insize</span><span class=w></span>
+<span class=w>  </span><span class=p>);</span><span class=w></span>
 </pre></div>
 
 
@@ -319,12 +319,12 @@ as long as the type is of a primitive type
 <span class=w>    </span><span class=n>insize</span>: <span class=kt>usize</span><span class=p>,</span><span class=w></span>
 <span class=w>  </span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w></span>
 <span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>mh</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
-<span class=w>        </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>        </span><span class=fm>assert!</span><span class=p>(</span><span class=o>!</span><span class=n>ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
 <span class=w>        </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=o>*</span><span class=n>ptr</span><span class=w></span>
 <span class=w>    </span><span class=p>};</span><span class=w></span>
 
 <span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>hashes</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
-<span class=w>        </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>hashes_ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>        </span><span class=fm>assert!</span><span class=p>(</span><span class=o>!</span><span class=n>hashes_ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
 <span class=w>        </span><span class=n>slice</span>::<span class=n>from_raw_parts</span><span class=p>(</span><span class=n>hashes_ptr</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w> </span><span class=n>insize</span><span class=p>)</span><span class=w></span>
 <span class=w>    </span><span class=p>};</span><span class=w></span>
 
@@ -376,11 +376,11 @@ we have</p>
 
 
 <p>At this point we can pretty much map between Rust and the C function prototype:</p>
-<div class=highlight><pre><span></span><span class=kt>void</span> <span class=nf>kmerminhash_add_many</span><span class=p>(</span>
-    <span class=n>KmerMinHash</span> <span class=o>*</span><span class=n>ptr</span><span class=p>,</span>
-    <span class=k>const</span> <span class=kt>uint64_t</span> <span class=o>*</span><span class=n>hashes_ptr</span><span class=p>,</span>
-    <span class=kt>uintptr_t</span> <span class=n>insize</span>
-  <span class=p>);</span>
+<div class=highlight><pre><span></span><span class=kt>void</span><span class=w> </span><span class=nf>kmerminhash_add_many</span><span class=p>(</span><span class=w></span>
+<span class=w>    </span><span class=n>KmerMinHash</span><span class=w> </span><span class=o>*</span><span class=n>ptr</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=k>const</span><span class=w> </span><span class=kt>uint64_t</span><span class=w> </span><span class=o>*</span><span class=n>hashes_ptr</span><span class=p>,</span><span class=w></span>
+<span class=w>    </span><span class=kt>uintptr_t</span><span class=w> </span><span class=n>insize</span><span class=w></span>
+<span class=w>  </span><span class=p>);</span><span class=w></span>
 </pre></div>
 
 
@@ -401,7 +401,7 @@ we have</p>
 We start by converting the <code>ptr</code> argument (a raw pointer to a <code>KmerMinHash</code> struct)
 into a regular Rust struct:</p>
 <div class=highlight><pre><span></span><span class=kd>let</span><span class=w> </span><span class=n>mh</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
-<span class=w>    </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>    </span><span class=fm>assert!</span><span class=p>(</span><span class=o>!</span><span class=n>ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
 <span class=w>    </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=o>*</span><span class=n>ptr</span><span class=w></span>
 <span class=p>};</span><span class=w></span>
 </pre></div>
@@ -418,7 +418,7 @@ Rust can figure out types most of the time,
 so no need to specify them.</p>
 <p>The next block prepares our list of hashes for use:</p>
 <div class=highlight><pre><span></span><span class=kd>let</span><span class=w> </span><span class=n>hashes</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>{</span><span class=w></span>
-<span class=w>    </span><span class=n>assert</span><span class=o>!</span><span class=p>(</span><span class=o>!</span><span class=n>hashes_ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
+<span class=w>    </span><span class=fm>assert!</span><span class=p>(</span><span class=o>!</span><span class=n>hashes_ptr</span><span class=p>.</span><span class=n>is_null</span><span class=p>());</span><span class=w></span>
 <span class=w>    </span><span class=n>slice</span>::<span class=n>from_raw_parts</span><span class=p>(</span><span class=n>hashes_ptr</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=o>*</span><span class=k>mut</span><span class=w> </span><span class=kt>u64</span><span class=p>,</span><span class=w> </span><span class=n>insize</span><span class=p>)</span><span class=w></span>
 <span class=p>};</span><span class=w></span>
 </pre></div>

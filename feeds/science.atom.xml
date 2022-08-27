@@ -655,11 +655,11 @@ That's not going to be any faster than what we were doing in &lt;code&gt;_signat
 which translates a method-like call into a function call,
 since our C layer only has functions.
 This is the C prototype for this function:&lt;/p&gt;
-&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kt&gt;void&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;
-    &lt;span class=n&gt;KmerMinHash&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
-    &lt;span class=k&gt;const&lt;/span&gt; &lt;span class=kt&gt;uint64_t&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
-    &lt;span class=kt&gt;uintptr_t&lt;/span&gt; &lt;span class=n&gt;insize&lt;/span&gt;
-  &lt;span class=p&gt;);&lt;/span&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kt&gt;void&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;KmerMinHash&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=k&gt;const&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;uint64_t&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=kt&gt;uintptr_t&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;  &lt;/span&gt;&lt;span class=p&gt;);&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -679,12 +679,12 @@ as long as the type is of a primitive type
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;: &lt;span class=kt&gt;usize&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;  &lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;-&amp;gt; &lt;span class=nb&gt;Result&lt;/span&gt;&lt;span class=o&gt;&amp;lt;&lt;/span&gt;&lt;span class=p&gt;()&lt;/span&gt;&lt;span class=o&gt;&amp;gt;&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;mh&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
-&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=fm&gt;assert!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;        &lt;/span&gt;&lt;span class=o&gt;&amp;amp;&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
-&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;        &lt;/span&gt;&lt;span class=fm&gt;assert!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;        &lt;/span&gt;&lt;span class=n&gt;slice&lt;/span&gt;::&lt;span class=n&gt;from_raw_parts&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;as&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 
@@ -736,11 +736,11 @@ we have&lt;/p&gt;
 
 
 &lt;p&gt;At this point we can pretty much map between Rust and the C function prototype:&lt;/p&gt;
-&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kt&gt;void&lt;/span&gt; &lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;
-    &lt;span class=n&gt;KmerMinHash&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
-    &lt;span class=k&gt;const&lt;/span&gt; &lt;span class=kt&gt;uint64_t&lt;/span&gt; &lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;
-    &lt;span class=kt&gt;uintptr_t&lt;/span&gt; &lt;span class=n&gt;insize&lt;/span&gt;
-  &lt;span class=p&gt;);&lt;/span&gt;
+&lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kt&gt;void&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=nf&gt;kmerminhash_add_many&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;KmerMinHash&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=k&gt;const&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;uint64_t&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=kt&gt;uintptr_t&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;  &lt;/span&gt;&lt;span class=p&gt;);&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -761,7 +761,7 @@ we have&lt;/p&gt;
 We start by converting the &lt;code&gt;ptr&lt;/code&gt; argument (a raw pointer to a &lt;code&gt;KmerMinHash&lt;/code&gt; struct)
 into a regular Rust struct:&lt;/p&gt;
 &lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;mh&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
-&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=fm&gt;assert!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=o&gt;&amp;amp;&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=n&gt;ptr&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -778,7 +778,7 @@ Rust can figure out types most of the time,
 so no need to specify them.&lt;/p&gt;
 &lt;p&gt;The next block prepares our list of hashes for use:&lt;/p&gt;
 &lt;div class=highlight&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=kd&gt;let&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;hashes&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;=&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=p&gt;{&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
-&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;assert&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
+&lt;span class=w&gt;    &lt;/span&gt;&lt;span class=fm&gt;assert!&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=o&gt;!&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=p&gt;.&lt;/span&gt;&lt;span class=n&gt;is_null&lt;/span&gt;&lt;span class=p&gt;());&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=w&gt;    &lt;/span&gt;&lt;span class=n&gt;slice&lt;/span&gt;::&lt;span class=n&gt;from_raw_parts&lt;/span&gt;&lt;span class=p&gt;(&lt;/span&gt;&lt;span class=n&gt;hashes_ptr&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=k&gt;as&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=o&gt;*&lt;/span&gt;&lt;span class=k&gt;mut&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=kt&gt;u64&lt;/span&gt;&lt;span class=p&gt;,&lt;/span&gt;&lt;span class=w&gt; &lt;/span&gt;&lt;span class=n&gt;insize&lt;/span&gt;&lt;span class=p&gt;)&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;span class=p&gt;};&lt;/span&gt;&lt;span class=w&gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;

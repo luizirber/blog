@@ -88,7 +88,7 @@ do botão, ela chama uma URL...</p>
 </figure>
 
 <p>Opa. E se eu tentar acessar essa URL direto?</p>
-<div class="highlight"><pre><span></span><span class="err">voto_v.php?votoStatus=1&amp;cadastroId=98374&amp;captcha=adb356</span>
+<div class="highlight"><pre><span></span>voto_v.php?votoStatus=1&amp;cadastroId=98374&amp;captcha=adb356
 </pre></div>
 
 
@@ -109,7 +109,7 @@ cinza, e aplicar um limiar.</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">captcha_to_greyscale</span><span class="p">(</span><span class="n">captcha</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">captcha</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">captcha</span>
-    <span class="n">captcha</span> <span class="o">=</span> <span class="n">captcha</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">captcha</span> <span class="o">=</span> <span class="n">captcha</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">.4</span><span class="p">,</span> <span class="mf">.4</span><span class="p">,</span> <span class="mf">.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">captcha</span>
 
 <span class="k">def</span> <span class="nf">light_pixels_to_white_pixels</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
@@ -157,7 +157,7 @@ rapidinho. Ok, rodemos um loop então, cem votos. Yep, todos contados.</p>
 <span class="k">def</span> <span class="nf">captcha_to_greyscale</span><span class="p">(</span><span class="n">captcha</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">captcha</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">captcha</span>
-    <span class="n">captcha</span> <span class="o">=</span> <span class="n">captcha</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">captcha</span> <span class="o">=</span> <span class="n">captcha</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">.4</span><span class="p">,</span> <span class="mf">.4</span><span class="p">,</span> <span class="mf">.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">captcha</span>
 
 
